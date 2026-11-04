@@ -49,12 +49,12 @@ export async function POST(request: NextRequest) {
 
     // Add user as org admin
     const { error: memberError } = await supabase
-      .from('organization_members')
-      .insert({
-        organization_id: org.id,
-        user_id: user.id,
-        role: 'org_admin'
-      });
+  .from('organization_members')
+  .insert({
+    organization_id: org.id,
+    user_id: user.id,
+    role: 'org_admin'
+  } as any);
 
     if (memberError) {
       return NextResponse.json({ error: memberError.message }, { status: 400 });
