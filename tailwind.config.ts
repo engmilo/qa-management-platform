@@ -9,19 +9,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0A0F1C",
-        foreground: "#E8ECF4",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1B3A6B",
+          DEFAULT: "hsl(var(--primary))",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#2D3748",
+          DEFAULT: "hsl(var(--secondary))",
           foreground: "#E8ECF4",
         },
         muted: {
-          DEFAULT: "#1E293B",
-          foreground: "#8B9BB8",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         }
       }
     },
