@@ -1,19 +1,15 @@
 // Supabase Client Initialization
 // Supports both browser and server contexts for Next.js
 
+import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Browser client (client components)
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+// Browser client (client components) - automatically manages cookies for SSR and middleware
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Server client (server components / route handlers)
 export const createServerSupabaseClient = () => {
