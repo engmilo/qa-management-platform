@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase/client';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,18 +17,27 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
-    setTimeout(() => {
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+      },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
       setLoading(false);
-      if (fullName && email && password) {
-        router.push('/dashboard');
-      } else {
-        setError('Please fill in all fields');
-      }
-    }, 1000);
+      return;
+    }
+
+    router.push('/dashboard');
+    router.refresh();
   };
 
   return (
+    
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md p-8">
         <div className="text-center mb-8">

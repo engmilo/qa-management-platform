@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,18 +16,24 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
-    setTimeout(() => {
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
-      if (email && password) {
-        router.push('/dashboard');
-      } else {
-        setError('Please enter valid credentials');
-      }
-    }, 1000);
+      return;
+    }
+
+    router.push('/dashboard');
+    router.refresh();
   };
 
   return (
+    // ... keep the rest of your JSX unchanged
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md p-8">
         <div className="text-center mb-8">
