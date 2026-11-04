@@ -88,16 +88,16 @@ export async function POST(request: NextRequest) {
   }
 
   const { data: project, error } = await supabase
-    .from('projects')
-    .insert({
-      key: key.toUpperCase(),
-      name,
-      description,
-      organization_id: organizationId,
-      status: 'active',
-    })
-    .select()
-    .single();
+  .from('projects')
+  .insert([{
+    key: key.toUpperCase(),
+    name,
+    description,
+    organization_id: organizationId,
+    status: 'active',
+  }])
+  .select()
+  .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
