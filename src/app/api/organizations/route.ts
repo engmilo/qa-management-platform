@@ -37,11 +37,11 @@ export async function POST(request: NextRequest) {
 
   try {
     // Create organization
-    const { data: org, error: orgError } = await supabase
+   const { data: org, error: orgError } = await supabase
   .from('organizations')
-.insert([{ name, slug }])
-.select()
-.single();
+  .insert([{ name, slug }] as any)
+  .select()
+  .single();
 
     if (orgError) {
       return NextResponse.json({ error: orgError.message }, { status: 400 });
