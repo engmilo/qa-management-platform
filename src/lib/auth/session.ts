@@ -4,7 +4,7 @@ import { Database } from '@/types/supabase';
 
 export async function getCurrentUser() {
   const cookieStore = cookies();
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -28,7 +28,7 @@ export async function getCurrentUser() {
 
 export async function getCurrentUserWithOrg() {
   const cookieStore = cookies();
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -69,7 +69,7 @@ export async function getCurrentUserWithOrg() {
 
 export async function getUserOrganizationIds(userId: string) {
   const cookieStore = cookies();
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
