@@ -1,5 +1,6 @@
 import { getCurrentUserWithOrg } from './session';
-import { canAccessModule, hasPermission, UserRole } from './permissions';
+import { canAccessModule, hasPermission } from './permissions';
+import type { UserRole } from '@/types/supabase';
 
 export async function checkPermission(permission: string) {
   const userData = await getCurrentUserWithOrg();
