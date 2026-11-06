@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { Database } from '@/types/supabase';
+import type { Database } from '@/types/supabase';
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const cookieStore = cookies();
@@ -35,8 +35,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ error: 'Name is required' }, { status: 400 });
   }
 
-  const { data: org, error } = await supabase
-    .from('organizations')
+  // The hand-maintained Database type omits generated table metadata, so
+  // Supabase infers this update as `never`; keep the cast scoped to this query.
+  const organizationQuery = supabase.from('organizations') as any;
+  const { data: org, error } = await organizationQuery
     .update({ name })
     .eq('id', params.id)
     .select()
