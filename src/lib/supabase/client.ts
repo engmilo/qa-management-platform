@@ -5,8 +5,8 @@ import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
 // Browser client (client components) - automatically manages cookies for SSR and middleware
 export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
@@ -15,7 +15,7 @@ export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonK
 export const createServerSupabaseClient = () => {
   return createClient<Database>(
     supabaseUrl,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
     {
       auth: {
         persistSession: false,
