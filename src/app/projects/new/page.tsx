@@ -96,6 +96,13 @@ export default function NewProjectPage() {
                 >
                   Create Organization
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => router.push('/projects')}
+                  className="inline-block mt-5 ml-3 px-4 py-2 bg-background border border-border text-foreground rounded-md text-sm hover:bg-muted"
+                >
+                  Cancel
+                </button>
               </section>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6 bg-secondary border border-border rounded-lg p-6">
@@ -157,13 +164,23 @@ export default function NewProjectPage() {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading || loadingOrganizations || orgs.length === 0}
-                  className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50"
-                >
-                  {loading ? 'Creating...' : 'Create Project'}
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={loading || loadingOrganizations || orgs.length === 0}
+                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50"
+                  >
+                    {loading ? 'Creating...' : 'Create Project'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/projects')}
+                    disabled={loading}
+                    className="px-6 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </form>
             )}
           </div>
