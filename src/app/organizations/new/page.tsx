@@ -9,19 +9,42 @@ export default function NewOrganizationPage() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
+  const [slugEdited, setSlugEdited] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (!slugEdited) {
+      setSlug(value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
     setError('');
 
-    // Simulate organization creation
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/organizations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, slug }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Could not create the organization.');
+        return;
+      }
+
+      router.push('/projects/new');
+      router.refresh();
+    } catch {
+      setError('Could not reach the server. Check your connection and try again.');
+    } finally {
       setLoading(false);
-      router.push('/dashboard');
-    }, 1000);
+    }
   };
 
   return (
@@ -31,43 +54,52 @@ export default function NewOrganizationPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold text-foreground mb-6">Create New Organization</h1>
-            
+            <h1 className="text-2xl font-bold text-foreground mb-2">Create New Organization</h1>
+            <p className="text-sm text-muted-foreground mb-6">
+              Organizations keep your projects and QA data together. You will be added as the organization admin.
+            </p>
+
             <form onSubmit={handleSubmit} className="space-y-6 bg-secondary border border-border rounded-lg p-6">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="organization-name" className="block text-sm font-medium text-foreground mb-2">
                   Organization Name
                 </label>
                 <input
+                  id="organization-name"
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(event) => handleNameChange(event.target.value)}
                   className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Acme QA Labs"
+                  maxLength={255}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="organization-slug" className="block text-sm font-medium text-foreground mb-2">
                   Organization Slug
                 </label>
                 <input
+                  id="organization-slug"
                   type="text"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                  onChange={(event) => {
+                    setSlugEdited(true);
+                    setSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, ''));
+                  }}
                   className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="acme-qa-labs"
+                  maxLength={100}
+                  pattern="[a-z0-9]+(-[a-z0-9]+)*"
                   required
                 />
                 <p className="text-sm text-muted-foreground mt-1">
-                  Used in URLs. Only lowercase letters, numbers, and hyphens.
+                  Used in URLs. Use lowercase letters, numbers, and hyphens.
                 </p>
               </div>
 
-              {error && (
-                <div className="text-red-500 text-sm">{error}</div>
-              )}
+              {error && <div role="alert" className="text-red-500 text-sm">{error}</div>}
 
               <div className="flex gap-4">
                 <button

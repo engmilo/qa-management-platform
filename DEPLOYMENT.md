@@ -21,7 +21,8 @@ This guide outlines the steps to deploy the QA Management Platform to production
 1. Create a new project in Supabase.
 2. Navigate to the **SQL Editor** in Supabase Studio.
 3. Copy and execute the complete schema migration script from `supabase_schema.sql` (found in the root outputs directory).
-4. Verify that RLS policies are active on all tables.
+4. For an existing database, or after applying the main schema, execute `supabase_onboarding_migration.sql` in the SQL Editor. It backfills Auth users into `profiles`, syncs future profile/email changes, and adds per-user profile policies.
+5. Verify that RLS policies are active on all tables.
 
 ---
 
@@ -55,12 +56,13 @@ NEXT_PUBLIC_APP_URL=https://your-domain.com
 
 Once deployed, verify the following core user journeys:
 1. **Authentication**: Register a new user account, log in, and verify password recovery flow.
-2. **Organization Multi-Tenancy**: Create a new organization and invite team members with specific roles (`org_admin`, `qa_manager`, `qa_engineer`, `developer`, `viewer`).
-3. **Project & Requirements**: Create a new project and add requirements with priorities and statuses.
-4. **Test Cases & Execution**: Create test cases with step-by-step actions, build test plans, and execute test runs.
-5. **Defect Tracking**: Report defects, assign to developers, and link them to test executions.
-6. **Traceability & Reports**: Review the requirements traceability matrix and export summary reports.
-7. **AI Assistant**: Test the AI test case generator with human approval workflow.
+2. **Account management**: Open the account menu to update a profile or sign out. Email changes may require confirmation.
+3. **Organization Multi-Tenancy**: Create a new organization; the creating user is added as its admin. Then invite team members with specific roles (`org_admin`, `qa_manager`, `qa_engineer`, `developer`, `viewer`).
+4. **Project & Requirements**: Create a new project and add requirements with priorities and statuses.
+5. **Test Cases & Execution**: Create test cases with step-by-step actions, build test plans, and execute test runs.
+6. **Defect Tracking**: Report defects, assign to developers, and link them to test executions.
+7. **Traceability & Reports**: Review the requirements traceability matrix and export summary reports.
+8. **AI Assistant**: Test the AI test case generator with human approval workflow.
 
 ---
 
