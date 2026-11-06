@@ -1,56 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import Link from 'next/link';
+
+type Requirement = { id: string; req_key: string; title: string; project_id: string; type: string; priority: string; status: string };
+type Project = { id: string; name: string };
 
 export default function RequirementsPage() {
-  const [requirements] = useState([
-    {
-      id: '1',
-      key: 'REQ-101',
-      title: 'User Authentication',
-      project: 'Mobile Banking App',
-      priority: 'critical',
-      status: 'approved',
-      type: 'functional',
-    },
-    {
-      id: '2',
-      key: 'REQ-102',
-      title: 'Two-Factor Authentication',
-      project: 'Mobile Banking App',
-      priority: 'high',
-      status: 'under_review',
-      type: 'security',
-    },
-    {
-      id: '3',
-      key: 'REQ-201',
-      title: 'Product Search',
-      project: 'E-Commerce Platform',
-      priority: 'medium',
-      status: 'implemented',
-      type: 'functional',
-    },
-  ]);
+  const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [projectNames, setProjectNames] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const statusColors: Record<string, string> = {
-    draft: 'bg-gray-500/20 text-gray-400',
-    under_review: 'bg-yellow-500/20 text-yellow-400',
-    approved: 'bg-green-500/20 text-green-400',
-    implemented: 'bg-blue-500/20 text-blue-400',
-    verified: 'bg-emerald-500/20 text-emerald-400',
-    rejected: 'bg-red-500/20 text-red-400',
-  };
-
-  const priorityColors: Record<string, string> = {
-    low: 'bg-green-500/20 text-green-400',
-    medium: 'bg-yellow-500/20 text-yellow-400',
-    high: 'bg-orange-500/20 text-orange-400',
-    critical: 'bg-red-500/20 text-red-400',
-  };
+  useEffect(() => {
+    Promise.all([fetch('/api/requirements', { cache: 'no-store' }), fetch('/api/projects', { cache: 'no-store' })])
+      .then(async ([requirementsResponse, projectsResponse]) => {
+        const [requirementsData, projectsData] = await Promise.all([requirementsResponse.json(), projectsResponse.json()]);
+        if (!requirementsResponse.ok) throw new Error(requirementsData.error || 'Could not load requirements.');
+        if (!projectsResponse.ok) throw new Error(projectsData.error || 'Could not load projects.');
+        setRequirements(requirementsData.requirements ?? []);
+        setProjectNames(Object.fromEntries((projectsData.projects as Project[]).map((project) => [project.id, project.name])));
+      })
+      .catch((loadError: unknown) => setError(loadError instanceof Error ? loadError.message : 'Could not load requirements.'))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="flex h-screen bg-background">
@@ -58,58 +33,18 @@ export default function RequirementsPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Requirements</h1>
-            <Link
-              href="/requirements/new"
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm"
-            >
-              New Requirement
-            </Link>
-          </div>
-
-          <div className="bg-secondary border border-border rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">ID</th>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Title</th>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Project</th>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Type</th>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Priority</th>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requirements.map((req) => (
-                  <tr key={req.id} className="border-t border-border hover:bg-muted/30">
-                    <td className="p-4">
-                      <span className="text-sm font-mono text-foreground">{req.key}</span>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm text-foreground">{req.title}</span>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm text-muted-foreground">{req.project}</span>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm text-muted-foreground capitalize">{req.type}</span>
-                    </td>
-                    <td className="p-4">
-                      <span className={`text-xs px-2 py-1 rounded capitalize ${priorityColors[req.priority]}`}>
-                        {req.priority}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className={`text-xs px-2 py-1 rounded capitalize ${statusColors[req.status]}`}>
-                        {req.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <div className="flex items-center justify-between mb-6"><h1 className="text-2xl font-bold text-foreground">Requirements</h1><Link href="/requirements/new" className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm">New Requirement</Link></div>
+          {error && <p role="alert" className="mb-4 text-sm text-red-500">{error}</p>}
+          {loading ? <p className="text-muted-foreground">Loading requirements...</p> : requirements.length === 0 ? <p className="text-muted-foreground">No requirements yet. Create one to get started.</p> : (
+            <div className="bg-secondary border border-border rounded-lg overflow-x-auto">
+              <table className="w-full min-w-[720px]"><thead className="bg-muted/50"><tr>{['Key', 'Title', 'Project', 'Type', 'Priority', 'Status'].map((heading) => <th key={heading} className="text-left p-4 text-sm font-medium text-muted-foreground">{heading}</th>)}</tr></thead>
+                <tbody>{requirements.map((item) => <tr key={item.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="p-4 text-sm font-mono text-foreground">{item.req_key}</td><td className="p-4 text-sm text-foreground">{item.title}</td><td className="p-4 text-sm text-muted-foreground">{projectNames[item.project_id] || 'Project'}</td><td className="p-4 text-sm text-muted-foreground">{item.type.replace('_', ' ')}</td>
+                  <td className="p-4"><span className="text-xs px-2 py-1 rounded capitalize bg-muted text-foreground">{item.priority}</span></td><td className="p-4"><span className="text-xs px-2 py-1 rounded capitalize bg-muted text-foreground">{item.status.replace('_', ' ')}</span></td>
+                </tr>)}</tbody>
+              </table>
+            </div>
+          )}
         </main>
       </div>
     </div>

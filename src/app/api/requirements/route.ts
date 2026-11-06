@@ -73,17 +73,49 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
-
-  const { data: requirement, error } = await supabase
-    .from('requirements')
-    .insert([body])
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  let body: Record<string, unknown>;
+  try { body = await request.json(); } catch {
+    return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 });
   }
 
-  return NextResponse.json({ requirement });
+  const projectId = typeof body.projectId === 'string' ? body.projectId : '';
+  const reqKey = typeof body.reqKey === 'string' ? body.reqKey.trim().toUpperCase() : '';
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  if (!projectId || !reqKey || !title) {
+    return NextResponse.json({ error: 'Project, requirement key, and title are required.' }, { status: 400 });
+  }
+
+  const { data: project, error: projectError } = await supabase
+    .from('projects').select('id, organization_id').eq('id', projectId).maybeSingle();
+  if (projectError || !project) {
+    return NextResponse.json({ error: 'Select a project you can access.' }, { status: 400 });
+  }
+
+  const validPriorities = ['low', 'medium', 'high', 'critical'];
+  const validStatuses = ['draft', 'under_review', 'approved', 'implemented', 'verified', 'rejected'];
+  const validTypes = ['functional', 'non_functional', 'business', 'performance', 'security'];
+  const priority = typeof body.priority === 'string' && validPriorities.includes(body.priority) ? body.priority : 'medium';
+  const status = typeof body.status === 'string' && validStatuses.includes(body.status) ? body.status : 'draft';
+  const type = typeof body.type === 'string' && validTypes.includes(body.type) ? body.type : 'functional';
+
+  const { data: requirement, error } = await supabase.from('requirements').insert([{
+    project_id: project.id,
+    organization_id: project.organization_id,
+    req_key: reqKey,
+    title,
+    description: typeof body.description === 'string' ? body.description.trim() || null : null,
+    priority,
+    status,
+    type,
+    owner_id: user.id,
+  }] as any).select().single();
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.code === '23505' ? 'That requirement key is already used in this project.' : error.message },
+      { status: error.code === '23505' ? 409 : 400 }
+    );
+  }
+
+  return NextResponse.json({ requirement }, { status: 201 });
 }
