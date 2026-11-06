@@ -1,11 +1,13 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -102,13 +104,23 @@ export default function ProfilePage() {
                 {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
                 {message && <p role="status" className="text-sm text-green-500">{message}</p>}
 
-                <button
-                  type="submit"
-                  disabled={saving || !fullName.trim() || !email.trim()}
-                  className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : 'Save Profile'}
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={saving || !fullName.trim() || !email.trim()}
+                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save Profile'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/dashboard')}
+                    disabled={saving}
+                    className="px-6 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted text-sm disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </form>
             )}
           </div>
