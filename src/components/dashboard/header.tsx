@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { Plus, Building2, User, LogOut, CheckCircle2 } from 'lucide-react';
 
 type OrganizationMembership = { organization: { name: string } | null };
 type OrganizationLoadState = 'loading' | 'available' | 'empty' | 'error';
@@ -74,69 +75,96 @@ export function Header() {
     .join('');
 
   return (
-    <header className="h-16 bg-secondary border-b border-border flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
-        <h1 className="text-lg font-semibold text-foreground">Dashboard Overview</h1>
+    <header className="h-14 bg-[#1d2d3e] border-b border-[#141f2b] flex items-center justify-between px-6 shadow-sm select-none z-30">
+      {/* Left section: Breadcrumb / View Context */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#48a43f]"></span>
+          <h1 className="text-sm font-semibold text-white tracking-wide">Dashboard Overview</h1>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Right section: Org Badge, CTA, User Menu */}
+      <div className="flex items-center gap-3">
         {organizationLoadState === 'available' ? (
-          <div className="text-sm text-muted-foreground">{organizationName}</div>
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-slate-200 bg-[#2b3d51] px-3 py-1.5 rounded border border-[#384e66]">
+            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+            <span>{organizationName}</span>
+          </div>
         ) : organizationLoadState === 'empty' ? (
-          <Link href="/organizations/new" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            href="/organizations/new"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-white bg-[#2b3d51] hover:bg-[#344961] px-3 py-1.5 rounded transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#48a43f]" />
             Create organization
           </Link>
         ) : organizationLoadState === 'error' ? (
           <button
             type="button"
             onClick={() => setOrganizationRetry((retry) => retry + 1)}
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="text-xs text-amber-300 hover:text-amber-200 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded"
             title="Retry loading your organization"
           >
             Organization unavailable · Retry
           </button>
         ) : null}
+
+        {/* TestRail Signature Green "New Project" Button */}
         <Link
           href="/projects/new"
-          className="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90"
+          className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3 py-1.5 rounded shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#48a43f] focus:ring-offset-1 focus:ring-offset-[#1d2d3e]"
         >
-          New Project
+          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>New Project</span>
         </Link>
+
+        {/* User Avatar & TestRail Style Dropdown */}
         <div className="relative">
           <button
             type="button"
             onClick={() => { setMenuOpen((open) => !open); setSignOutError(''); }}
-            className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            className="w-8 h-8 rounded-full bg-[#276fbf] hover:ring-2 hover:ring-[#48a43f] flex items-center justify-center text-white text-xs font-bold transition-all shadow-sm focus:outline-none"
             aria-label="Open account menu"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
           >
             {initials || 'QA'}
           </button>
+
           {menuOpen && (
-            <div role="menu" className="absolute right-0 top-11 z-50 w-64 rounded-md border border-border bg-secondary p-2 shadow-lg">
-              <div className="px-3 py-2 border-b border-border">
-                <p className="text-sm font-medium text-foreground">{user?.user_metadata?.full_name || 'Account'}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <div
+              role="menu"
+              className="absolute right-0 top-10 z-50 w-64 rounded-md border border-[#d8dee4] bg-white p-1.5 shadow-xl text-slate-800"
+            >
+              <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                <p className="text-xs font-semibold text-slate-900">{user?.user_metadata?.full_name || 'QA Engineer'}</p>
+                <p className="text-xs text-slate-500 truncate mt-0.5">{user?.email}</p>
+                <span className="inline-block mt-1 text-[10px] font-semibold bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9] px-2 py-0.5 rounded-full">
+                  Organization Member
+                </span>
               </div>
               <Link
                 href="/profile"
                 role="menuitem"
                 onClick={() => setMenuOpen(false)}
-                className="block rounded px-3 py-2 text-sm text-foreground hover:bg-background"
+                className="flex items-center gap-2 rounded px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
               >
+                <User className="w-3.5 h-3.5 text-slate-500" />
                 My Profile
               </Link>
+              <div className="border-t border-slate-100 my-1"></div>
               <button
                 type="button"
                 role="menuitem"
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="w-full text-left rounded px-3 py-2 text-sm text-foreground hover:bg-background disabled:opacity-50"
+                className="w-full flex items-center gap-2 text-left rounded px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
               >
+                <LogOut className="w-3.5 h-3.5" />
                 {signingOut ? 'Signing out...' : 'Sign out'}
               </button>
-              {signOutError && <p role="alert" className="px-3 py-2 text-xs text-red-500">{signOutError}</p>}
+              {signOutError && <p role="alert" className="px-3 py-1.5 text-xs text-red-600 font-medium">{signOutError}</p>}
             </div>
           )}
         </div>

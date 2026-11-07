@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/dashboard/header';
 import { Sidebar } from '@/components/dashboard/sidebar';
+import { GitFork, CheckCircle2, AlertTriangle, Layers, X } from 'lucide-react';
 
 type TraceabilityTestCase = { id: string; key: string; title: string };
 type TestCaseOption = { id: string; case_key: string; title: string };
@@ -130,93 +131,104 @@ export default function TraceabilityPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#f5f7f9]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Traceability Matrix</h1>
-            <p className="text-muted-foreground mt-1">
-              Requirement coverage from linked test cases and their open defects.
+          {/* Header row */}
+          <div className="mb-6 pb-4 border-b border-[#e2e8f0]">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Traceability Matrix</h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Requirement-to-test coverage verification and open defect correlation
             </p>
           </div>
 
           {error && (
-            <div role="alert" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+            <div role="alert" className="mb-6 flex flex-wrap items-center justify-between gap-3 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs font-medium">
               <span>{error}</span>
               <button
                 type="button"
                 onClick={() => setRetry((value) => value + 1)}
-                className="rounded-md border border-red-400/40 px-3 py-1.5 hover:bg-red-500/10"
+                className="btn-testrail-secondary text-xs py-1"
               >
                 Retry
               </button>
             </div>
           )}
 
+          {/* TestRail Summary Cards */}
           <section aria-label="Traceability summary" className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <SummaryCard label="Requirements" value={loading ? '—' : summary.totalRequirements} />
-            <SummaryCard label="Covered Requirements" value={loading ? '—' : summary.coveredRequirements} />
-            <SummaryCard label="Coverage" value={loading ? '—' : `${summary.coveragePercentage}%`} />
-            <SummaryCard label="Open Linked Defects" value={loading ? '—' : summary.openDefects} />
+            <SummaryCard label="Total Requirements" value={loading ? '—' : summary.totalRequirements} icon={Layers} border="border-t-4 border-[#276fbf]" />
+            <SummaryCard label="Covered Requirements" value={loading ? '—' : summary.coveredRequirements} icon={CheckCircle2} border="border-t-4 border-[#48a43f]" />
+            <SummaryCard label="Test Coverage" value={loading ? '—' : `${summary.coveragePercentage}%`} icon={GitFork} border="border-t-4 border-indigo-500" />
+            <SummaryCard label="Open Linked Defects" value={loading ? '—' : summary.openDefects} icon={AlertTriangle} border="border-t-4 border-amber-500" />
           </section>
 
-          <section className="overflow-hidden rounded-lg border border-border bg-secondary">
+          {/* Traceability Table */}
+          <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[980px]">
-                <thead className="bg-muted/50">
+              <table className="w-full min-w-[980px] text-left">
+                <thead className="bg-[#f8fafc] border-b border-[#e2e8f0]">
                   <tr>
-                    <th scope="col" className="p-4 text-left text-sm font-medium text-muted-foreground">Requirement</th>
-                    <th scope="col" className="p-4 text-left text-sm font-medium text-muted-foreground">Linked Test Cases</th>
-                    <th scope="col" className="p-4 text-left text-sm font-medium text-muted-foreground">Coverage</th>
-                    <th scope="col" className="p-4 text-left text-sm font-medium text-muted-foreground">Open Defects</th>
-                    <th scope="col" className="p-4 text-left text-sm font-medium text-muted-foreground">Requirement Status</th>
-                    <th scope="col" className="p-4 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                    <th scope="col" className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Requirement</th>
+                    <th scope="col" className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Linked Test Cases</th>
+                    <th scope="col" className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Coverage</th>
+                    <th scope="col" className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Open Defects</th>
+                    <th scope="col" className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-[#edf2f7]">
                   {loading ? (
-                    <tr><td colSpan={6} className="p-8 text-center text-sm text-muted-foreground">Loading traceability data…</td></tr>
+                    <tr><td colSpan={6} className="p-8 text-center text-xs text-slate-500">Loading traceability matrix…</td></tr>
                   ) : error ? (
-                    <tr><td colSpan={6} className="p-8 text-center text-sm text-muted-foreground">Traceability data is unavailable. Retry after resolving the error above.</td></tr>
+                    <tr><td colSpan={6} className="p-8 text-center text-xs text-slate-500">Traceability data is unavailable. Retry after resolving the error above.</td></tr>
                   ) : rows.length ? rows.map((row) => (
-                    <tr key={row.id} className="border-t border-border hover:bg-muted/30">
-                      <td className="p-4 align-top">
-                        <div className="font-mono text-sm font-semibold text-foreground">{row.key}</div>
-                        <div className="mt-1 text-sm text-foreground">{row.title}</div>
-                        <div className="mt-1 text-xs text-muted-foreground">{row.projectName}</div>
+                    <tr key={row.id} className="hover:bg-[#f8fafc] transition-colors">
+                      <td className="px-4 py-3.5 align-top">
+                        <span className="font-mono text-xs font-bold text-[#276fbf] bg-[#eef5fc] border border-[#d2e3f5] px-2 py-0.5 rounded">
+                          {row.key}
+                        </span>
+                        <div className="mt-1.5 text-xs font-semibold text-slate-900">{row.title}</div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">{row.projectName}</div>
                       </td>
-                      <td className="p-4 align-top">
+                      <td className="px-4 py-3.5 align-top">
                         {row.testCases.length ? (
-                          <div className="space-y-2">
+                          <div className="space-y-1.5">
                             {row.testCases.map((testCase) => (
-                              <div key={testCase.id} className="text-sm">
-                                <span className="mr-2 rounded bg-muted px-2 py-1 font-mono text-xs text-foreground">{testCase.key}</span>
-                                <span className="text-muted-foreground">{testCase.title}</span>
+                              <div key={testCase.id} className="text-xs flex items-center gap-1.5">
+                                <span className="rounded bg-slate-100 border border-slate-200 px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-700">{testCase.key}</span>
+                                <span className="text-slate-700 truncate max-w-xs">{testCase.title}</span>
                               </div>
                             ))}
                           </div>
-                        ) : <span className="text-sm text-muted-foreground">No test cases linked</span>}
-                      </td>
-                      <td className="p-4 align-top">
-                        {row.testCases.length ? (
-                          <span className="rounded bg-green-500/20 px-2 py-1 text-xs text-green-400">Covered</span>
                         ) : (
-                          <span className="rounded bg-yellow-500/20 px-2 py-1 text-xs text-yellow-400">Uncovered</span>
+                          <span className="text-xs text-slate-400 italic">No test cases linked</span>
                         )}
                       </td>
-                      <td className="p-4 align-top">
-                        <span className={row.openDefects ? 'text-sm text-red-400' : 'text-sm text-green-400'}>
+                      <td className="px-4 py-3.5 align-top">
+                        {row.testCases.length ? (
+                          <span className="bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] font-semibold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            ✓ Covered
+                          </span>
+                        ) : (
+                          <span className="bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] font-semibold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            ⚠ Uncovered
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5 align-top">
+                        <span className={`text-xs font-bold ${row.openDefects ? 'text-red-600' : 'text-[#3c763d]'}`}>
                           {row.openDefects}
                         </span>
                       </td>
-                      <td className="p-4 align-top">
-                        <span className="rounded bg-muted px-2 py-1 text-xs capitalize text-foreground">
+                      <td className="px-4 py-3.5 align-top">
+                        <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize bg-slate-100 text-slate-700 border border-slate-200">
                           {row.status.replaceAll('_', ' ')}
                         </span>
                       </td>
-                      <td className="p-4 align-top">
+                      <td className="px-4 py-3.5 align-top text-right">
                         <button
                           type="button"
                           onClick={() => {
@@ -224,7 +236,7 @@ export default function TraceabilityPage() {
                             setEditingProjectId(row.projectId);
                             setLinkError('');
                           }}
-                          className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                          className="btn-testrail-secondary text-xs py-1 px-2.5"
                         >
                           Manage links
                         </button>
@@ -233,9 +245,9 @@ export default function TraceabilityPage() {
                   )) : (
                     <tr>
                       <td colSpan={6} className="p-8 text-center">
-                        <p className="text-sm text-muted-foreground">No requirements found for your organizations.</p>
-                        <Link href="/requirements/new" className="mt-3 inline-block text-sm text-primary hover:underline">
-                          Create a requirement
+                        <p className="text-xs text-slate-500">No requirements found for your organizations.</p>
+                        <Link href="/requirements/new" className="mt-2 inline-block text-xs font-semibold text-[#276fbf] hover:underline">
+                          + Create a requirement
                         </Link>
                       </td>
                     </tr>
@@ -248,42 +260,60 @@ export default function TraceabilityPage() {
       </div>
 
       {editingRequirement && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="presentation">
-          <section role="dialog" aria-modal="true" aria-labelledby="link-dialog-title" className="w-full max-w-xl rounded-lg border border-border bg-secondary p-6 shadow-xl">
-            <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation">
+          <section role="dialog" aria-modal="true" aria-labelledby="link-dialog-title" className="w-full max-w-xl rounded-md border border-[#d8dee4] bg-white p-6 shadow-2xl">
+            <div className="mb-4 pb-3 border-b border-[#e2e8f0] flex items-start justify-between gap-4">
               <div>
-                <h2 id="link-dialog-title" className="text-lg font-semibold text-foreground">Link test cases</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{editingRequirement.key}: {editingRequirement.title}</p>
+                <h2 id="link-dialog-title" className="text-sm font-bold text-slate-900">Link Test Cases to Requirement</h2>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  <span className="font-mono font-bold text-[#276fbf]">{editingRequirement.key}:</span> {editingRequirement.title}
+                </p>
               </div>
-              <button type="button" onClick={closeLinkManager} className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Close link manager">×</button>
+              <button
+                type="button"
+                onClick={closeLinkManager}
+                className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close link manager"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {linkError && <p role="alert" className="mb-3 text-sm text-red-400">{linkError}</p>}
-            {testCaseLoadError && <p role="alert" className="mb-3 text-sm text-red-400">{testCaseLoadError}</p>}
+            {linkError && <p role="alert" className="mb-3 text-xs text-red-600 font-medium">{linkError}</p>}
+            {testCaseLoadError && <p role="alert" className="mb-3 text-xs text-red-600 font-medium">{testCaseLoadError}</p>}
             {loadingTestCases ? (
-              <p className="py-4 text-sm text-muted-foreground">Loading project test cases…</p>
+              <p className="py-4 text-xs text-slate-400 text-center">Loading project test cases…</p>
             ) : availableTestCases.length ? (
-              <div className="max-h-80 space-y-2 overflow-y-auto rounded-md border border-border p-3">
+              <div className="max-h-72 space-y-1.5 overflow-y-auto rounded border border-[#d8dee4] p-3 bg-[#f8fafc]/50">
                 {availableTestCases.map((testCase) => (
-                  <label key={testCase.id} className="flex cursor-pointer items-start gap-3 rounded px-2 py-2 text-sm text-foreground hover:bg-muted/50">
+                  <label key={testCase.id} className="flex cursor-pointer items-start gap-2.5 rounded p-2 text-xs text-slate-700 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all">
                     <input
                       type="checkbox"
                       checked={editingRequirement.testCases.some((item) => item.id === testCase.id)}
                       disabled={!!updatingCaseId}
                       onChange={(event) => toggleTestCaseLink(testCase.id, event.target.checked)}
-                      className="mt-1 accent-primary"
+                      className="mt-0.5 accent-[#48a43f]"
                     />
-                    <span><span className="mr-2 font-mono text-muted-foreground">{testCase.case_key}</span>{testCase.title}</span>
-                    {updatingCaseId === testCase.id && <span className="ml-auto text-xs text-muted-foreground">Saving…</span>}
+                    <span>
+                      <span className="mr-1.5 font-mono font-bold text-[#276fbf]">{testCase.case_key}</span>
+                      {testCase.title}
+                    </span>
+                    {updatingCaseId === testCase.id && <span className="ml-auto text-[10px] text-slate-400">Saving…</span>}
                   </label>
                 ))}
               </div>
             ) : !testCaseLoadError ? (
-              <p className="py-4 text-sm text-muted-foreground">This project has no test cases to link.</p>
+              <p className="py-4 text-xs text-slate-400 text-center">This project has no test cases to link.</p>
             ) : null}
 
-            <div className="mt-5 flex justify-end">
-              <button type="button" onClick={closeLinkManager} className="rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">Done</button>
+            <div className="mt-5 pt-3 border-t border-[#edf2f7] flex justify-end">
+              <button
+                type="button"
+                onClick={closeLinkManager}
+                className="btn-testrail-primary"
+              >
+                Done
+              </button>
             </div>
           </section>
         </div>
@@ -292,11 +322,14 @@ export default function TraceabilityPage() {
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string | number }) {
+function SummaryCard({ label, value, icon: Icon, border }: { label: string; value: string | number; icon: any; border: string }) {
   return (
-    <div className="rounded-lg border border-border bg-secondary p-5">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-foreground">{value}</p>
+    <div className={`rounded-md border border-[#d8dee4] bg-white p-4 shadow-sm flex flex-col justify-between ${border}`}>
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+        <Icon className="w-4 h-4 text-slate-400" />
+      </div>
+      <p className="mt-2 text-2xl font-bold text-slate-900 tracking-tight">{value}</p>
     </div>
   );
 }

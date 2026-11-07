@@ -71,3 +71,4 @@ DROP POLICY IF EXISTS profiles_update_self ON public.profiles;
 CREATE POLICY profiles_update_self ON public.profiles
   FOR UPDATE USING (id = auth.uid())
   WITH CHECK (id = auth.uid());
+

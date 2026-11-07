@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { Plus, Calendar } from 'lucide-react';
 
 type TestPlan = { id: string; title: string; project_id: string; scope: string | null; status: string; start_date: string | null; end_date: string | null };
 type Project = { id: string; name: string };
@@ -27,17 +28,109 @@ export default function TestPlansPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const getStatusBadge = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]';
+      case 'in_progress':
+        return 'bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd]';
+      case 'planning':
+      default:
+        return 'bg-amber-50 text-amber-700 border border-amber-200';
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-background"><Sidebar /><div className="flex-1 flex flex-col overflow-hidden"><Header /><main className="flex-1 overflow-y-auto p-6">
-      <div className="flex items-center justify-between mb-6"><h1 className="text-2xl font-bold text-foreground">Test Plans</h1><Link href="/test-plans/new" className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm">New Test Plan</Link></div>
-      {error && <p role="alert" className="mb-4 text-sm text-red-500">{error}</p>}
-      {loading ? <p className="text-muted-foreground">Loading test plans...</p> : plans.length === 0 ? <p className="text-muted-foreground">No test plans yet. Create one to get started.</p> : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">{plans.map((plan) => <section key={plan.id} className="bg-secondary border border-border rounded-lg p-6">
-          <div className="flex items-start justify-between gap-4"><div><h2 className="text-lg font-semibold text-foreground">{plan.title}</h2><p className="text-sm text-muted-foreground mt-1">{projectNames[plan.project_id] || 'Project'}</p></div><span className="text-xs px-2 py-1 rounded capitalize bg-muted text-foreground">{plan.status.replace('_', ' ')}</span></div>
-          {plan.scope && <p className="mt-4 text-sm text-muted-foreground whitespace-pre-wrap">{plan.scope}</p>}
-          <p className="mt-4 text-xs text-muted-foreground">{plan.start_date || 'No start date'}{plan.end_date ? ` — ${plan.end_date}` : ''}</p>
-        </section>)}</div>
-      )}
-    </main></div></div>
+    <div className="flex h-screen bg-[#f5f7f9]">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-6">
+          {/* Header row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#e2e8f0]">
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Test Plans</h1>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Organize releases, milestones, test suites, and schedule testing cycles
+              </p>
+            </div>
+            <Link
+              href="/test-plans/new"
+              className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add Test Plan</span>
+            </Link>
+          </div>
+
+          {error && (
+            <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs font-medium">
+              {error}
+            </div>
+          )}
+
+          {loading ? (
+            <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500 shadow-sm">
+              Loading test plans...
+            </div>
+          ) : plans.length === 0 ? (
+            <div className="bg-white border border-[#d8dee4] rounded-md p-10 text-center shadow-sm">
+              <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-slate-800">No test plans yet</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                Group multiple test suites and test runs together for a release or sprint milestone.
+              </p>
+              <Link
+                href="/test-plans/new"
+                className="mt-4 inline-flex items-center gap-1.5 bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                Create your first test plan
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {plans.map((plan) => (
+                <section
+                  key={plan.id}
+                  className="bg-white border border-[#d8dee4] rounded-md p-5 shadow-sm hover:shadow hover:border-[#b0c4de] transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                          {plan.title}
+                        </h2>
+                        <p className="text-xs font-medium text-[#276fbf] mt-0.5">
+                          {projectNames[plan.project_id] || 'General Project'}
+                        </p>
+                      </div>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize shrink-0 ${getStatusBadge(plan.status)}`}>
+                        {plan.status.replace('_', ' ')}
+                      </span>
+                    </div>
+
+                    {plan.scope && (
+                      <p className="mt-3 text-xs text-slate-600 line-clamp-3 leading-relaxed bg-[#f8fafc] p-2.5 rounded border border-[#edf2f7]">
+                        {plan.scope}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-[#edf2f7] flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      {plan.start_date || 'No start date'}
+                      {plan.end_date ? ` — ${plan.end_date}` : ''}
+                    </span>
+                    <span className="font-mono text-[10px]">ID: {plan.id.slice(0, 8)}</span>
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }

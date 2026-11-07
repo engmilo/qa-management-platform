@@ -47,12 +47,12 @@ export function ProjectSelector({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading projects...</p>;
-  if (error) return <p role="alert" className="text-sm text-red-500">{error}</p>;
+  if (loading) return <p className="text-xs text-[#6e7d8c]">Loading projects...</p>;
+  if (error) return <p role="alert" className="text-xs text-red-600">{error}</p>;
   if (projects.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground">
-        Create a project first. <Link href="/projects/new" className="text-primary hover:underline">Go to Projects</Link>
+      <div className="text-xs text-[#6e7d8c]">
+        No active projects found. <Link href="/projects/new" className="text-[#276fbf] hover:underline font-semibold">Create a project first</Link>
       </div>
     );
   }
@@ -61,7 +61,7 @@ export function ProjectSelector({
     <select
       value={value}
       onChange={(event) => onChange(projects.find((project) => project.id === event.target.value) ?? null)}
-      className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+      className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition"
       required
       disabled={disabled}
     >

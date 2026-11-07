@@ -15,7 +15,7 @@ export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonK
 export const createServerSupabaseClient = () => {
   return createClient<Database>(
     supabaseUrl,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
+    process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
     {
       auth: {
         persistSession: false,

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import Link from 'next/link';
+import { FolderKanban, Plus } from 'lucide-react';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
@@ -19,53 +20,87 @@ export default function ProjectsPage() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#f5f7f9]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Projects</h1>
+          {/* Header row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#e2e8f0]">
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Projects</h1>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Manage all your testing projects, milestone suites, and repositories
+              </p>
+            </div>
             <Link
               href="/projects/new"
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm"
+              className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none"
             >
-              New Project
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add Project</span>
             </Link>
           </div>
 
           {loading ? (
-            <div className="text-muted-foreground">Loading projects...</div>
+            <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500">
+              Loading projects...
+            </div>
           ) : projects.length === 0 ? (
-            <div className="text-muted-foreground">No projects found. Create your first one.</div>
+            <div className="bg-white border border-[#d8dee4] rounded-md p-10 text-center shadow-sm">
+              <FolderKanban className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-slate-800">No projects found</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                Get started by creating your first testing project to store requirements and test cases.
+              </p>
+              <Link
+                href="/projects/new"
+                className="mt-4 inline-flex items-center gap-1.5 bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                Create your first project
+              </Link>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {projects.map((project: any) => (
-                <div key={project.id} className="bg-secondary border border-border rounded-lg p-6 hover:border-primary/50 transition-colors">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
+                <div
+                  key={project.id}
+                  className="bg-white border border-[#d8dee4] rounded-md p-5 shadow-sm hover:shadow hover:border-[#b0c4de] transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-mono text-muted-foreground">{project.key}</span>
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          project.status === 'active'
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-gray-500/20 text-gray-400'
-                        }`}>
+                        <span className="font-mono text-xs font-bold text-[#276fbf] bg-[#eef5fc] border border-[#d2e3f5] px-2 py-0.5 rounded">
+                          {project.key}
+                        </span>
+                        <span
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
+                            project.status === 'active'
+                              ? 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
+                          }`}
+                        >
                           {project.status}
                         </span>
                       </div>
-                      <h3 className="text-lg font-semibold text-foreground mt-2">{project.name}</h3>
                     </div>
+
+                    <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                      {project.name}
+                    </h3>
+
+                    <p className="text-xs text-slate-600 mt-2 line-clamp-2 leading-relaxed">
+                      {project.description || 'No description provided.'}
+                    </p>
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-4">{project.description}</p>
-
-                  <div className="mt-4 pt-4 border-t border-border">
+                  <div className="mt-5 pt-3 border-t border-[#edf2f7] flex items-center justify-between">
                     <Link
                       href={`/projects/${project.id}`}
-                      className="text-sm text-primary hover:underline"
+                      className="text-xs font-semibold text-[#276fbf] hover:text-[#1d5ea8] hover:underline inline-flex items-center gap-1"
                     >
-                      View Project →
+                      View Project Details →
                     </Link>
                   </div>
                 </div>

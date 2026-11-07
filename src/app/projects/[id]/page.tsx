@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { FolderKanban, ArrowLeft, CheckSquare, PlayCircle, Plus } from 'lucide-react';
 
 type Project = {
   id: string;
@@ -43,48 +44,100 @@ export default function ProjectDetailsPage() {
   }, [projectId]);
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#f5f7f9]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-              <div>
-                <p className="text-sm text-muted-foreground">Project overview</p>
-                <h1 className="text-2xl font-bold text-foreground">{loading ? 'Loading project...' : project?.name || 'Project unavailable'}</h1>
+            {/* Breadcrumb row */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Link href="/projects" className="text-[#276fbf] hover:underline flex items-center gap-1">
+                  <ArrowLeft className="w-3.5 h-3.5" /> Projects
+                </Link>
+                <span>/</span>
+                <span className="text-slate-800 font-semibold">{project?.name || 'Project Details'}</span>
               </div>
-              <Link href="/projects" className="px-4 py-2 bg-background border border-border text-foreground rounded-md text-sm hover:bg-muted">
-                Back to Projects
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/projects" className="btn-testrail-secondary text-xs">
+                  Back to Projects
+                </Link>
+                <Link href="/projects/new" className="btn-testrail-primary text-xs">
+                  <Plus className="w-3.5 h-3.5" /> New Project
+                </Link>
+              </div>
             </div>
 
             {error ? (
-              <section role="alert" className="bg-secondary border border-border rounded-lg p-6">
-                <p className="text-foreground">{error}</p>
-                <p className="mt-2 text-sm text-muted-foreground">The project may have been removed or may belong to an organization you cannot access.</p>
+              <section role="alert" className="bg-white border border-red-200 rounded-md p-6 shadow-sm">
+                <p className="text-sm font-semibold text-red-600">{error}</p>
+                <p className="mt-1 text-xs text-slate-500">The project may have been removed or may belong to an organization you cannot access.</p>
               </section>
             ) : project ? (
-              <section className="bg-secondary border border-border rounded-lg p-6">
-                <div className="flex flex-wrap items-center gap-3 mb-5">
-                  <span className="font-mono text-sm text-muted-foreground">{project.key}</span>
-                  <span className={`text-xs px-2 py-1 rounded ${project.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
-                    {project.status}
-                  </span>
-                </div>
-                <h2 className="text-xl font-semibold text-foreground">{project.name}</h2>
-                <p className="mt-3 text-sm text-muted-foreground whitespace-pre-wrap">
-                  {project.description || 'No project description provided.'}
-                </p>
-                <div className="mt-6 pt-5 border-t border-border flex flex-wrap items-center justify-between gap-4">
-                  <p className="text-xs text-muted-foreground">
-                    Created {new Date(project.created_at).toLocaleDateString()}
-                  </p>
-                  <Link href="/projects/new" className="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90">
-                    Create another project
-                  </Link>
-                </div>
-              </section>
+              <div className="space-y-6">
+                {/* Main Project Overview Card */}
+                <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
+                  <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-mono text-xs font-bold text-[#276fbf] bg-[#eef5fc] border border-[#d2e3f5] px-2.5 py-1 rounded">
+                        {project.key}
+                      </span>
+                      <h1 className="text-lg font-bold text-slate-900 tracking-tight">{project.name}</h1>
+                    </div>
+                    <span
+                      className={`text-xs px-2.5 py-0.5 rounded-full font-semibold capitalize ${
+                        project.status === 'active'
+                          ? 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
+                      }`}
+                    >
+                      {project.status}
+                    </span>
+                  </div>
+
+                  <div className="p-6">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Description / Scope</h4>
+                    <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
+                      {project.description || 'No project description provided.'}
+                    </p>
+
+                    {/* TestRail Quick Actions Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-[#edf2f7]">
+                      <Link
+                        href="/test-cases"
+                        className="p-4 rounded border border-[#d8dee4] hover:border-[#276fbf] hover:bg-[#f0f7ff]/40 transition-all flex items-start gap-3"
+                      >
+                        <div className="w-8 h-8 rounded bg-[#eef5fc] text-[#276fbf] flex items-center justify-center shrink-0">
+                          <CheckSquare className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-900">Test Cases Repository</h4>
+                          <p className="text-[11px] text-slate-500 mt-0.5">Browse, write, and organize test suites</p>
+                        </div>
+                      </Link>
+
+                      <Link
+                        href="/test-runs"
+                        className="p-4 rounded border border-[#d8dee4] hover:border-[#48a43f] hover:bg-[#f3f9f2]/40 transition-all flex items-start gap-3"
+                      >
+                        <div className="w-8 h-8 rounded bg-[#e8f5e9] text-[#48a43f] flex items-center justify-center shrink-0">
+                          <PlayCircle className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-900">Test Runs & Execution</h4>
+                          <p className="text-[11px] text-slate-500 mt-0.5">Execute suites and record test results</p>
+                        </div>
+                      </Link>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-[#edf2f7] flex items-center justify-between text-[11px] text-slate-400">
+                      <span>Created on {new Date(project.created_at).toLocaleDateString()}</span>
+                      <span>ID: {project.id}</span>
+                    </div>
+                  </div>
+                </section>
+              </div>
             ) : null}
           </div>
         </main>

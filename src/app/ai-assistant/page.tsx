@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { Sparkles, Check, Trash2, Wand2 } from 'lucide-react';
 
 export default function AIAssistantPage() {
   const [activeTab, setActiveTab] = useState<'generator' | 'analyzer' | 'coverage' | 'defects' | 'synthetic'>('generator');
@@ -42,17 +43,33 @@ Target: ${prompt}
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#f5f7f9]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">AI QA Assistant</h1>
-            <p className="text-muted-foreground mt-1">Accelerate testing with AI-powered generation, analysis, and insights</p>
+          {/* Breadcrumb / Top Bar */}
+          <div className="mb-5">
+            <div className="flex items-center gap-2 text-xs text-[#6e7d8c] mb-1">
+              <span>Overview</span>
+              <span>/</span>
+              <span className="text-[#1d2d3e] font-medium">AI Assistant</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-[#1d2d3e] flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#48a43f]" />
+                  AI QA Assistant
+                </h1>
+                <p className="text-xs text-[#6e7d8c] mt-0.5">
+                  Accelerate QA workflows with automated test generation, requirements analysis, and synthetic data
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="flex gap-2 mb-6 border-b border-border pb-4">
+          {/* TestRail Subtabs */}
+          <div className="flex gap-1.5 mb-5 border-b border-[#d8dee4] pb-2 overflow-x-auto">
             {[
               { id: 'generator', label: 'Test Case Generator' },
               { id: 'analyzer', label: 'Requirements Analyzer' },
@@ -63,10 +80,10 @@ Target: ${prompt}
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition ${
                   activeTab === tab.id
-                    ? 'bg-primary text-white'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground'
+                    ? 'bg-[#1d2d3e] text-white shadow-sm'
+                    : 'bg-white text-[#4f6174] border border-[#d8dee4] hover:bg-[#f5f7f9]'
                 }`}
               >
                 {tab.label}
@@ -74,43 +91,72 @@ Target: ${prompt}
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-secondary border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Input Prompt / Requirements</h3>
-              <form onSubmit={handleGenerate} className="space-y-4">
-                <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Input Card */}
+            <div className="bg-white border border-[#d8dee4] rounded-lg shadow-sm p-5 flex flex-col">
+              <div className="pb-3 mb-4 border-b border-[#e5e9ec]">
+                <h3 className="text-sm font-semibold text-[#1d2d3e]">Input Prompt / Specifications</h3>
+                <p className="text-xs text-[#6e7d8c]">Paste user stories, acceptance criteria, or testing instructions</p>
+              </div>
+
+              <form onSubmit={handleGenerate} className="flex-1 flex flex-col space-y-4">
+                <div className="flex-1">
                   <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    className="w-full h-48 px-4 py-3 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono text-sm"
-                    placeholder="Enter requirement description or user story for AI test generation..."
+                    className="w-full h-64 p-3 bg-white border border-[#d8dee4] rounded text-xs font-mono text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] placeholder-[#95a5a6] resize-none"
+                    placeholder="e.g. As a registered user, I want to securely log into the portal using my email and password with error feedback on invalid attempts..."
                     required
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50"
+                  className="w-full py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white text-xs font-semibold rounded shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
-                  {loading ? 'AI is generating...' : 'Generate with AI'}
+                  <Wand2 className="w-3.5 h-3.5" />
+                  {loading ? 'AI is generating test cases...' : 'Generate with AI'}
                 </button>
               </form>
             </div>
 
-            <div className="bg-secondary border border-border rounded-lg p-6 flex flex-col">
-              <h3 className="text-lg font-semibold text-foreground mb-4">AI Output & Review</h3>
-              <div className="flex-1 bg-background border border-border rounded-md p-4 font-mono text-xs text-foreground overflow-y-auto h-48 whitespace-pre-wrap">
-                {output || 'AI output will appear here after generation. All generated artifacts require human review and approval.'}
+            {/* Output Card */}
+            <div className="bg-white border border-[#d8dee4] rounded-lg shadow-sm p-5 flex flex-col">
+              <div className="pb-3 mb-4 border-b border-[#e5e9ec] flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-[#1d2d3e]">AI Output & Review</h3>
+                  <p className="text-xs text-[#6e7d8c]">Review and approve generated artifacts before committing</p>
+                </div>
+                {output && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-green-50 text-[#3d8c36] border border-green-200">
+                    Generated
+                  </span>
+                )}
               </div>
+
+              <div className="flex-1 bg-[#f9fafb] border border-[#d8dee4] rounded p-3 font-mono text-xs text-[#1d2d3e] overflow-y-auto h-64 whitespace-pre-wrap">
+                {output || (
+                  <span className="text-[#95a5a6] italic">
+                    AI output will appear here after generation. All generated artifacts require human review and approval.
+                  </span>
+                )}
+              </div>
+
               {output && (
-                <div className="mt-4 flex gap-4">
-                  <button className="flex-1 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
+                <div className="mt-4 flex gap-3">
+                  <button
+                    type="button"
+                    className="flex-1 py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white rounded text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                  >
+                    <Check className="w-3.5 h-3.5" />
                     Approve & Save to Repository
                   </button>
                   <button 
+                    type="button"
                     onClick={() => setOutput('')}
-                    className="px-4 py-2 bg-secondary border border-border rounded-md hover:bg-muted text-sm"
+                    className="px-3 py-2 bg-white border border-[#d8dee4] text-[#4f6174] hover:bg-[#f5f7f9] rounded text-xs font-semibold transition flex items-center gap-1"
                   >
+                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
                     Discard
                   </button>
                 </div>

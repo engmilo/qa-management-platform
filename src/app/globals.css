@@ -4,15 +4,26 @@
 
 @layer base {
   :root {
-    --background: 220 30% 7%;
-    --foreground: 210 15% 90%;
-    --primary: 220 60% 30%;
-    --secondary: 220 20% 15%;
-    --muted: 220 20% 12%;
-    --muted-foreground: 210 10% 65%;
-    --border: 220 20% 18%;
-    --input: 220 20% 15%;
-    --ring: 220 60% 50%;
+    /* TestRail Light Background */
+    --background: 210 20% 97%;          /* #f4f6f8 */
+    --foreground: 215 25% 17%;          /* #222c37 */
+    
+    /* TestRail Signature Green for CTAs / Primary actions */
+    --primary: 115 45% 44%;             /* #48a43f */
+    --primary-foreground: 0 0% 100%;    /* #ffffff */
+
+    /* TestRail Clean White for Panels, Cards, Tables */
+    --secondary: 0 0% 100%;             /* #ffffff */
+    --secondary-foreground: 215 25% 17%;
+
+    /* TestRail Muted Grays */
+    --muted: 210 25% 95%;               /* #edf1f5 */
+    --muted-foreground: 215 14% 45%;    /* #64748b */
+
+    /* TestRail Borders and Inputs */
+    --border: 214 20% 88%;              /* #d8dee4 */
+    --input: 214 20% 88%;
+    --ring: 115 45% 44%;                /* #48a43f */
   }
 
   * {
@@ -20,6 +31,51 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased font-sans;
+    color: #2c3e50;
+    background-color: #f5f7f9;
+  }
+}
+
+/* Custom TestRail helper classes */
+@layer components {
+  /* TestRail Primary Button */
+  .btn-testrail-primary {
+    @apply bg-[#48a43f] hover:bg-[#3c8b34] text-white font-medium px-4 py-2 rounded shadow-sm text-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#48a43f] focus:ring-offset-1 disabled:opacity-50;
+  }
+
+  /* TestRail Secondary Button */
+  .btn-testrail-secondary {
+    @apply bg-white hover:bg-slate-50 text-slate-700 font-medium px-4 py-2 rounded border border-[#d8dee4] shadow-sm text-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50;
+  }
+
+  /* TestRail Blue Button */
+  .btn-testrail-blue {
+    @apply bg-[#276fbf] hover:bg-[#1d5ea8] text-white font-medium px-4 py-2 rounded shadow-sm text-sm transition-colors inline-flex items-center gap-1.5 disabled:opacity-50;
+  }
+
+  /* TestRail Status Badges */
+  .badge-passed {
+    @apply bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+  }
+
+  .badge-failed {
+    @apply bg-[#f2dede] text-[#a94442] border border-[#ebccd1] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+  }
+
+  .badge-blocked {
+    @apply bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+  }
+
+  .badge-retest {
+    @apply bg-[#f3e8ff] text-[#7e22ce] border border-[#e9d5ff] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+  }
+
+  .badge-untested {
+    @apply bg-[#f4f5f7] text-[#5e6c84] border border-[#dfe1e6] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+  }
+
+  .badge-active {
+    @apply bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
@@ -12,28 +12,22 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
 
-  const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError('');
-    setMessage('');
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: email.trim(),
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
       password,
-      options: { data: { full_name: fullName.trim() } },
+      options: {
+        data: { full_name: fullName },
+      },
     });
 
     if (signUpError) {
       setError(signUpError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (!data.session) {
-      setMessage('Account created. Check your email and confirm your address before signing in.');
       setLoading(false);
       return;
     }
@@ -43,35 +37,99 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Create Account</h1>
-          <p className="text-muted-foreground mt-2">Start managing your QA process</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] px-4 py-12">
+      {/* TestRail Brand Header */}
+      <div className="mb-6 flex items-center gap-3">
+        <div className="w-10 h-10 rounded bg-[#48a43f] flex items-center justify-center text-white font-bold text-lg shadow-sm">
+          TR
         </div>
+        <div>
+          <h1 className="text-2xl font-bold text-[#1d2d3e] tracking-tight">QA Management Platform</h1>
+          <p className="text-xs text-[#6e7d8c]">Enterprise Test Management</p>
+        </div>
+      </div>
+
+      <div className="w-full max-w-md bg-white border border-[#d8dee4] rounded-lg shadow-sm p-8">
+        <div className="mb-6 pb-4 border-b border-[#e5e9ec]">
+          <h2 className="text-lg font-semibold text-[#1d2d3e]">Create Your Account</h2>
+          <p className="text-xs text-[#6e7d8c] mt-0.5">Start managing your QA projects and tests</p>
+        </div>
+
+        {error && (
+          <div className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-2">Full Name</label>
-            <input id="fullName" type="text" value={fullName} onChange={(event) => setFullName(event.target.value)} className="w-full px-4 py-2 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="John Doe" required autoComplete="name" />
+            <label htmlFor="fullName" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+              Full Name
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+              placeholder="John Doe"
+              required
+            />
           </div>
+
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">Email</label>
-            <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full px-4 py-2 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="you@company.com" required autoComplete="email" />
+            <label htmlFor="email" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+              placeholder="you@company.com"
+              required
+            />
           </div>
+
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">Password</label>
-            <input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full px-4 py-2 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="••••••••" required minLength={8} autoComplete="new-password" />
+            <label htmlFor="password" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+              placeholder="••••••••"
+              required
+              minLength={8}
+            />
+            <p className="text-[11px] text-[#6e7d8c] mt-1">Must be at least 8 characters</p>
           </div>
-          {error && <div role="alert" className="text-red-500 text-sm">{error}</div>}
-          {message && <div role="status" className="text-green-500 text-sm">{message} <Link href="/auth/login" className="underline">Sign in</Link></div>}
-          <button type="submit" disabled={loading} className="w-full py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50">
-            {loading ? 'Creating account...' : 'Create Account'}
-          </button>
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-semibold rounded text-sm shadow-sm transition disabled:opacity-50"
+            >
+              {loading ? 'Creating account...' : 'Create Account'}
+            </button>
+          </div>
         </form>
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+
+        <div className="mt-6 pt-4 border-t border-[#e5e9ec] text-center text-xs text-[#6e7d8c]">
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-primary hover:underline">Sign in</Link>
+          <Link href="/auth/login" className="text-[#276fbf] hover:underline font-semibold">
+            Sign in
+          </Link>
         </div>
+      </div>
+
+      <div className="mt-8 text-center text-xs text-[#8c9ba5]">
+        &copy; {new Date().getFullYear()} QA Management Platform. All rights reserved.
       </div>
     </div>
   );

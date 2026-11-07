@@ -33,7 +33,7 @@ Set up the following environment variables in Vercel project settings:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+SUPABASE_SECRET_KEY=your-supabase-secret-key
 NEXT_PUBLIC_APP_URL=https://your-domain.com
 ```
 
@@ -67,6 +67,6 @@ Once deployed, verify the following core user journeys:
 ---
 
 ## Security Best Practices
-- Ensure `SUPABASE_SERVICE_ROLE_KEY` is never exposed to the frontend client.
+- Keep `SUPABASE_SECRET_KEY` server-only; never expose it to the frontend or commit it to source control.
 - Regularly audit PostgreSQL RLS policies in Supabase.
 - Enforce strict role-based access control (RBAC) across all server actions.

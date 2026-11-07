@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { Building2, UserPlus, Users, CheckCircle2 } from 'lucide-react';
 
 type OrganizationMembership = {
   role: string;
@@ -14,6 +15,7 @@ type OrganizationMember = {
   email: string;
   fullName: string;
   role: string;
+  isCurrentUser: boolean;
 };
 
 async function fetchOrganizationMembers(organizationId: string): Promise<OrganizationMember[]> {
@@ -33,7 +35,6 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [settingsError, setSettingsError] = useState('');
   const [memberEmail, setMemberEmail] = useState('');
-  const [memberFullName, setMemberFullName] = useState('');
   const [memberRole, setMemberRole] = useState('qa_engineer');
   const [addingMember, setAddingMember] = useState(false);
   const [memberMessage, setMemberMessage] = useState('');
@@ -41,8 +42,10 @@ export default function SettingsPage() {
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [membersError, setMembersError] = useState('');
-  const [deactivatingUserId, setDeactivatingUserId] = useState('');
   const [memberToDeactivate, setMemberToDeactivate] = useState<OrganizationMember | null>(null);
+  const [deactivatingUserId, setDeactivatingUserId] = useState('');
+  const [deactivationError, setDeactivationError] = useState('');
+  const [deactivationMessage, setDeactivationMessage] = useState('');
   const deactivationDialogRef = useRef<HTMLDialogElement>(null);
 
   const selectedMembership = memberships.find((item) => item.organization?.id === selectedOrgId);
@@ -51,6 +54,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     let active = true;
+
     fetch('/api/organizations', { cache: 'no-store' })
       .then(async (response) => {
         const data = await response.json();
@@ -59,7 +63,9 @@ export default function SettingsPage() {
       })
       .then((data) => {
         if (!active) return;
-        const available = (data.organizations ?? []).filter((item: OrganizationMembership) => item.organization) as OrganizationMembership[];
+        const available = (data.organizations ?? []).filter(
+          (item: OrganizationMembership) => item.organization
+        ) as OrganizationMembership[];
         setMemberships(available);
         const first = available[0];
         if (first?.organization) {
@@ -70,7 +76,9 @@ export default function SettingsPage() {
       .catch((loadError: unknown) => {
         if (active) setOrganizationLoadError(loadError instanceof Error ? loadError.message : 'Could not load organization settings.');
       })
-      .finally(() => { if (active) setLoading(false); });
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
     return () => { active = false; };
   }, []);
@@ -98,7 +106,6 @@ export default function SettingsPage() {
   useEffect(() => {
     const dialog = deactivationDialogRef.current;
     if (!dialog) return;
-
     if (memberToDeactivate && !dialog.open) dialog.showModal();
     if (!memberToDeactivate && dialog.open) dialog.close();
   }, [memberToDeactivate]);
@@ -111,11 +118,15 @@ export default function SettingsPage() {
     setSettingsError('');
     setMemberMessage('');
     setMemberError('');
+    setDeactivationMessage('');
+    setDeactivationError('');
+    setMemberToDeactivate(null);
   };
 
   const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!org) return;
+
     setSaving(true);
     setSaved(false);
     setSettingsError('');
@@ -128,6 +139,7 @@ export default function SettingsPage() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to save organization settings.');
+
       setMemberships((current) => current.map((item) => item.organization?.id === org.id
         ? { ...item, organization: { ...item.organization, name: orgName } }
         : item
@@ -143,6 +155,7 @@ export default function SettingsPage() {
   const handleAddMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!org) return;
+
     setAddingMember(true);
     setMemberError('');
     setMemberMessage('');
@@ -150,37 +163,35 @@ export default function SettingsPage() {
     try {
       const response = await fetch(`/api/organizations/${org.id}`, {
         method: 'POST',
-        body: JSON.stringify({ email: memberEmail, fullName: memberFullName, role: memberRole }),
+        body: JSON.stringify({ email: memberEmail, role: memberRole }),
         headers: { 'Content-Type': 'application/json' },
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Could not add this user.');
+      if (!response.ok) throw new Error(data.error || 'Could not add this member.');
 
-      setMemberMessage(data.invitationSent
-        ? `Invitation sent to ${memberEmail.trim()}. They can confirm their email and set a password from the link.`
-        : `${memberEmail.trim()} now has access to ${org.name}.`);
+      setMemberMessage(`${memberEmail.trim()} can now access ${org.name}.`);
       setMemberEmail('');
-      setMemberFullName('');
       setMembers(await fetchOrganizationMembers(org.id));
     } catch (addError: unknown) {
-      setMemberError(addError instanceof Error ? addError.message : 'Could not add this user.');
+      setMemberError(addError instanceof Error ? addError.message : 'Could not add this member.');
     } finally {
       setAddingMember(false);
     }
   };
 
-  const handleDeactivate = async (member: OrganizationMember) => {
-    if (!org) return;
-    setMemberError('');
+  const handleDeactivate = (member: OrganizationMember) => {
+    setDeactivationError('');
+    setDeactivationMessage('');
     setMemberToDeactivate(member);
   };
 
   const confirmDeactivate = async () => {
     const member = memberToDeactivate;
     if (!org || !member) return;
+
     setDeactivatingUserId(member.userId);
-    setMemberError('');
-    setMemberMessage('');
+    setDeactivationError('');
+    setDeactivationMessage('');
     try {
       const response = await fetch(`/api/organizations/${org.id}`, {
         method: 'DELETE',
@@ -189,165 +200,263 @@ export default function SettingsPage() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Could not deactivate this user.');
+
       setMembers((current) => current.filter((item) => item.userId !== member.userId));
-      setMemberMessage(`${member.email} no longer has access to ${org.name}.`);
+      setDeactivationMessage(`${member.email} no longer has access to ${org.name}.`);
       setMemberToDeactivate(null);
-    } catch (deactivateError: unknown) {
-      setMemberError(deactivateError instanceof Error ? deactivateError.message : 'Could not deactivate this user.');
+    } catch (error: unknown) {
+      setDeactivationError(error instanceof Error ? error.message : 'Could not deactivate this user.');
     } finally {
       setDeactivatingUserId('');
     }
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#f5f7f9]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-3xl space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Organization Settings</h1>
-              <p className="mt-2 text-sm text-muted-foreground">Manage your organization details and access.</p>
+            <div className="pb-4 border-b border-[#e2e8f0]">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Organization Settings</h1>
+              <p className="text-xs text-slate-500 mt-0.5">Manage your team workspace profile, permissions, and members</p>
             </div>
 
             {loading ? (
-              <div className="text-muted-foreground">Loading settings...</div>
+              <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500 shadow-sm">
+                Loading settings...
+              </div>
             ) : organizationLoadError ? (
-              <div role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-300">
+              <div role="alert" className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-md text-xs font-medium">
                 <p>{organizationLoadError}</p>
-                <button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-md border border-red-400/40 px-3 py-1.5 hover:bg-red-500/10">Try again</button>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="mt-3 btn-testrail-secondary text-xs"
+                >
+                  Try again
+                </button>
               </div>
             ) : memberships.length === 0 ? (
-              <div className="bg-secondary border border-border rounded-lg p-6 text-muted-foreground">No organization found. Create an organization before managing settings.</div>
+              <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500 shadow-sm">
+                No organization found. Create an organization before managing settings.
+              </div>
             ) : (
               <>
                 {memberships.length > 1 && (
-                  <div>
-                    <label htmlFor="settings-organization" className="block text-sm font-medium text-foreground mb-2">Organization</label>
-                    <select id="settings-organization" value={selectedOrgId} onChange={(event) => handleOrganizationChange(event.target.value)} className="w-full max-w-xl px-4 py-2 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
-                      {memberships.map((item) => item.organization && <option key={item.organization.id} value={item.organization.id}>{item.organization.name}</option>)}
+                  <div className="bg-white border border-[#d8dee4] rounded-md p-4 shadow-sm flex items-center justify-between gap-4">
+                    <label htmlFor="settings-organization" className="text-xs font-semibold uppercase tracking-wider text-slate-700 shrink-0">
+                      Active Organization:
+                    </label>
+                    <select
+                      id="settings-organization"
+                      value={selectedOrgId}
+                      onChange={(event) => handleOrganizationChange(event.target.value)}
+                      className="w-full max-w-md px-3 py-1.5 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f]"
+                    >
+                      {memberships.map((item) => item.organization && (
+                        <option key={item.organization.id} value={item.organization.id}>{item.organization.name}</option>
+                      ))}
                     </select>
                   </div>
                 )}
 
-                <form onSubmit={handleSave} className="space-y-6 bg-secondary border border-border rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-foreground">Organization details</h2>
-                  <div>
-                    <label htmlFor="organization-name" className="block text-sm font-medium text-foreground mb-2">Organization Name</label>
-                    <input id="organization-name" type="text" value={orgName} onChange={(event) => { setOrgName(event.target.value); setSaved(false); }} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary" required />
+                {/* Organization Details Form */}
+                <form onSubmit={handleSave} className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
+                  <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-[#276fbf]" />
+                    <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Organization Profile</h2>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Subscription Plan</label>
-                    <div className="p-4 bg-background border border-border rounded-md flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">Enterprise QA Tier</p>
-                        <p className="text-xs text-muted-foreground mt-1">Unlimited projects, requirements, and test runs with AI assistant</p>
+
+                  <div className="p-6 space-y-5">
+                    <div>
+                      <label htmlFor="organization-name" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Organization Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="organization-name"
+                        type="text"
+                        value={orgName}
+                        onChange={(event) => { setOrgName(event.target.value); setSaved(false); }}
+                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Subscription Plan</label>
+                      <div className="p-4 bg-[#f8fafc] border border-[#d8dee4] rounded-md flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">Enterprise QA Tier</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">Unlimited test repositories, suites, executions, and AI assistant access</p>
+                        </div>
+                        <span className="text-[11px] font-semibold px-2.5 py-0.5 bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] rounded-full">
+                          Active License
+                        </span>
                       </div>
-                      <span className="text-xs px-3 py-1 bg-primary text-white rounded-full">Active</span>
+                    </div>
+
+                    {settingsError && <p role="alert" className="text-xs text-red-600 font-medium">{settingsError}</p>}
+                    {saved && (
+                      <p role="status" className="text-xs text-[#2e7d32] font-semibold flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4" /> Settings saved successfully.
+                      </p>
+                    )}
+
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={saving || !orgName.trim()}
+                        className="btn-testrail-primary"
+                      >
+                        {saving ? 'Saving...' : 'Save Changes'}
+                      </button>
                     </div>
                   </div>
-                  {settingsError && <p role="alert" className="text-sm text-red-500">{settingsError}</p>}
-                  {saved && <p role="status" className="text-sm text-green-500">Settings saved successfully.</p>}
-                  <button type="submit" disabled={saving || !orgName.trim()} className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
                 </form>
 
+                {/* Team Members Management */}
                 {canManageMembers ? (
-                  <section className="space-y-5 bg-secondary border border-border rounded-lg p-6">
-                    <div>
-                      <h2 className="text-lg font-semibold text-foreground">Users and access</h2>
-                      <p className="mt-1 text-sm text-muted-foreground">Invite a new person by email or add an existing account to this organization.</p>
+                  <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
+                    <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex items-center gap-2">
+                      <Users className="w-4 h-4 text-[#48a43f]" />
+                      <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Team &amp; Access Control</h2>
                     </div>
 
-                    <form onSubmit={handleAddMember} className="space-y-4 border-b border-border pb-6">
-                      <div>
-                        <label htmlFor="member-full-name" className="block text-sm font-medium text-foreground mb-2">Full name <span className="text-muted-foreground">(optional)</span></label>
-                        <input id="member-full-name" type="text" value={memberFullName} onChange={(event) => setMemberFullName(event.target.value)} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary" autoComplete="name" />
-                      </div>
-                      <div>
-                        <label htmlFor="member-email" className="block text-sm font-medium text-foreground mb-2">Email address</label>
-                        <input id="member-email" type="email" value={memberEmail} onChange={(event) => setMemberEmail(event.target.value)} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="teammate@example.com" required autoComplete="email" />
-                      </div>
-                      <div>
-                        <label htmlFor="member-role" className="block text-sm font-medium text-foreground mb-2">Organization role</label>
-                        <select id="member-role" value={memberRole} onChange={(event) => setMemberRole(event.target.value)} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
-                          <option value="qa_engineer">QA Engineer</option>
-                          <option value="qa_manager">QA Manager</option>
-                          <option value="developer">Developer</option>
-                          <option value="viewer">Viewer</option>
-                        </select>
-                      </div>
-                      {memberError && <p role="alert" className="text-sm text-red-500">{memberError}</p>}
-                      {memberMessage && <p role="status" className="text-sm text-green-500">{memberMessage}</p>}
-                      <button type="submit" disabled={addingMember || !memberEmail.trim()} className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm disabled:opacity-50">{addingMember ? 'Adding...' : 'Add or invite user'}</button>
-                    </form>
+                    <div className="p-6 space-y-6">
+                      <form onSubmit={handleAddMember} className="space-y-4">
+                        <p className="text-xs text-slate-500">
+                          Invite or add registered users to this organization by email address.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="sm:col-span-2">
+                            <label htmlFor="member-email" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Account email</label>
+                            <input
+                              id="member-email"
+                              type="email"
+                              value={memberEmail}
+                              onChange={(event) => setMemberEmail(event.target.value)}
+                              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
+                              placeholder="teammate@company.com"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="member-role" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Role</label>
+                            <select
+                              id="member-role"
+                              value={memberRole}
+                              onChange={(event) => setMemberRole(event.target.value)}
+                              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f]"
+                            >
+                              <option value="qa_engineer">QA Engineer</option>
+                              <option value="qa_manager">QA Manager</option>
+                              <option value="developer">Developer</option>
+                              <option value="viewer">Viewer</option>
+                            </select>
+                          </div>
+                        </div>
 
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground mb-3">Organization members</h3>
-                      {membersLoading ? (
-                        <p className="text-sm text-muted-foreground">Loading members...</p>
-                      ) : membersError ? (
-                        <p role="alert" className="text-sm text-red-500">{membersError}</p>
-                      ) : members.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No members found.</p>
-                      ) : (
-                        <ul className="divide-y divide-border">
-                          {members.map((member) => (
-                            <li key={member.userId} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-medium text-foreground">{member.fullName}</p>
-                                <p className="truncate text-sm text-muted-foreground">{member.email}</p>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="rounded-full bg-background px-3 py-1 text-xs text-muted-foreground">{member.role.replaceAll('_', ' ')}</span>
-                                <button type="button" onClick={() => handleDeactivate(member)} disabled={deactivatingUserId === member.userId} className="rounded-md border border-red-500/40 px-3 py-1.5 text-sm text-red-400 hover:bg-red-500/10 disabled:opacity-50">
-                                  {deactivatingUserId === member.userId ? 'Deactivating...' : 'Deactivate'}
-                                </button>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      <p className="mt-3 text-xs text-muted-foreground">Deactivation removes access to this organization only. The person’s Supabase account and access to other organizations remain.</p>
+                        {memberError && <p role="alert" className="text-xs text-red-600 font-medium">{memberError}</p>}
+                        {memberMessage && (
+                          <p role="status" className="text-xs text-[#2e7d32] font-semibold flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4" /> {memberMessage}
+                          </p>
+                        )}
+
+                        <button
+                          type="submit"
+                          disabled={addingMember || !memberEmail.trim()}
+                          className="btn-testrail-primary"
+                        >
+                          {addingMember ? 'Adding...' : 'Add Member'}
+                        </button>
+                      </form>
+
+                      {/* Member list table */}
+                      <div className="border-t border-[#edf2f7] pt-5">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Active Organization Members</h3>
+                        {deactivationMessage && (
+                          <p role="status" className="mb-3 text-xs text-[#2e7d32] font-semibold">{deactivationMessage}</p>
+                        )}
+                        {membersLoading ? (
+                          <p className="text-xs text-slate-400">Loading members...</p>
+                        ) : membersError ? (
+                          <p role="alert" className="text-xs text-red-600 font-medium">{membersError}</p>
+                        ) : members.length === 0 ? (
+                          <p className="text-xs text-slate-400">No members found.</p>
+                        ) : (
+                          <div className="border border-[#d8dee4] rounded overflow-hidden">
+                            <ul className="divide-y divide-[#edf2f7]">
+                              {members.map((member) => (
+                                <li key={member.userId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 hover:bg-[#f8fafc] transition-colors">
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-bold text-slate-900 truncate">{member.fullName}</p>
+                                    <p className="text-[11px] text-slate-500 truncate">{member.email}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize bg-slate-100 text-slate-700 border border-slate-200">
+                                      {member.role.replaceAll('_', ' ')}
+                                    </span>
+                                    {member.isCurrentUser ? (
+                                      <span className="text-[11px] font-semibold text-[#276fbf]">You</span>
+                                    ) : member.role === 'org_admin' || member.role === 'super_admin' ? (
+                                      <span className="text-[10px] text-slate-400 italic">Admin protected</span>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeactivate(member)}
+                                        disabled={deactivatingUserId === member.userId}
+                                        className="text-[11px] text-red-600 hover:text-red-800 font-medium hover:underline disabled:opacity-50"
+                                      >
+                                        {deactivatingUserId === member.userId ? 'Deactivating...' : 'Deactivate'}
+                                      </button>
+                                    )}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </section>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Only an organization admin can manage members.</p>
+                  <p className="text-xs text-slate-500 italic">Only an organization admin can add or manage team members.</p>
                 )}
               </>
             )}
           </div>
         </main>
       </div>
+
+      {/* Deactivation Dialog */}
       <dialog
         ref={deactivationDialogRef}
         aria-labelledby="deactivation-dialog-title"
         onCancel={(event) => {
           event.preventDefault();
           if (!deactivatingUserId) {
-            setMemberError('');
+            setDeactivationError('');
             setMemberToDeactivate(null);
           }
         }}
-        className="w-[calc(100%-2rem)] max-w-lg rounded-xl border border-border bg-secondary p-0 text-foreground shadow-2xl backdrop:bg-black/70"
+        className="w-[calc(100%-2rem)] max-w-md rounded-md border border-[#d8dee4] bg-white p-6 text-slate-900 shadow-2xl backdrop:bg-black/50"
       >
         {memberToDeactivate && (
-          <div className="p-6">
-            <h2 id="deactivation-dialog-title" className="text-xl font-semibold">Remove organization access?</h2>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              <span className="font-medium text-foreground">{memberToDeactivate.fullName || memberToDeactivate.email}</span>
-              {' '}({memberToDeactivate.email}) will no longer be able to access <span className="font-medium text-foreground">{org?.name}</span>.
+          <div>
+            <h2 id="deactivation-dialog-title" className="text-base font-bold text-slate-900">Remove Member Access?</h2>
+            <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+              <span className="font-semibold text-slate-900">{memberToDeactivate.fullName || memberToDeactivate.email}</span> ({memberToDeactivate.email}) will no longer be able to access <span className="font-semibold text-slate-900">{org?.name}</span>.
             </p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Their account will stay active, and access to their other organizations will not change.
-            </p>
-            {memberError && <p role="alert" className="mt-4 text-sm text-red-400">{memberError}</p>}
-            <div className="mt-6 flex justify-end gap-3">
+            {deactivationError && <p role="alert" className="mt-3 text-xs text-red-600 font-medium">{deactivationError}</p>}
+            <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-[#edf2f7]">
               <button
                 type="button"
-                onClick={() => { setMemberError(''); setMemberToDeactivate(null); }}
+                onClick={() => { setDeactivationError(''); setMemberToDeactivate(null); }}
                 disabled={deactivatingUserId === memberToDeactivate.userId}
-                className="rounded-md border border-border bg-background px-4 py-2 text-sm text-foreground hover:bg-background/70 disabled:opacity-50"
+                className="btn-testrail-secondary text-xs"
               >
                 Cancel
               </button>
@@ -355,9 +464,9 @@ export default function SettingsPage() {
                 type="button"
                 onClick={() => void confirmDeactivate()}
                 disabled={deactivatingUserId === memberToDeactivate.userId}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded shadow-sm disabled:opacity-50"
               >
-                {deactivatingUserId === memberToDeactivate.userId ? 'Deactivating...' : 'Deactivate user'}
+                {deactivatingUserId === memberToDeactivate.userId ? 'Deactivating...' : 'Deactivate Member'}
               </button>
             </div>
           </div>

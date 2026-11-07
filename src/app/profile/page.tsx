@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { User, Mail, Shield, Check, AlertCircle } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -59,28 +60,76 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#f5f7f9]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl">
-            <h1 className="text-2xl font-bold text-foreground mb-2">My Profile</h1>
-            <p className="text-sm text-muted-foreground mb-6">Update the name and email associated with your account.</p>
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-xs text-[#6e7d8c] mb-1">
+              <span>Administration</span>
+              <span>/</span>
+              <span className="text-[#1d2d3e] font-medium">My Profile</span>
+            </div>
+
+            <div className="mb-5">
+              <h1 className="text-xl font-bold text-[#1d2d3e] flex items-center gap-2">
+                <User className="w-5 h-5 text-[#276fbf]" />
+                User Profile
+              </h1>
+              <p className="text-xs text-[#6e7d8c] mt-0.5">
+                Manage your personal information, credentials, and notification email
+              </p>
+            </div>
 
             {authLoading ? (
-              <p className="text-muted-foreground">Loading profile...</p>
+              <div className="bg-white border border-[#d8dee4] rounded-lg p-6 text-xs text-[#6e7d8c]">
+                Loading profile information...
+              </div>
             ) : !user ? (
-              <p className="text-muted-foreground">Sign in to manage your profile.</p>
+              <div className="bg-white border border-[#d8dee4] rounded-lg p-6 text-xs text-[#6e7d8c]">
+                Please sign in to manage your profile.
+              </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6 bg-secondary border border-border rounded-lg p-6">
+              <form onSubmit={handleSubmit} className="bg-white border border-[#d8dee4] rounded-lg shadow-sm p-6 space-y-5">
+                <div className="flex items-center gap-4 pb-4 border-b border-[#e5e9ec]">
+                  <div className="w-14 h-14 rounded-full bg-[#1d2d3e] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    {fullName ? fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'JD'}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#1d2d3e]">{fullName || 'User'}</h3>
+                    <p className="text-xs text-[#6e7d8c]">{email}</p>
+                    <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-[#276fbf] border border-blue-200">
+                      <Shield className="w-3 h-3" />
+                      Active Member
+                    </span>
+                  </div>
+                </div>
+
+                {message && (
+                  <div className="p-3 rounded bg-green-50 border border-green-200 text-[#3d8c36] text-xs font-medium flex items-center gap-2">
+                    <Check className="w-4 h-4 shrink-0" />
+                    <span>{message}</span>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
                 <div>
-                  <label htmlFor="profile-name" className="block text-sm font-medium text-foreground mb-2">Full name</label>
+                  <label htmlFor="profile-name" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+                    Full Name
+                  </label>
                   <input
                     id="profile-name"
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
-                    className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition"
                     autoComplete="name"
                     maxLength={255}
                     required
@@ -88,37 +137,33 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label htmlFor="profile-email" className="block text-sm font-medium text-foreground mb-2">Email address</label>
-                  <input
-                    id="profile-email"
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    autoComplete="email"
-                    required
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">Supabase may ask you to confirm an email change before it takes effect.</p>
+                  <label htmlFor="profile-email" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="profile-email"
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      className="w-full px-3 py-2 pl-9 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition"
+                      autoComplete="email"
+                      required
+                    />
+                    <Mail className="w-4 h-4 text-[#95a5a6] absolute left-3 top-2.5" />
+                  </div>
+                  <p className="text-[11px] text-[#6e7d8c] mt-1">
+                    Changing your email address requires confirmation via a verification link sent to the new address.
+                  </p>
                 </div>
 
-                {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
-                {message && <p role="status" className="text-sm text-green-500">{message}</p>}
-
-                <div className="flex gap-3">
+                <div className="pt-2 border-t border-[#e5e9ec] flex justify-end">
                   <button
                     type="submit"
-                    disabled={saving || !fullName.trim() || !email.trim()}
-                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm disabled:opacity-50"
-                  >
-                    {saving ? 'Saving...' : 'Save Profile'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push('/dashboard')}
                     disabled={saving}
-                    className="px-6 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted text-sm disabled:opacity-50"
+                    className="px-5 py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white text-xs font-semibold rounded shadow-sm transition disabled:opacity-50"
                   >
-                    Cancel
+                    {saving ? 'Saving changes...' : 'Save Profile Changes'}
                   </button>
                 </div>
               </form>
