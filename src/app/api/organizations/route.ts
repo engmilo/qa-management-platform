@@ -50,7 +50,10 @@ export async function GET() {
     return NextResponse.json({ organizations: [] }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
-  const organizationIds = memberships.map((membership) => membership.organization_id);
+  const membershipRows = memberships as Array<
+    Pick<Database['public']['Tables']['organization_members']['Row'], 'organization_id' | 'role'>
+  >;
+  const organizationIds = membershipRows.map((membership) => membership.organization_id);
   const { data: organizations, error: organizationsError } = await supabase
     .from('organizations')
     .select('id, name, slug')
@@ -64,8 +67,11 @@ export async function GET() {
     });
   }
 
-  const organizationById = new Map(organizations.map((organization) => [organization.id, organization] as const));
-  const result = memberships.map((membership) => ({
+  const organizationRows = organizations as Array<
+    Pick<Database['public']['Tables']['organizations']['Row'], 'id' | 'name' | 'slug'>
+  >;
+  const organizationById = new Map(organizationRows.map((organization) => [organization.id, organization] as const));
+  const result = membershipRows.map((membership) => ({
     role: membership.role,
     organization: organizationById.get(membership.organization_id) ?? null,
   }));
