@@ -1,18 +1,53 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ProjectSelector, type ProjectOption } from '@/components/forms/project-selector';
 
+type RequirementOption = { id: string; req_key: string; title: string };
+
 export default function NewTestCasePage() {
   const router = useRouter();
   const [project, setProject] = useState<ProjectOption | null>(null);
+  const [requirements, setRequirements] = useState<RequirementOption[]>([]);
+  const [requirementIds, setRequirementIds] = useState<string[]>([]);
+  const [loadingRequirements, setLoadingRequirements] = useState(false);
+  const [requirementsError, setRequirementsError] = useState('');
   const [form, setForm] = useState({ caseKey: '', title: '', description: '', preconditions: '', testType: 'functional', priority: 'medium', category: 'General', automationStatus: 'manual' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    setRequirements([]);
+    setRequirementIds([]);
+    setRequirementsError('');
+    setLoadingRequirements(false);
+
+    if (!project?.id) return () => { active = false; };
+
+    setLoadingRequirements(true);
+    fetch(`/api/requirements?projectId=${encodeURIComponent(project.id)}`, { cache: 'no-store' })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Could not load project requirements.');
+        return data as { requirements: RequirementOption[] };
+      })
+      .then((data) => {
+        if (active) setRequirements(data.requirements ?? []);
+      })
+      .catch((loadError: unknown) => {
+        if (active) setRequirementsError(loadError instanceof Error ? loadError.message : 'Could not load project requirements.');
+      })
+      .finally(() => {
+        if (active) setLoadingRequirements(false);
+      });
+
+    return () => { active = false; };
+  }, [project?.id]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -22,7 +57,7 @@ export default function NewTestCasePage() {
     try {
       const response = await fetch('/api/test-cases', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, projectId: project.id }),
+        body: JSON.stringify({ ...form, projectId: project.id, requirementIds }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Could not create the test case.');
@@ -47,6 +82,34 @@ export default function NewTestCasePage() {
             </div>
             <form onSubmit={submit} className="space-y-5 bg-secondary border border-border rounded-lg p-6">
               <div><label className="block text-sm font-medium text-foreground mb-2">Project</label><ProjectSelector value={project?.id ?? ''} onChange={setProject} /></div>
+              <fieldset className="space-y-2">
+                <legend className="text-sm font-medium text-foreground">Linked requirements <span className="font-normal text-muted-foreground">(optional)</span></legend>
+                {!project ? (
+                  <p className="text-sm text-muted-foreground">Select a project to see its requirements.</p>
+                ) : loadingRequirements ? (
+                  <p className="text-sm text-muted-foreground">Loading requirements…</p>
+                ) : requirementsError ? (
+                  <p role="alert" className="text-sm text-red-400">{requirementsError}</p>
+                ) : requirements.length ? (
+                  <div className="max-h-48 space-y-2 overflow-y-auto rounded-md border border-border p-3">
+                    {requirements.map((requirement) => (
+                      <label key={requirement.id} className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={requirementIds.includes(requirement.id)}
+                          onChange={(event) => setRequirementIds((selected) => event.target.checked
+                            ? [...selected, requirement.id]
+                            : selected.filter((id) => id !== requirement.id))}
+                          className="mt-1 accent-primary"
+                        />
+                        <span><span className="mr-2 font-mono text-muted-foreground">{requirement.req_key}</span>{requirement.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">This project has no requirements to link yet.</p>
+                )}
+              </fieldset>
               <div><label htmlFor="case-key" className="block text-sm font-medium text-foreground mb-2">Test Case Key</label><input id="case-key" value={form.caseKey} onChange={(event) => setForm({ ...form, caseKey: event.target.value.toUpperCase() })} placeholder="TC-101" required maxLength={30} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground" /></div>
               <div><label htmlFor="case-title" className="block text-sm font-medium text-foreground mb-2">Title</label><input id="case-title" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="User login with valid credentials" required maxLength={255} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground" /></div>
               <div><label htmlFor="case-description" className="block text-sm font-medium text-foreground mb-2">Description</label><textarea id="case-description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground" /></div>

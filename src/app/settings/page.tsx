@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [selectedOrgId, setSelectedOrgId] = useState('');
   const [orgName, setOrgName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [organizationLoadError, setOrganizationLoadError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [settingsError, setSettingsError] = useState('');
@@ -30,7 +31,7 @@ export default function SettingsPage() {
   useEffect(() => {
     let active = true;
 
-    fetch('/api/organizations')
+    fetch('/api/organizations', { cache: 'no-store' })
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Could not load organization settings.');
@@ -49,7 +50,7 @@ export default function SettingsPage() {
         }
       })
       .catch((loadError: unknown) => {
-        if (active) setSettingsError(loadError instanceof Error ? loadError.message : 'Could not load organization settings.');
+        if (active) setOrganizationLoadError(loadError instanceof Error ? loadError.message : 'Could not load organization settings.');
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -137,6 +138,13 @@ export default function SettingsPage() {
 
             {loading ? (
               <div className="text-muted-foreground">Loading settings...</div>
+            ) : organizationLoadError ? (
+              <div role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-300">
+                <p>{organizationLoadError}</p>
+                <button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-md border border-red-400/40 px-3 py-1.5 hover:bg-red-500/10">
+                  Try again
+                </button>
+              </div>
             ) : memberships.length === 0 ? (
               <div className="bg-secondary border border-border rounded-lg p-6 text-muted-foreground">
                 No organization found. Create an organization before managing settings.

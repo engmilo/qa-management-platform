@@ -79,12 +79,22 @@ CREATE POLICY test_case_steps_isolation ON test_case_steps
     )
   );
 
--- Test Case Requirements Policy - Cascade from test_cases
+-- Test Case Requirements Policy - both related records must be visible to the user.
 CREATE POLICY test_case_requirements_isolation ON test_case_requirements
   FOR ALL USING (
-    test_case_id IN (
-      SELECT id FROM test_cases 
-      WHERE organization_id IN (SELECT get_user_organization_ids(auth.uid()))
+    EXISTS (
+      SELECT 1 FROM requirements r
+      JOIN test_cases tc ON tc.project_id = r.project_id
+      WHERE r.id = test_case_requirements.requirement_id
+        AND tc.id = test_case_requirements.test_case_id
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM requirements r
+      JOIN test_cases tc ON tc.project_id = r.project_id
+      WHERE r.id = test_case_requirements.requirement_id
+        AND tc.id = test_case_requirements.test_case_id
     )
   );
 

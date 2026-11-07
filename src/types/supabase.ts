@@ -182,6 +182,20 @@ export interface Database {
           expected_result?: string;
         };
       };
+      test_case_requirements: {
+        Row: {
+          test_case_id: string;
+          requirement_id: string;
+        };
+        Insert: {
+          test_case_id: string;
+          requirement_id: string;
+        };
+        Update: {
+          test_case_id?: string;
+          requirement_id?: string;
+        };
+      };
       test_plans: {
         Row: {
           id: string;
