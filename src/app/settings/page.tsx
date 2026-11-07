@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
@@ -42,6 +42,8 @@ export default function SettingsPage() {
   const [membersLoading, setMembersLoading] = useState(false);
   const [membersError, setMembersError] = useState('');
   const [deactivatingUserId, setDeactivatingUserId] = useState('');
+  const [memberToDeactivate, setMemberToDeactivate] = useState<OrganizationMember | null>(null);
+  const deactivationDialogRef = useRef<HTMLDialogElement>(null);
 
   const selectedMembership = memberships.find((item) => item.organization?.id === selectedOrgId);
   const org = selectedMembership?.organization ?? null;
@@ -92,6 +94,14 @@ export default function SettingsPage() {
 
     return () => { active = false; };
   }, [selectedOrgId, canManageMembers]);
+
+  useEffect(() => {
+    const dialog = deactivationDialogRef.current;
+    if (!dialog) return;
+
+    if (memberToDeactivate && !dialog.open) dialog.showModal();
+    if (!memberToDeactivate && dialog.open) dialog.close();
+  }, [memberToDeactivate]);
 
   const handleOrganizationChange = (organizationId: string) => {
     setSelectedOrgId(organizationId);
@@ -161,9 +171,13 @@ export default function SettingsPage() {
 
   const handleDeactivate = async (member: OrganizationMember) => {
     if (!org) return;
-    const confirmed = window.confirm(`Deactivate ${member.fullName} (${member.email}) from ${org.name}? They will lose access to this organization, but their account and access to other organizations will remain.`);
-    if (!confirmed) return;
+    setMemberError('');
+    setMemberToDeactivate(member);
+  };
 
+  const confirmDeactivate = async () => {
+    const member = memberToDeactivate;
+    if (!org || !member) return;
     setDeactivatingUserId(member.userId);
     setMemberError('');
     setMemberMessage('');
@@ -177,6 +191,7 @@ export default function SettingsPage() {
       if (!response.ok) throw new Error(data.error || 'Could not deactivate this user.');
       setMembers((current) => current.filter((item) => item.userId !== member.userId));
       setMemberMessage(`${member.email} no longer has access to ${org.name}.`);
+      setMemberToDeactivate(null);
     } catch (deactivateError: unknown) {
       setMemberError(deactivateError instanceof Error ? deactivateError.message : 'Could not deactivate this user.');
     } finally {
@@ -304,6 +319,50 @@ export default function SettingsPage() {
           </div>
         </main>
       </div>
+      <dialog
+        ref={deactivationDialogRef}
+        aria-labelledby="deactivation-dialog-title"
+        onCancel={(event) => {
+          event.preventDefault();
+          if (!deactivatingUserId) {
+            setMemberError('');
+            setMemberToDeactivate(null);
+          }
+        }}
+        className="w-[calc(100%-2rem)] max-w-lg rounded-xl border border-border bg-secondary p-0 text-foreground shadow-2xl backdrop:bg-black/70"
+      >
+        {memberToDeactivate && (
+          <div className="p-6">
+            <h2 id="deactivation-dialog-title" className="text-xl font-semibold">Remove organization access?</h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              <span className="font-medium text-foreground">{memberToDeactivate.fullName || memberToDeactivate.email}</span>
+              {' '}({memberToDeactivate.email}) will no longer be able to access <span className="font-medium text-foreground">{org?.name}</span>.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Their account will stay active, and access to their other organizations will not change.
+            </p>
+            {memberError && <p role="alert" className="mt-4 text-sm text-red-400">{memberError}</p>}
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setMemberError(''); setMemberToDeactivate(null); }}
+                disabled={deactivatingUserId === memberToDeactivate.userId}
+                className="rounded-md border border-border bg-background px-4 py-2 text-sm text-foreground hover:bg-background/70 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmDeactivate()}
+                disabled={deactivatingUserId === memberToDeactivate.userId}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deactivatingUserId === memberToDeactivate.userId ? 'Deactivating...' : 'Deactivate user'}
+              </button>
+            </div>
+          </div>
+        )}
+      </dialog>
     </div>
   );
 }
