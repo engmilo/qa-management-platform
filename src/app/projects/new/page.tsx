@@ -17,11 +17,12 @@ export default function NewProjectPage() {
   const [loadingOrganizations, setLoadingOrganizations] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [organizationLoadError, setOrganizationLoadError] = useState('');
 
   useEffect(() => {
     let active = true;
 
-    fetch('/api/organizations')
+    fetch('/api/organizations', { cache: 'no-store' })
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Could not load organizations.');
@@ -29,6 +30,7 @@ export default function NewProjectPage() {
       })
       .then((data) => {
         if (!active) return;
+        if (!Array.isArray(data.organizations)) throw new Error('Organization response was invalid.');
         const memberships = (data.organizations ?? []).filter(
           (item: OrganizationMembership) => item.organization
         ) as OrganizationMembership[];
@@ -38,7 +40,7 @@ export default function NewProjectPage() {
         }
       })
       .catch((loadError: unknown) => {
-        if (active) setError(loadError instanceof Error ? loadError.message : 'Could not load organizations.');
+        if (active) setOrganizationLoadError(loadError instanceof Error ? loadError.message : 'Could not load organizations.');
       })
       .finally(() => {
         if (active) setLoadingOrganizations(false);
@@ -83,8 +85,22 @@ export default function NewProjectPage() {
             <h1 className="text-2xl font-bold text-foreground mb-6">Create New Project</h1>
 
             {error && <div role="alert" className="mb-4 text-sm text-red-500">{error}</div>}
+            {organizationLoadError && <div role="alert" className="mb-4 text-sm text-red-500">{organizationLoadError}</div>}
 
-            {!loadingOrganizations && orgs.length === 0 ? (
+            {loadingOrganizations ? (
+              <p className="rounded-lg border border-border bg-secondary p-6 text-sm text-muted-foreground">Loading organizations…</p>
+            ) : organizationLoadError ? (
+              <section className="rounded-lg border border-border bg-secondary p-6">
+                <p className="text-sm text-muted-foreground">We could not confirm your organization access, so project creation is paused.</p>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="mt-4 rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-muted"
+                >
+                  Try again
+                </button>
+              </section>
+            ) : orgs.length === 0 ? (
               <section className="bg-secondary border border-border rounded-lg p-6">
                 <h2 className="text-lg font-semibold text-foreground">Create an organization first</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -114,7 +130,7 @@ export default function NewProjectPage() {
                     onChange={(event) => setFormData({ ...formData, organizationId: event.target.value })}
                     className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     required
-                    disabled={loadingOrganizations}
+                    disabled={loadingOrganizations || orgs.length === 0}
                   >
                     {loadingOrganizations ? <option value="">Loading organizations...</option> : null}
                     {orgs.map((membership) => membership.organization && (

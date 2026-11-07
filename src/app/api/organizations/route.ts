@@ -34,16 +34,43 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: memberships, error } = await supabase
+  const { data: memberships, error: membershipError } = await supabase
     .from('organization_members')
-    .select('role, organization:organizations(*)')
+    .select('role, organization_id')
     .eq('user_id', user.id);
 
-  if (error) {
-    return NextResponse.json({ error: 'Could not load organizations.' }, { status: 500 });
+  if (membershipError) {
+    return NextResponse.json({ error: 'Could not load organization memberships.' }, {
+      status: 500,
+      headers: { 'Cache-Control': 'no-store' },
+    });
   }
 
-  return NextResponse.json({ organizations: memberships ?? [] });
+  if (!memberships?.length) {
+    return NextResponse.json({ organizations: [] }, { headers: { 'Cache-Control': 'no-store' } });
+  }
+
+  const organizationIds = memberships.map((membership) => membership.organization_id);
+  const { data: organizations, error: organizationsError } = await supabase
+    .from('organizations')
+    .select('id, name, slug')
+    .in('id', organizationIds)
+    .order('name', { ascending: true });
+
+  if (organizationsError || !organizations?.length) {
+    return NextResponse.json({ error: 'Could not load your organizations.' }, {
+      status: 500,
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
+
+  const organizationById = new Map(organizations.map((organization) => [organization.id, organization] as const));
+  const result = memberships.map((membership) => ({
+    role: membership.role,
+    organization: organizationById.get(membership.organization_id) ?? null,
+  }));
+
+  return NextResponse.json({ organizations: result }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
 export async function POST(request: NextRequest) {

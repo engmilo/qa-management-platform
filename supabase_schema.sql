@@ -263,6 +263,25 @@ CREATE POLICY requirements_isolation ON requirements
 CREATE POLICY test_cases_isolation ON test_cases
     FOR ALL USING (organization_id IN (SELECT get_user_organization_ids(auth.uid())));
 
+-- Test Case Requirements Policy - both linked records must be visible to the user.
+CREATE POLICY test_case_requirements_isolation ON test_case_requirements
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM requirements r
+            JOIN test_cases tc ON tc.project_id = r.project_id
+            WHERE r.id = test_case_requirements.requirement_id
+              AND tc.id = test_case_requirements.test_case_id
+        )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM requirements r
+            JOIN test_cases tc ON tc.project_id = r.project_id
+            WHERE r.id = test_case_requirements.requirement_id
+              AND tc.id = test_case_requirements.test_case_id
+        )
+    );
+
 -- Test Plans Policy
 CREATE POLICY test_plans_isolation ON test_plans
     FOR ALL USING (organization_id IN (SELECT get_user_organization_ids(auth.uid())));

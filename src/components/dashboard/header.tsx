@@ -6,27 +6,45 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 type OrganizationMembership = { organization: { name: string } | null };
+type OrganizationLoadState = 'loading' | 'available' | 'empty' | 'error';
 
 export function Header() {
   const { user } = useAuth();
   const router = useRouter();
   const [organizationName, setOrganizationName] = useState('');
+  const [organizationLoadState, setOrganizationLoadState] = useState<OrganizationLoadState>('loading');
+  const [organizationRetry, setOrganizationRetry] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
 
   useEffect(() => {
     let active = true;
-    fetch('/api/organizations')
-      .then((response) => response.ok ? response.json() : null)
-      .then((data) => {
-        if (!active || !data) return;
-        const memberships = (data.organizations ?? []) as OrganizationMembership[];
-        setOrganizationName(memberships.find((item) => item.organization)?.organization?.name || '');
+    setOrganizationName('');
+    setOrganizationLoadState('loading');
+
+    if (!user?.id) {
+      return () => { active = false; };
+    }
+
+    fetch('/api/organizations', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Could not load organizations');
+        return response.json();
       })
-      .catch(() => {});
+      .then((data) => {
+        if (!active) return;
+        if (!Array.isArray(data.organizations)) throw new Error('Organization response was invalid');
+        const memberships = (data.organizations ?? []) as OrganizationMembership[];
+        const name = memberships.find((item) => item.organization?.name)?.organization?.name || '';
+        setOrganizationName(name);
+        setOrganizationLoadState(name ? 'available' : 'empty');
+      })
+      .catch(() => {
+        if (active) setOrganizationLoadState('error');
+      });
     return () => { active = false; };
-  }, [user?.id]);
+  }, [user?.id, organizationRetry]);
 
   const handleSignOut = async () => {
     setSigningOut(true);
@@ -62,13 +80,22 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        {organizationName ? (
+        {organizationLoadState === 'available' ? (
           <div className="text-sm text-muted-foreground">{organizationName}</div>
-        ) : (
+        ) : organizationLoadState === 'empty' ? (
           <Link href="/organizations/new" className="text-sm text-muted-foreground hover:text-foreground">
             Create organization
           </Link>
-        )}
+        ) : organizationLoadState === 'error' ? (
+          <button
+            type="button"
+            onClick={() => setOrganizationRetry((retry) => retry + 1)}
+            className="text-sm text-muted-foreground hover:text-foreground"
+            title="Retry loading your organization"
+          >
+            Organization unavailable · Retry
+          </button>
+        ) : null}
         <Link
           href="/projects/new"
           className="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90"
