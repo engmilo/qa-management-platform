@@ -50,7 +50,7 @@ export async function GET() {
     return NextResponse.json({ organizations: [] }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
-  const organizationIds = memberships.map((membership) => membership.organization_id);
+  const organizationIds = ((memberships || []) as Array<{ organization_id: string; role?: string }>).map((membership) => membership.organization_id);
   const { data: organizations, error: organizationsError } = await supabase
     .from('organizations')
     .select('id, name, slug')
