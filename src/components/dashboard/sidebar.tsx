@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   FolderKanban,
   FileText,
-  Calendar,
   CheckSquare,
   PlayCircle,
   Bug,
@@ -15,6 +14,7 @@ import {
   Sparkles,
   Settings,
   ShieldCheck,
+  Calendar,
 } from 'lucide-react';
 
 const navigation = [
@@ -37,14 +37,14 @@ export function Sidebar() {
   return (
     <aside className="w-60 bg-white border-r border-[#d8dee4] h-screen flex flex-col justify-between shrink-0 shadow-[1px_0_3px_rgba(0,0,0,0.02)] select-none">
       <div>
-        {/* TestRail Brand Bar */}
-        <div className="h-14 bg-[#141f2b] px-4 flex items-center gap-2.5 border-b border-[#0f1721]">
-          <div className="w-7 h-7 rounded bg-[#48a43f] flex items-center justify-center text-white shadow-sm">
+        {/* Brand Bar */}
+        <div className="h-14 bg-[#141f2b] px-3.5 flex items-center gap-2.5 border-b border-[#0f1721]">
+          <div className="w-7 h-7 rounded bg-[#48a43f] flex items-center justify-center text-white shadow-sm shrink-0">
             <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-white tracking-tight flex items-center gap-1">
-              TestRail <span className="text-[10px] uppercase font-semibold text-[#48a43f] bg-[#48a43f]/20 px-1 py-0.2 rounded">QA</span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xs font-bold text-white tracking-tight leading-snug">
+              QA Management Platform
             </h2>
           </div>
         </div>
@@ -56,8 +56,8 @@ export function Sidebar() {
           </p>
         </div>
 
-        {/* Navigation list */}
-        <nav className="p-2">
+        {/* Navigation Items */}
+        <nav className="px-2 pt-1 pb-4">
           <ul className="space-y-0.5">
             {navigation.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -66,10 +66,10 @@ export function Sidebar() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded text-xs transition-colors font-medium ${
+                    className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition-colors group ${
                       isActive
-                        ? 'bg-[#eef5fc] text-[#276fbf] font-semibold border-l-4 border-[#276fbf]'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        ? 'bg-[#edf5fd] text-[#276fbf] border-l-2 border-[#276fbf] font-bold pl-[10px]'
+                        : 'text-slate-700 hover:bg-slate-100/70 hover:text-slate-900'
                     }`}
                   >
                     <Icon
@@ -86,7 +86,7 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* TestRail Footer Metadata */}
+      {/* Footer Metadata */}
       <div className="p-3 border-t border-[#edf2f7] bg-slate-50/60">
         <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium px-1">
           <span>Test Management</span>
