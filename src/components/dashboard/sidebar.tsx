@@ -35,7 +35,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-white border-r border-[#d8dee4] h-screen flex flex-col justify-between shrink-0 shadow-[1px_0_3px_rgba(0,0,0,0.02)] select-none">
+    <aside className="w-60 bg-white dark:bg-[#141d28] border-r border-[#d8dee4] dark:border-[#222e3e] h-screen flex flex-col justify-between shrink-0 shadow-[1px_0_3px_rgba(0,0,0,0.02)] select-none transition-colors">
       <div>
         {/* Brand Bar */}
         <div className="h-14 bg-[#141f2b] px-3.5 flex items-center gap-2.5 border-b border-[#0f1721]">
@@ -51,7 +51,7 @@ export function Sidebar() {
 
         {/* Section Heading */}
         <div className="px-4 pt-4 pb-1">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
             QA Repository
           </p>
         </div>
@@ -68,13 +68,13 @@ export function Sidebar() {
                     href={item.href}
                     className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition-colors group ${
                       isActive
-                        ? 'bg-[#edf5fd] text-[#276fbf] border-l-2 border-[#276fbf] font-bold pl-[10px]'
-                        : 'text-slate-700 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-[#edf5fd] dark:bg-[#172739] text-[#276fbf] dark:text-[#4da3ff] border-l-2 border-[#276fbf] dark:border-[#4da3ff] font-bold pl-[10px]'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <Icon
                       className={`w-4 h-4 shrink-0 ${
-                        isActive ? 'text-[#276fbf]' : 'text-slate-400 group-hover:text-slate-600'
+                        isActive ? 'text-[#276fbf] dark:text-[#4da3ff]' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
                       }`}
                     />
                     <span>{item.name}</span>
@@ -87,10 +87,10 @@ export function Sidebar() {
       </div>
 
       {/* Footer Metadata */}
-      <div className="p-3 border-t border-[#edf2f7] bg-slate-50/60">
-        <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium px-1">
+      <div className="p-3 border-t border-[#edf2f7] dark:border-[#222e3e] bg-slate-50/60 dark:bg-[#111720]">
+        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium px-1">
           <span>Test Management</span>
-          <span className="text-[10px] bg-slate-200/70 text-slate-700 px-1.5 py-0.5 rounded font-mono">v2.4</span>
+          <span className="text-[10px] bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono">v2.4</span>
         </div>
       </div>
     </aside>

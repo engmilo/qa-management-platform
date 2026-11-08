@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    /* TestRail Light Background */
-    --background: 210 20% 97%;          /* #f4f6f8 */
+    /* TestRail Classic Light Background */
+    --background: 210 20% 97%;          /* #f5f7f9 */
     --foreground: 215 25% 17%;          /* #222c37 */
     
     /* TestRail Signature Green for CTAs / Primary actions */
@@ -26,14 +26,35 @@
     --ring: 115 45% 44%;                /* #48a43f */
   }
 
+  .dark {
+    /* TestRail Modern Dark Background */
+    --background: 220 30% 9%;           /* #101622 */
+    --foreground: 210 20% 92%;          /* #e2e8f0 */
+
+    /* TestRail Signature Green */
+    --primary: 115 48% 46%;             /* #48a43f */
+    --primary-foreground: 0 0% 100%;
+
+    /* TestRail Dark Elevated Cards & Panels */
+    --secondary: 217 28% 14%;           /* #182232 */
+    --secondary-foreground: 210 20% 92%;
+
+    /* TestRail Dark Muted Surfaces */
+    --muted: 217 25% 18%;               /* #202c3e */
+    --muted-foreground: 215 15% 65%;    /* #94a3b8 */
+
+    /* TestRail Dark Borders & Inputs */
+    --border: 217 22% 22%;              /* #28374d */
+    --input: 217 22% 22%;
+    --ring: 115 48% 46%;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground antialiased font-sans;
-    color: #2c3e50;
-    background-color: #f5f7f9;
   }
 }
 
@@ -46,7 +67,7 @@
 
   /* TestRail Secondary Button */
   .btn-testrail-secondary {
-    @apply bg-white hover:bg-slate-50 text-slate-700 font-medium px-4 py-2 rounded border border-[#d8dee4] shadow-sm text-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50;
+    @apply bg-white dark:bg-[#182232] hover:bg-slate-50 dark:hover:bg-[#202c3e] text-slate-700 dark:text-slate-200 font-medium px-4 py-2 rounded border border-[#d8dee4] dark:border-[#28374d] shadow-sm text-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-700 disabled:opacity-50;
   }
 
   /* TestRail Blue Button */
@@ -56,26 +77,26 @@
 
   /* TestRail Status Badges */
   .badge-passed {
-    @apply bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+    @apply bg-[#dff0d8] dark:bg-[#132c1c] text-[#3c763d] dark:text-[#52c41a] border border-[#d6e9c6] dark:border-[#1d4c2b] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 
   .badge-failed {
-    @apply bg-[#f2dede] text-[#a94442] border border-[#ebccd1] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+    @apply bg-[#f2dede] dark:bg-[#34161a] text-[#a94442] dark:text-[#ff7875] border border-[#ebccd1] dark:border-[#521e24] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 
   .badge-blocked {
-    @apply bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+    @apply bg-[#fcf8e3] dark:bg-[#332711] text-[#8a6d3b] dark:text-[#faad14] border border-[#faebcc] dark:border-[#534019] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 
   .badge-retest {
-    @apply bg-[#f3e8ff] text-[#7e22ce] border border-[#e9d5ff] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+    @apply bg-[#f3e8ff] dark:bg-[#281639] text-[#7e22ce] dark:text-[#d3adf7] border border-[#e9d5ff] dark:border-[#432360] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 
   .badge-untested {
-    @apply bg-[#f4f5f7] text-[#5e6c84] border border-[#dfe1e6] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+    @apply bg-[#f4f5f7] dark:bg-[#182232] text-[#5e6c84] dark:text-[#8c9ba5] border border-[#dfe1e6] dark:border-[#28374d] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 
   .badge-active {
-    @apply bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
+    @apply bg-[#e8f5e9] dark:bg-[#132c1c] text-[#2e7d32] dark:text-[#52c41a] border border-[#c8e6c9] dark:border-[#1d4c2b] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center;
   }
 }

@@ -61,7 +61,7 @@ export default function DashboardPage() {
       value: data?.stats.projectCount.toString() ?? (loading ? '…' : '—'),
       icon: FolderKanban,
       accent: 'border-t-4 border-[#276fbf]',
-      iconColor: 'text-[#276fbf]',
+      iconColor: 'text-[#276fbf] dark:text-[#4da3ff]',
       href: '/projects',
     },
     {
@@ -69,7 +69,7 @@ export default function DashboardPage() {
       value: data?.stats.requirementCount.toString() ?? (loading ? '…' : '—'),
       icon: FileText,
       accent: 'border-t-4 border-indigo-500',
-      iconColor: 'text-indigo-600',
+      iconColor: 'text-indigo-600 dark:text-indigo-400',
       href: '/requirements',
     },
     {
@@ -85,7 +85,7 @@ export default function DashboardPage() {
       value: data?.stats.passRate == null ? '—' : `${data.stats.passRate}%`,
       icon: TrendingUp,
       accent: 'border-t-4 border-emerald-500',
-      iconColor: 'text-emerald-600',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
       href: '/test-runs',
     },
     {
@@ -93,7 +93,7 @@ export default function DashboardPage() {
       value: data?.stats.openDefectCount.toString() ?? (loading ? '…' : '—'),
       icon: AlertTriangle,
       accent: 'border-t-4 border-amber-500',
-      iconColor: 'text-amber-600',
+      iconColor: 'text-amber-600 dark:text-amber-400',
       href: '/defects',
     },
     {
@@ -101,22 +101,22 @@ export default function DashboardPage() {
       value: data?.stats.criticalDefectCount.toString() ?? (loading ? '…' : '—'),
       icon: AlertOctagon,
       accent: 'border-t-4 border-red-500',
-      iconColor: 'text-red-600',
+      iconColor: 'text-red-600 dark:text-red-400',
       href: '/defects',
     },
   ];
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9]">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          {/* TestRail Welcome Sub-header */}
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#e2e8f0]">
+          {/* Welcome Sub-header */}
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#e2e8f0] dark:border-[#222e3e]">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Welcome back, {displayName}</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Here&apos;s what&apos;s happening across your testing suites and test runs today.</p>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back, {displayName}</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Here&apos;s what&apos;s happening across your testing suites and test runs today.</p>
             </div>
             <div className="flex items-center gap-2">
               <Link
@@ -129,12 +129,12 @@ export default function DashboardPage() {
           </div>
 
           {error && (
-            <div role="alert" className="mb-5 p-3 text-xs bg-red-50 text-red-700 border border-red-200 rounded-md font-medium">
+            <div role="alert" className="mb-5 p-3 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded-md font-medium">
               {error}
             </div>
           )}
 
-          {/* TestRail Metrics Cards */}
+          {/* Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
             {stats.map((stat) => {
               const Icon = stat.icon;
@@ -142,25 +142,25 @@ export default function DashboardPage() {
                 <Link
                   key={stat.label}
                   href={stat.href}
-                  className={`bg-white rounded-md border border-[#d8dee4] p-4 shadow-sm hover:shadow transition-all ${stat.accent} flex flex-col justify-between`}
+                  className={`bg-white dark:bg-[#182232] rounded-md border border-[#d8dee4] dark:border-[#28374d] p-4 shadow-sm hover:shadow transition-all ${stat.accent} flex flex-col justify-between`}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{stat.label}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{stat.label}</p>
                     <Icon className={`w-4 h-4 ${stat.iconColor}`} />
                   </div>
-                  <p className="text-2xl font-bold text-slate-900 mt-2 tracking-tight">{stat.value}</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2 tracking-tight">{stat.value}</p>
                 </Link>
               );
             })}
           </div>
 
-          {/* TestRail Two Column Section */}
+          {/* Two Column Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Test Execution Progress */}
-            <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden flex flex-col">
-              <div className="bg-[#f8fafc] px-4 py-3 border-b border-[#e2e8f0] flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Test Execution Progress</h3>
-                <Link href="/test-runs" className="text-xs font-semibold text-[#276fbf] hover:underline">
+            <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden flex flex-col">
+              <div className="bg-[#f8fafc] dark:bg-[#141d28] px-4 py-3 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Test Execution Progress</h3>
+                <Link href="/test-runs" className="text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">
                   View all runs →
                 </Link>
               </div>
@@ -168,10 +168,10 @@ export default function DashboardPage() {
               <div className="p-4 flex-1">
                 {!data?.executionProgress.length ? (
                   <div className="text-center py-8">
-                    <p className="text-xs text-slate-400">No active test runs recorded.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">No active test runs recorded.</p>
                     <Link
                       href="/test-runs/new"
-                      className="mt-3 inline-block text-xs font-semibold text-[#276fbf] hover:underline"
+                      className="mt-3 inline-block text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline"
                     >
                       + Create a test run
                     </Link>
@@ -179,14 +179,14 @@ export default function DashboardPage() {
                 ) : (
                   <div className="space-y-4">
                     {data.executionProgress.map((run) => (
-                      <div key={run.id} className="p-2.5 rounded hover:bg-slate-50 transition-colors">
+                      <div key={run.id} className="p-2.5 rounded hover:bg-slate-50 dark:hover:bg-[#1f2c3f] transition-colors">
                         <div className="flex justify-between text-xs mb-1.5 gap-4">
-                          <span className="font-medium text-slate-800 truncate">{run.name}</span>
-                          <span className="font-semibold text-slate-700 shrink-0">
+                          <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{run.name}</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">
                             {run.progress == null ? '0%' : `${run.progress}%`}
                           </span>
                         </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                        <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
                           <div
                             className="h-full bg-[#48a43f] rounded-full transition-all"
                             style={{ width: `${run.progress ?? 0}%` }}
@@ -200,10 +200,10 @@ export default function DashboardPage() {
             </section>
 
             {/* Recent Defects */}
-            <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden flex flex-col">
-              <div className="bg-[#f8fafc] px-4 py-3 border-b border-[#e2e8f0] flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Recent Defects</h3>
-                <Link href="/defects" className="text-xs font-semibold text-[#276fbf] hover:underline">
+            <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden flex flex-col">
+              <div className="bg-[#f8fafc] dark:bg-[#141d28] px-4 py-3 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Recent Defects</h3>
+                <Link href="/defects" className="text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">
                   View defect tracker →
                 </Link>
               </div>
@@ -211,10 +211,10 @@ export default function DashboardPage() {
               <div className="p-4 flex-1">
                 {!data?.recentDefects.length ? (
                   <div className="text-center py-8">
-                    <p className="text-xs text-slate-400">No defects reported.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">No defects reported.</p>
                     <Link
                       href="/defects/new"
-                      className="mt-3 inline-block text-xs font-semibold text-[#276fbf] hover:underline"
+                      className="mt-3 inline-block text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline"
                     >
                       + Log a new defect
                     </Link>
@@ -224,20 +224,20 @@ export default function DashboardPage() {
                     {data.recentDefects.map((defect) => {
                       const severity = defect.severity.charAt(0).toUpperCase() + defect.severity.slice(1);
                       const severityClass = ['critical', 'blocker'].includes(defect.severity)
-                        ? 'bg-[#f2dede] text-[#a94442] border border-[#ebccd1]'
+                        ? 'bg-[#f2dede] dark:bg-[#34161a] text-[#a94442] dark:text-[#ff7875] border border-[#ebccd1] dark:border-[#521e24]'
                         : defect.severity === 'major'
-                        ? 'bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc]'
-                        : 'bg-slate-100 text-slate-700 border border-slate-200';
+                        ? 'bg-[#fcf8e3] dark:bg-[#332711] text-[#8a6d3b] dark:text-[#faad14] border border-[#faebcc] dark:border-[#534019]'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
                       return (
                         <div
                           key={defect.id}
-                          className="flex items-center justify-between gap-3 p-2.5 rounded border border-[#edf2f7] hover:bg-slate-50 transition-colors"
+                          className="flex items-center justify-between gap-3 p-2.5 rounded border border-[#edf2f7] dark:border-[#222e3e] hover:bg-slate-50 dark:hover:bg-[#1f2c3f] transition-colors"
                         >
                           <div className="min-w-0">
-                            <span className="font-mono text-xs font-bold text-[#276fbf] hover:underline cursor-pointer">
+                            <span className="font-mono text-xs font-bold text-[#276fbf] dark:text-[#4da3ff] hover:underline cursor-pointer">
                               {defect.defect_key}
                             </span>
-                            <p className="text-xs text-slate-700 truncate mt-0.5">{defect.summary}</p>
+                            <p className="text-xs text-slate-700 dark:text-slate-300 truncate mt-0.5">{defect.summary}</p>
                           </div>
                           <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${severityClass}`}>
                             {severity}

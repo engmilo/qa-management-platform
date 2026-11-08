@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Plus, Building2, User, LogOut, CheckCircle2 } from 'lucide-react';
 
 type OrganizationMembership = { organization: { name: string } | null };
@@ -57,6 +58,7 @@ export function Header() {
         setSignOutError(error.message);
         return;
       }
+      setMenuOpen(false);
       router.replace('/auth/login');
       router.refresh();
     } catch {
@@ -66,25 +68,28 @@ export function Header() {
     }
   };
 
-  const initials = (user?.user_metadata?.full_name || user?.email || 'QA')
-    .trim()
-    .split(/[\s@._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part: string) => part[0].toUpperCase())
-    .join('');
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || '';
+  const initials = displayName
+    ? displayName
+        .split(' ')
+        .map((part: string) => part[0])
+        .filter(Boolean)
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'JD';
 
   return (
-    <header className="h-14 bg-[#1d2d3e] border-b border-[#141f2b] flex items-center justify-between px-6 shadow-sm select-none z-30">
-      {/* Left section: Breadcrumb / View Context */}
+    <header className="h-14 bg-[#1d2d3e] text-white px-5 flex items-center justify-between border-b border-[#141f2b] shadow-sm shrink-0 z-20">
+      {/* Left section: TestRail Section Breadcrumb */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#48a43f]"></span>
-          <h1 className="text-sm font-semibold text-white tracking-wide">Dashboard Overview</h1>
+        <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
+          <span className="inline-block w-2 h-2 rounded-full bg-[#48a43f]"></span>
+          <span className="text-white font-medium">Dashboard Overview</span>
         </div>
       </div>
 
-      {/* Right section: Org Badge, CTA, User Menu */}
+      {/* Right section: Org Badge, Theme Toggle, CTA, User Menu */}
       <div className="flex items-center gap-3">
         {organizationLoadState === 'available' ? (
           <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-slate-200 bg-[#2b3d51] px-3 py-1.5 rounded border border-[#384e66]">
@@ -119,6 +124,9 @@ export function Header() {
           <span>New Project</span>
         </Link>
 
+        {/* Dark / Light Mode Switcher */}
+        <ThemeToggle />
+
         {/* User Avatar & TestRail Style Dropdown */}
         <div className="relative">
           <button
@@ -135,12 +143,12 @@ export function Header() {
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-10 z-50 w-64 rounded-md border border-[#d8dee4] bg-white p-1.5 shadow-xl text-slate-800"
+              className="absolute right-0 top-10 z-50 w-64 rounded-md border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] p-1.5 shadow-xl text-slate-800 dark:text-slate-200"
             >
-              <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                <p className="text-xs font-semibold text-slate-900">{user?.user_metadata?.full_name || 'QA Engineer'}</p>
-                <p className="text-xs text-slate-500 truncate mt-0.5">{user?.email}</p>
-                <span className="inline-block mt-1 text-[10px] font-semibold bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9] px-2 py-0.5 rounded-full">
+              <div className="px-3 py-2 border-b border-slate-100 dark:border-[#28374d] mb-1">
+                <p className="text-xs font-semibold text-slate-900 dark:text-white">{user?.user_metadata?.full_name || 'QA Engineer'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user?.email}</p>
+                <span className="inline-block mt-1 text-[10px] font-semibold bg-[#e8f5e9] dark:bg-[#132c1c] text-[#2e7d32] dark:text-[#52c41a] border border-[#c8e6c9] dark:border-[#1d4c2b] px-2 py-0.5 rounded-full">
                   Organization Member
                 </span>
               </div>
@@ -148,18 +156,18 @@ export function Header() {
                 href="/profile"
                 role="menuitem"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 rounded px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                className="flex items-center gap-2 rounded px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#202c3e] hover:text-slate-900 dark:hover:text-white transition-colors"
               >
-                <User className="w-3.5 h-3.5 text-slate-500" />
+                <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                 My Profile
               </Link>
-              <div className="border-t border-slate-100 my-1"></div>
+              <div className="border-t border-slate-100 dark:border-[#28374d] my-1"></div>
               <button
                 type="button"
                 role="menuitem"
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="w-full flex items-center gap-2 text-left rounded px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                className="w-full flex items-center gap-2 text-left rounded px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 {signingOut ? 'Signing out...' : 'Sign out'}

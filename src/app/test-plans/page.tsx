@@ -31,26 +31,26 @@ export default function TestPlansPage() {
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed':
-        return 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]';
+        return 'bg-[#dff0d8] dark:bg-[#132c1c] text-[#3c763d] dark:text-[#52c41a] border border-[#d6e9c6] dark:border-[#1d4c2b]';
       case 'in_progress':
-        return 'bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd]';
+        return 'bg-[#e0f2fe] dark:bg-[#112d44] text-[#0369a1] dark:text-[#38bdf8] border border-[#bae6fd] dark:border-[#1e4d6d]';
       case 'planning':
       default:
-        return 'bg-amber-50 text-amber-700 border border-amber-200';
+        return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900';
     }
   };
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9]">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           {/* Header row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#e2e8f0]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Test Plans</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Test Plans</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Organize releases, milestones, test suites, and schedule testing cycles
               </p>
             </div>
@@ -64,20 +64,20 @@ export default function TestPlansPage() {
           </div>
 
           {error && (
-            <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs font-medium">
+            <div role="alert" className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs font-medium">
               {error}
             </div>
           )}
 
           {loading ? (
-            <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500 shadow-sm">
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-8 text-center text-xs text-slate-500 dark:text-slate-400 shadow-sm">
               Loading test plans...
             </div>
           ) : plans.length === 0 ? (
-            <div className="bg-white border border-[#d8dee4] rounded-md p-10 text-center shadow-sm">
-              <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <h3 className="text-sm font-semibold text-slate-800">No test plans yet</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-10 text-center shadow-sm">
+              <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No test plans yet</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                 Group multiple test suites and test runs together for a release or sprint milestone.
               </p>
               <Link
@@ -93,15 +93,15 @@ export default function TestPlansPage() {
               {plans.map((plan) => (
                 <section
                   key={plan.id}
-                  className="bg-white border border-[#d8dee4] rounded-md p-5 shadow-sm hover:shadow hover:border-[#b0c4de] transition-all flex flex-col justify-between"
+                  className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5 shadow-sm hover:shadow hover:border-[#b0c4de] dark:hover:border-[#3a4e6b] transition-all flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div>
-                        <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                        <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                           {plan.title}
                         </h2>
-                        <p className="text-xs font-medium text-[#276fbf] mt-0.5">
+                        <p className="text-xs font-medium text-[#276fbf] dark:text-[#4da3ff] mt-0.5">
                           {projectNames[plan.project_id] || 'General Project'}
                         </p>
                       </div>
@@ -111,15 +111,15 @@ export default function TestPlansPage() {
                     </div>
 
                     {plan.scope && (
-                      <p className="mt-3 text-xs text-slate-600 line-clamp-3 leading-relaxed bg-[#f8fafc] p-2.5 rounded border border-[#edf2f7]">
+                      <p className="mt-3 text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed bg-[#f8fafc] dark:bg-[#141d28] p-2.5 rounded border border-[#edf2f7] dark:border-[#222e3e]">
                         {plan.scope}
                       </p>
                     )}
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-[#edf2f7] flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="mt-4 pt-3 border-t border-[#edf2f7] dark:border-[#222e3e] flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                       {plan.start_date || 'No start date'}
                       {plan.end_date ? ` — ${plan.end_date}` : ''}
                     </span>
