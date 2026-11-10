@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
@@ -34,10 +35,11 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: memberships, error: membershipError } = await supabase
+  const { data: membershipsRaw, error: membershipError } = await supabase
     .from('organization_members')
     .select('role, organization_id')
     .eq('user_id', user.id);
+  const memberships = (membershipsRaw ?? []) as Array<{ role: string; organization_id: string }> ;
 
   if (membershipError) {
     return NextResponse.json({ error: 'Could not load organization memberships.' }, {
@@ -51,11 +53,12 @@ export async function GET() {
   }
 
   const organizationIds = ((memberships || []) as Array<{ organization_id: string; role?: string }>).map((membership) => membership.organization_id);
-  const { data: organizations, error: organizationsError } = await supabase
+  const { data: organizationsRaw, error: organizationsError } = await supabase
     .from('organizations')
     .select('id, name, slug')
     .in('id', organizationIds)
     .order('name', { ascending: true });
+  const organizations = (organizationsRaw ?? []) as Array<{ id: string; name: string; slug: string }> ;
 
   if (organizationsError || !organizations?.length) {
     return NextResponse.json({ error: 'Could not load your organizations.' }, {
@@ -162,3 +165,6 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ organization }, { status: 201 });
 }
+
+
+

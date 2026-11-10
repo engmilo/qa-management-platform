@@ -212,23 +212,23 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9]">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-3xl space-y-6">
-            <div className="pb-4 border-b border-[#e2e8f0]">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Organization Settings</h1>
-              <p className="text-xs text-slate-500 mt-0.5">Manage your team workspace profile, permissions, and members</p>
+            <div className="pb-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Organization Settings</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage your team workspace profile, permissions, and members</p>
             </div>
 
             {loading ? (
-              <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500 shadow-sm">
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-8 text-center text-xs text-slate-500 dark:text-slate-400 shadow-sm">
                 Loading settings...
               </div>
             ) : organizationLoadError ? (
-              <div role="alert" className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-md text-xs font-medium">
+              <div role="alert" className="p-4 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded-md text-xs font-medium">
                 <p>{organizationLoadError}</p>
                 <button
                   type="button"
@@ -239,21 +239,21 @@ export default function SettingsPage() {
                 </button>
               </div>
             ) : memberships.length === 0 ? (
-              <div className="bg-white border border-[#d8dee4] rounded-md p-8 text-center text-xs text-slate-500 shadow-sm">
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-8 text-center text-xs text-slate-500 dark:text-slate-400 shadow-sm">
                 No organization found. Create an organization before managing settings.
               </div>
             ) : (
               <>
                 {memberships.length > 1 && (
-                  <div className="bg-white border border-[#d8dee4] rounded-md p-4 shadow-sm flex items-center justify-between gap-4">
-                    <label htmlFor="settings-organization" className="text-xs font-semibold uppercase tracking-wider text-slate-700 shrink-0">
+                  <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 shadow-sm flex items-center justify-between gap-4">
+                    <label htmlFor="settings-organization" className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200 shrink-0">
                       Active Organization:
                     </label>
                     <select
                       id="settings-organization"
                       value={selectedOrgId}
                       onChange={(event) => handleOrganizationChange(event.target.value)}
-                      className="w-full max-w-md px-3 py-1.5 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f]"
+                      className="w-full max-w-md px-3 py-1.5 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#48a43f]"
                     >
                       {memberships.map((item) => item.organization && (
                         <option key={item.organization.id} value={item.organization.id}>{item.organization.name}</option>
@@ -263,43 +263,43 @@ export default function SettingsPage() {
                 )}
 
                 {/* Organization Details Form */}
-                <form onSubmit={handleSave} className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
-                  <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#276fbf]" />
-                    <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Organization Profile</h2>
+                <form onSubmit={handleSave} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                  <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-[#276fbf] dark:text-[#4da3ff]" />
+                    <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Organization Profile</h2>
                   </div>
 
                   <div className="p-6 space-y-5">
                     <div>
-                      <label htmlFor="organization-name" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Organization Name <span className="text-red-500">*</span>
+                      <label htmlFor="organization-name" className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-slate-700 dark:text-slate-300 — and remove the duplicate tracking-wider mb-1.5 that follows if your file already has it tracking-wider text-slate-700 dark:text-slate-200 mb-1.5">
+                        Organization Name <span className="text-red-500"> *</span>
                       </label>
                       <input
                         id="organization-name"
                         type="text"
                         value={orgName}
                         onChange={(event) => { setOrgName(event.target.value); setSaved(false); }}
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
+                        className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Subscription Plan</label>
-                      <div className="p-4 bg-[#f8fafc] border border-[#d8dee4] rounded-md flex items-center justify-between">
+                      <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-slate-700 dark:text-slate-300 — and remove the duplicate tracking-wider mb-1.5 that follows if your file already has it tracking-wider text-slate-700 dark:text-slate-200 mb-1.5">Subscription Plan</label>
+                      <div className="p-4 bg-[#f8fafc] dark:bg-[#141d28] border border-[#d8dee4] dark:border-[#28374d] rounded-md flex items-center justify-between">
                         <div>
-                          <p className="text-xs font-bold text-slate-900">Enterprise QA Tier</p>
-                          <p className="text-[11px] text-slate-500 mt-0.5">Unlimited test repositories, suites, executions, and AI assistant access</p>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">Enterprise QA Tier</p>
+                          <p className="text- text-slate-500 dark:text-slate-400 mt-0.5">Unlimited test repositories, suites, executions, and AI assistant access</p>
                         </div>
-                        <span className="text-[11px] font-semibold px-2.5 py-0.5 bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] rounded-full">
+                        <span className="text- font-semibold px-2.5 py-0.5 bg-[#dff0d8] dark:bg-[#132c1c] text-[#3c763d] dark:text-[#52c41a] border border-[#d6e9c6] dark:border-[#1d4c2b] rounded-full">
                           Active License
                         </span>
                       </div>
                     </div>
 
-                    {settingsError && <p role="alert" className="text-xs text-red-600 font-medium">{settingsError}</p>}
+                    {settingsError && <p role="alert" className="text-xs text-red-600 dark:text-red-400 font-medium">{settingsError}</p>}
                     {saved && (
-                      <p role="status" className="text-xs text-[#2e7d32] font-semibold flex items-center gap-1.5">
+                      <p role="status" className="text-xs text-[#2e7d32] dark:text-[#52c41a] font-semibold flex items-center gap-1.5">
                         <CheckCircle2 className="w-4 h-4" /> Settings saved successfully.
                       </p>
                     )}
@@ -318,37 +318,37 @@ export default function SettingsPage() {
 
                 {/* Team Members Management */}
                 {canManageMembers ? (
-                  <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
-                    <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex items-center gap-2">
+                  <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                    <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2">
                       <Users className="w-4 h-4 text-[#48a43f]" />
-                      <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Team &amp; Access Control</h2>
+                      <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Team &amp; Access Control</h2>
                     </div>
 
                     <div className="p-6 space-y-6">
                       <form onSubmit={handleAddMember} className="space-y-4">
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           Invite or add registered users to this organization by email address.
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div className="sm:col-span-2">
-                            <label htmlFor="member-email" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Account email</label>
+                            <label htmlFor="member-email" className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-slate-700 dark:text-slate-300 — and remove the duplicate tracking-wider mb-1.5 that follows if your file already has it tracking-wider text-slate-700 dark:text-slate-200 mb-1.5">Account email</label>
                             <input
                               id="member-email"
                               type="email"
                               value={memberEmail}
                               onChange={(event) => setMemberEmail(event.target.value)}
-                              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
+                              className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
                               placeholder="teammate@company.com"
                               required
                             />
                           </div>
                           <div>
-                            <label htmlFor="member-role" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Role</label>
+                            <label htmlFor="member-role" className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-slate-700 dark:text-slate-300 — and remove the duplicate tracking-wider mb-1.5 that follows if your file already has it tracking-wider text-slate-700 dark:text-slate-200 mb-1.5">Role</label>
                             <select
                               id="member-role"
                               value={memberRole}
                               onChange={(event) => setMemberRole(event.target.value)}
-                              className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f]"
+                              className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#48a43f]"
                             >
                               <option value="qa_engineer">QA Engineer</option>
                               <option value="qa_manager">QA Manager</option>
@@ -358,9 +358,9 @@ export default function SettingsPage() {
                           </div>
                         </div>
 
-                        {memberError && <p role="alert" className="text-xs text-red-600 font-medium">{memberError}</p>}
+                        {memberError && <p role="alert" className="text-xs text-red-600 dark:text-red-400 font-medium">{memberError}</p>}
                         {memberMessage && (
-                          <p role="status" className="text-xs text-[#2e7d32] font-semibold flex items-center gap-1.5">
+                          <p role="status" className="text-xs text-[#2e7d32] dark:text-[#52c41a] font-semibold flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4" /> {memberMessage}
                           </p>
                         )}
@@ -375,40 +375,40 @@ export default function SettingsPage() {
                       </form>
 
                       {/* Member list table */}
-                      <div className="border-t border-[#edf2f7] pt-5">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Active Organization Members</h3>
+                      <div className="border-t border-[#edf2f7] dark:border-[#222e3e] pt-5">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-3">Active Organization Members</h3>
                         {deactivationMessage && (
-                          <p role="status" className="mb-3 text-xs text-[#2e7d32] font-semibold">{deactivationMessage}</p>
+                          <p role="status" className="mb-3 text-xs text-[#2e7d32] dark:text-[#52c41a] font-semibold">{deactivationMessage}</p>
                         )}
                         {membersLoading ? (
-                          <p className="text-xs text-slate-400">Loading members...</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">Loading members...</p>
                         ) : membersError ? (
-                          <p role="alert" className="text-xs text-red-600 font-medium">{membersError}</p>
+                          <p role="alert" className="text-xs text-red-600 dark:text-red-400 font-medium">{membersError}</p>
                         ) : members.length === 0 ? (
-                          <p className="text-xs text-slate-400">No members found.</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">No members found.</p>
                         ) : (
-                          <div className="border border-[#d8dee4] rounded overflow-hidden">
-                            <ul className="divide-y divide-[#edf2f7]">
+                          <div className="border border-[#d8dee4] dark:border-[#28374d] rounded overflow-hidden">
+                            <ul className="divide-y divide-[#edf2f7] dark:divide-[#222e3e]">
                               {members.map((member) => (
-                                <li key={member.userId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 hover:bg-[#f8fafc] transition-colors">
+                                <li key={member.userId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 hover:bg-[#f8fafc] dark:hover:bg-[#1f2c3f] transition-colors">
                                   <div className="min-w-0">
-                                    <p className="text-xs font-bold text-slate-900 truncate">{member.fullName}</p>
-                                    <p className="text-[11px] text-slate-500 truncate">{member.email}</p>
+                                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{member.fullName}</p>
+                                    <p className="text- text-slate-500 dark:text-slate-400 truncate">{member.email}</p>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize bg-slate-100 text-slate-700 border border-slate-200">
+                                    <span className="text-xs font-normal px-2 py-0.5 rounded-full capitalize bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
                                       {member.role.replaceAll('_', ' ')}
                                     </span>
                                     {member.isCurrentUser ? (
-                                      <span className="text-[11px] font-semibold text-[#276fbf]">You</span>
+                                      <span className="text- font-semibold text-[#276fbf] dark:text-[#4da3ff]">You</span>
                                     ) : member.role === 'org_admin' || member.role === 'super_admin' ? (
-                                      <span className="text-[10px] text-slate-400 italic">Admin protected</span>
+                                      <span className="text- text-slate-400 dark:text-slate-500 italic">Admin protected</span>
                                     ) : (
                                       <button
                                         type="button"
                                         onClick={() => handleDeactivate(member)}
                                         disabled={deactivatingUserId === member.userId}
-                                        className="text-[11px] text-red-600 hover:text-red-800 font-medium hover:underline disabled:opacity-50"
+                                        className="text- text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium hover:underline disabled:opacity-50"
                                       >
                                         {deactivatingUserId === member.userId ? 'Deactivating...' : 'Deactivate'}
                                       </button>
@@ -423,7 +423,7 @@ export default function SettingsPage() {
                     </div>
                   </section>
                 ) : (
-                  <p className="text-xs text-slate-500 italic">Only an organization admin can add or manage team members.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 italic">Only an organization admin can add or manage team members.</p>
                 )}
               </>
             )}
@@ -442,16 +442,16 @@ export default function SettingsPage() {
             setMemberToDeactivate(null);
           }
         }}
-        className="w-[calc(100%-2rem)] max-w-md rounded-md border border-[#d8dee4] bg-white p-6 text-slate-900 shadow-2xl backdrop:bg-black/50"
+        className="w-[calc(100%-2rem)] max-w-md rounded-md border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] p-6 text-slate-900 dark:text-slate-100 shadow-2xl backdrop:bg-black/50"
       >
         {memberToDeactivate && (
           <div>
-            <h2 id="deactivation-dialog-title" className="text-base font-bold text-slate-900">Remove Member Access?</h2>
-            <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-              <span className="font-semibold text-slate-900">{memberToDeactivate.fullName || memberToDeactivate.email}</span> ({memberToDeactivate.email}) will no longer be able to access <span className="font-semibold text-slate-900">{org?.name}</span>.
+            <h2 id="deactivation-dialog-title" className="text-base font-bold text-slate-900 dark:text-white">Remove Member Access?</h2>
+            <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              <span className="font-semibold text-slate-900 dark:text-white">{memberToDeactivate.fullName || memberToDeactivate.email}</span> ({memberToDeactivate.email}) will no longer be able to access <span className="font-semibold text-slate-900 dark:text-white">{org?.name}</span>.
             </p>
-            {deactivationError && <p role="alert" className="mt-3 text-xs text-red-600 font-medium">{deactivationError}</p>}
-            <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-[#edf2f7]">
+            {deactivationError && <p role="alert" className="mt-3 text-xs text-red-600 dark:text-red-400 font-medium">{deactivationError}</p>}
+            <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-[#edf2f7] dark:border-[#222e3e]">
               <button
                 type="button"
                 onClick={() => { setDeactivationError(''); setMemberToDeactivate(null); }}

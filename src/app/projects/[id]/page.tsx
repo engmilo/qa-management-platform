@@ -44,7 +44,7 @@ export default function ProjectDetailsPage() {
   }, [projectId]);
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9]">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -77,8 +77,8 @@ export default function ProjectDetailsPage() {
             ) : project ? (
               <div className="space-y-6">
                 {/* Main Project Overview Card */}
-                <section className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden">
-                  <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex flex-wrap items-center justify-between gap-3">
+                <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                  <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] border-[#e2e8f0] flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
                       <span className="font-mono text-xs font-bold text-[#276fbf] bg-[#eef5fc] border border-[#d2e3f5] px-2.5 py-1 rounded">
                         {project.key}

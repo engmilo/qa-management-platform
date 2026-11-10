@@ -1,48 +1,43 @@
-import { NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
-
+import { NextRequest, NextResponse } from 'next/server';
+import { createRouteSupabaseClient } from '@/lib/supabase/route-client';
+import { requireOrgPermission, permissionError, UUID_RE } from '@/lib/auth/require-org-permission';
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createRouteSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(params.id)) {
-    return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
-  }
-
-  const { data: project, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('id', params.id)
-    .maybeSingle();
-
-  if (error) {
-    return NextResponse.json({ error: 'Could not load this project.' }, { status: 500 });
-  }
-  if (!project) {
-    return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
-  }
-
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
+  const { data: project, error } = await supabase.from('projects').select('*').eq('id', params.id).maybeSingle();
+  if (error || !project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
+  try { await requireOrgPermission(supabase, user.id, (project as any).organization_id, 'canViewReports'); } catch (e) { const pe = permissionError(e); return NextResponse.json({ error: pe.message }, { status: pe.status }); }
   return NextResponse.json({ project });
 }
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  let body: Record<string, unknown>;
+  try { body = await request.json(); } catch { return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 }); }
+  const { data: project } = await supabase.from('projects').select('id, organization_id').eq('id', params.id).maybeSingle();
+  if (!project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
+  try { await requireOrgPermission(supabase, user.id, (project as any).organization_id, 'canEditProject'); } catch (e) { const pe = permissionError(e); return NextResponse.json({ error: pe.message }, { status: pe.status }); }
+  const patch: Record<string, unknown> = {};
+  if (typeof body.name === 'string' && body.name.trim()) patch.name = body.name.trim();
+  if (typeof body.description === 'string') patch.description = body.description.trim() || null;
+  if (typeof body.status === 'string') patch.status = body.status;
+  if (!Object.keys(patch).length) return NextResponse.json({ error: 'Nothing to update.' }, { status: 400 });
+  const { data: updated, error } = await supabase.from('projects').update(patch).eq('id', params.id).select().single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ project: updated });
+}
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { data: project } = await supabase.from('projects').select('id, organization_id').eq('id', params.id).maybeSingle();
+  if (!project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
+  try { await requireOrgPermission(supabase, user.id, (project as any).organization_id, 'canDeleteProject'); } catch (e) { const pe = permissionError(e); return NextResponse.json({ error: pe.message }, { status: pe.status }); }
+  const { error } = await supabase.from('projects').delete().eq('id', params.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ deleted: true });
+}
+

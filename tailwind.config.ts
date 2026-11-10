@@ -56,19 +56,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: [
-          "-apple-system",
-          "BlinkMacSystemFont",
-          '"Segoe UI"',
-          "Roboto",
-          "Oxygen",
-          "Ubuntu",
-          "Cantarell",
-          '"Fira Sans"',
-          '"Droid Sans"',
-          '"Helvetica Neue"',
-          "sans-serif",
-        ],
+        // TestRail app: "Helvetica Neue", Helvetica, Arial, sans-serif
+        sans: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"],
+        // TestRail app: Menlo, Monaco, Consolas, "Courier New", monospace
+        mono: ["Menlo", "Monaco", "Consolas", '"Courier New"', "monospace"],
       },
     },
   },

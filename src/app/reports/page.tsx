@@ -14,7 +14,7 @@ const reports = [
 
 export default function ReportsPage() {
   return (
-    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />

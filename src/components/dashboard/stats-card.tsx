@@ -7,7 +7,7 @@ interface StatsCardProps {
 
 export function StatsCard({ label, value, change, trend = 'up' }: StatsCardProps) {
   return (
-    <div className="bg-white border border-[#d8dee4] rounded-lg p-5 shadow-sm border-t-2 border-t-[#276fbf]">
+    <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-lg p-5 shadow-sm border-t-2 border-t-[#276fbf]">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-semibold text-[#6e7d8c] uppercase tracking-wide">{label}</p>

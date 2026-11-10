@@ -50,7 +50,7 @@ export default function NewOrganizationPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9]">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -75,7 +75,7 @@ export default function NewOrganizationPage() {
               </div>
               <Link
                 href="/settings"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#d8dee4] hover:bg-[#f5f7f9] text-[#4f6174] text-xs font-semibold rounded shadow-sm transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] hover:bg-[#f5f7f9] text-[#4f6174] text-xs font-semibold rounded shadow-sm transition"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Cancel
@@ -88,7 +88,7 @@ export default function NewOrganizationPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="bg-white border border-[#d8dee4] rounded-lg shadow-sm p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-lg shadow-sm p-6 space-y-5">
               <div>
                 <label htmlFor="organization-name" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
                   Organization Name
@@ -98,7 +98,7 @@ export default function NewOrganizationPage() {
                   type="text"
                   value={name}
                   onChange={(event) => handleNameChange(event.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+                  className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
                   placeholder="e.g. Acme QA Labs"
                   maxLength={255}
                   required
@@ -117,7 +117,7 @@ export default function NewOrganizationPage() {
                     setSlugEdited(true);
                     setSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, ''));
                   }}
-                  className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm font-mono text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+                  className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm font-mono text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
                   placeholder="acme-qa-labs"
                   maxLength={100}
                   pattern="[a-z0-9]+(-[a-z0-9]+)*"
@@ -131,7 +131,7 @@ export default function NewOrganizationPage() {
               <div className="pt-3 border-t border-[#e5e9ec] flex items-center justify-end gap-3">
                 <Link
                   href="/settings"
-                  className="px-4 py-2 bg-white border border-[#d8dee4] hover:bg-[#f5f7f9] text-[#4f6174] text-xs font-semibold rounded shadow-sm transition"
+                  className="px-4 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] hover:bg-[#f5f7f9] text-[#4f6174] text-xs font-semibold rounded shadow-sm transition"
                 >
                   Cancel
                 </Link>

@@ -1,3 +1,4 @@
+
 // TypeScript Database Types for Supabase
 // Generated from supabase_schema.sql
 
@@ -11,6 +12,7 @@ export interface Database {
           slug: string;
           plan: string;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           name: string;
@@ -30,6 +32,7 @@ export interface Database {
           full_name: string;
           avatar_url: string | null;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           id: string;
@@ -68,6 +71,7 @@ export interface Database {
           description: string | null;
           status: string;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           organization_id: string;
@@ -96,6 +100,7 @@ export interface Database {
           version: number;
           owner_id: string | null;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           project_id: string;
@@ -134,7 +139,9 @@ export interface Database {
           automation_status: 'manual' | 'automated' | 'to_automate' | 'not_automatable';
           tags: string[] | null;
           author_id: string | null;
+          estimate_minutes: number | null;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           project_id: string;
@@ -160,6 +167,7 @@ export interface Database {
           automation_status?: 'manual' | 'automated' | 'to_automate' | 'not_automatable';
           tags?: string[] | null;
           author_id?: string | null;
+          estimate_minutes?: number | null;
         };
       };
       test_case_steps: {
@@ -208,6 +216,7 @@ export interface Database {
           end_date: string | null;
           status: string;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           project_id: string;
@@ -239,6 +248,9 @@ export interface Database {
           status: string;
           started_at: string;
           completed_at: string | null;
+          description: string | null;
+          configuration: string | null;
+          updated_at: string | null;
         };
         Insert: {
           project_id: string;
@@ -247,12 +259,16 @@ export interface Database {
           name: string;
           assigned_to?: string | null;
           status?: string;
+          description?: string | null;
+          configuration?: string | null;
         };
         Update: {
           name?: string;
           assigned_to?: string | null;
           status?: string;
           completed_at?: string | null;
+          description?: string | null;
+          configuration?: string | null;
         };
       };
       test_executions: {
@@ -262,24 +278,25 @@ export interface Database {
           test_case_id: string;
           organization_id: string;
           tester_id: string | null;
-          status: 'not_run' | 'passed' | 'failed' | 'blocked' | 'not_applicable';
+          status: 'not_run' | 'passed' | 'failed' | 'blocked' | 'retest' | 'not_applicable';
           actual_result: string | null;
           comments: string | null;
           executed_at: string | null;
+          updated_at: string | null;
         };
         Insert: {
           test_run_id: string;
           test_case_id: string;
           organization_id: string;
           tester_id?: string | null;
-          status?: 'not_run' | 'passed' | 'failed' | 'blocked' | 'not_applicable';
+          status?: 'not_run' | 'passed' | 'failed' | 'blocked' | 'retest' | 'not_applicable';
           actual_result?: string | null;
           comments?: string | null;
           executed_at?: string | null;
         };
         Update: {
           tester_id?: string | null;
-          status?: 'not_run' | 'passed' | 'failed' | 'blocked' | 'not_applicable';
+          status?: 'not_run' | 'passed' | 'failed' | 'blocked' | 'retest' | 'not_applicable';
           actual_result?: string | null;
           comments?: string | null;
           executed_at?: string | null;
@@ -305,6 +322,7 @@ export interface Database {
           test_case_id: string | null;
           test_execution_id: string | null;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           project_id: string;
@@ -337,11 +355,95 @@ export interface Database {
           assigned_to?: string | null;
         };
       };
+      releases: {
+        Row: {
+          id: string;
+          project_id: string;
+          organization_id: string;
+          version_name: string;
+          description: string | null;
+          start_date: string | null;
+          release_date: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          project_id: string;
+          organization_id: string;
+          version_name: string;
+          description?: string | null;
+          start_date?: string | null;
+          release_date?: string | null;
+          status?: string;
+        };
+        Update: {
+          version_name?: string;
+          description?: string | null;
+          start_date?: string | null;
+          release_date?: string | null;
+          status?: string;
+        };
+      };
+      test_suites: {
+        Row: {
+          id: string;
+          project_id: string | null;
+          organization_id: string;
+          test_plan_id: string | null;
+          name: string;
+          description: string | null;
+          sort_order: number;
+          created_at: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          project_id?: string | null;
+          organization_id: string;
+          test_plan_id?: string | null;
+          name: string;
+          description?: string | null;
+          sort_order?: number;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          sort_order?: number;
+          test_plan_id?: string | null;
+        };
+      };
+      test_suite_cases: {
+        Row: {
+          test_suite_id: string;
+          test_case_id: string;
+        };
+        Insert: {
+          test_suite_id: string;
+          test_case_id: string;
+        };
+        Update: {
+          test_suite_id?: string;
+          test_case_id?: string;
+        };
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 }
 
 export type UserRole = 'super_admin' | 'org_admin' | 'qa_manager' | 'qa_engineer' | 'developer' | 'viewer';
-export type TestStatus = 'not_run' | 'passed' | 'failed' | 'blocked' | 'not_applicable';
+export type TestStatus = 'not_run' | 'passed' | 'failed' | 'blocked' | 'retest' | 'not_applicable';
 export type DefectStatus = 'new' | 'open' | 'in_progress' | 'fixed' | 'ready_for_retest' | 'reopened' | 'closed' | 'rejected';
 export type RequirementStatus = 'draft' | 'under_review' | 'approved' | 'implemented' | 'verified' | 'rejected';
+

@@ -1,3 +1,4 @@
+
 // RBAC Permission System for Multi-Tenant QA Management Platform
 
 import type { UserRole } from '@/types/supabase';
@@ -72,7 +73,7 @@ const PERMISSIONS: Record<UserRole, UserPermissions> = {
     canEditTestPlan: true,
     canCreateDefect: true,
     canEditDefect: true,
-    canDeleteDefect: false,
+    canDeleteDefect: true,
     canAssignDefect: true,
     canViewReports: true,
     canExportReports: true,
@@ -97,7 +98,7 @@ const PERMISSIONS: Record<UserRole, UserPermissions> = {
     canEditTestPlan: true,
     canCreateDefect: true,
     canEditDefect: true,
-    canDeleteDefect: false,
+    canDeleteDefect: true,
     canAssignDefect: true,
     canViewReports: true,
     canExportReports: true,
@@ -215,3 +216,6 @@ export function canAccessModule(role: UserRole, module: 'projects' | 'requiremen
       return false;
   }
 }
+
+
+

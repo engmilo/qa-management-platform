@@ -1,294 +1,221 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { ProjectSelector, type ProjectOption } from '@/components/forms/project-selector';
-import { ArrowLeft, CheckSquare } from 'lucide-react';
+import { inputCls, labelCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
 
-type RequirementOption = { id: string; req_key: string; title: string };
+type Project = { id: string; name: string };
+type Plan = { id: string; name: string };
+type Requirement = { id: string; name: string };
+
+function normalizeProjects(data: any): Project[] {
+  const rawList: any[] = Array.isArray(data) ? data : Array.isArray(data?.projects) ? data.projects : Array.isArray(data?.data) ? data.data : [];
+  return rawList.map((raw: any) => ({
+    id: String(raw?.id ?? raw?.project_id ?? ''),
+    name: String(raw?.name ?? raw?.title ?? raw?.key ?? ''),
+  })).filter((p) => p.id && p.name);
+}
+
+function normalizePlans(data: any): Plan[] {
+  const rawList: any[] = Array.isArray(data) ? data : Array.isArray(data?.test_plans) ? data.test_plans : Array.isArray(data?.data) ? data.data : [];
+  return rawList.map((raw: any) => ({
+    id: String(raw?.id ?? ''),
+    name: String(raw?.name ?? raw?.title ?? ''),
+  })).filter((p) => p.id && p.name);
+}
+
+function normalizeReqs(data: any): Requirement[] {
+  const rawList: any[] = Array.isArray(data) ? data : Array.isArray(data?.requirements) ? data.requirements : Array.isArray(data?.data) ? data.data : [];
+  return rawList.map((raw: any) => ({
+    id: String(raw?.id ?? ''),
+    name: String(raw?.key ? `${raw.key} — ${raw.title || raw.name || ''}` : (raw?.title ?? raw?.name ?? '')),
+  })).filter((r) => r.id && r.name);
+}
 
 export default function NewTestCasePage() {
   const router = useRouter();
-  const [project, setProject] = useState<ProjectOption | null>(null);
-  const [requirements, setRequirements] = useState<RequirementOption[]>([]);
-  const [requirementIds, setRequirementIds] = useState<string[]>([]);
-  const [loadingRequirements, setLoadingRequirements] = useState(false);
-  const [requirementsError, setRequirementsError] = useState('');
-  const [form, setForm] = useState({ caseKey: '', title: '', description: '', preconditions: '', testType: 'functional', priority: 'medium', category: 'General', automationStatus: 'manual' });
-  const [saving, setSaving] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [projectId, setProjectId] = useState('');
+  const [planId, setPlanId] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [preconditions, setPreconditions] = useState('');
+  const [stepsText, setStepsText] = useState('');
+  const [type, setType] = useState('functional');
+  const [priority, setPriority] = useState('medium');
+  const [status, setStatus] = useState('draft');
+  const [selectedReqs, setSelectedReqs] = useState<string[]>([]);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    setRequirements([]);
-    setRequirementIds([]);
-    setRequirementsError('');
-    setLoadingRequirements(false);
+    fetch('/api/projects', { cache: 'no-store' }).then((r) => r.json()).then((d) => {
+      const list = normalizeProjects(d); setProjects(list); if (list.length > 0) setProjectId(list[0].id);
+    }).catch(() => {});
+    fetch('/api/test-plans', { cache: 'no-store' }).then((r) => r.json()).then((d) => setPlans(normalizePlans(d))).catch(() => {});
+    fetch('/api/requirements', { cache: 'no-store' }).then((r) => r.json()).then((d) => setRequirements(normalizeReqs(d))).catch(() => {});
+  }, []);
 
-    if (!project?.id) return () => { active = false; };
+  const toggleReq = (id: string) => {
+    setSelectedReqs((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
 
-    setLoadingRequirements(true);
-    fetch(`/api/requirements?projectId=${encodeURIComponent(project.id)}`, { cache: 'no-store' })
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Could not load project requirements.');
-        return data as { requirements: RequirementOption[] };
-      })
-      .then((data) => {
-        if (active) setRequirements(data.requirements ?? []);
-      })
-      .catch((loadError: unknown) => {
-        if (active) setRequirementsError(loadError instanceof Error ? loadError.message : 'Could not load project requirements.');
-      })
-      .finally(() => {
-        if (active) setLoadingRequirements(false);
-      });
-
-    return () => { active = false; };
-  }, [project?.id]);
-
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!project) return;
-    setSaving(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
+    if (!projectId) { setError('Select a project.'); return; }
+    if (!title.trim()) { setError('Title is required.'); return; }
+    setSaving(true);
     try {
-      const response = await fetch('/api/test-cases', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, projectId: project.id, requirementIds }),
+      const steps = stepsText.split('\n').map((s) => s.trim()).filter(Boolean).map((line, i) => ({
+        step_number: i + 1, action: line, expected_result: '',
+      }));
+      const res = await fetch('/api/test-cases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project_id: projectId,
+          test_plan_id: planId || null,
+          title: title.trim(),
+          description: description.trim(),
+          preconditions: preconditions.trim(),
+          steps,
+          type, priority, status,
+          requirement_ids: selectedReqs,
+        }),
       });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Could not create the test case.');
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(result.error || 'Could not create test case.');
       router.push('/test-cases');
-    } catch (submitError: unknown) {
-      setError(submitError instanceof Error ? submitError.message : 'Could not create the test case.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not create test case.');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9]">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-3xl mx-auto">
-            {/* Breadcrumb row */}
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-              <Link href="/test-cases" className="text-[#276fbf] hover:underline flex items-center gap-1">
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to Test Cases
-              </Link>
-              <span>/</span>
-              <span className="text-slate-800 font-medium">Add Test Case</span>
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 text-xs mb-4">
+              <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Cases</Link>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-500 dark:text-slate-400">Add Test Case</span>
             </div>
 
-            <div className="bg-white border border-[#d8dee4] rounded-md shadow-sm overflow-hidden mb-6">
-              <div className="bg-[#f8fafc] px-6 py-4 border-b border-[#e2e8f0] flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded bg-[#48a43f]/10 text-[#48a43f] flex items-center justify-center">
-                  <CheckSquare className="w-4 h-4" />
-                </div>
-                <div>
-                  <h1 className="text-base font-bold text-slate-900">Add Test Case</h1>
-                  <p className="text-xs text-slate-500">Define test steps, preconditions, type, and priorities</p>
-                </div>
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
+                <h1 className="text-base font-semibold text-slate-900 dark:text-white">Add Test Case</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Define steps to verify a requirement</p>
               </div>
 
-              <div className="p-6">
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 {error && (
-                  <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs font-medium">
-                    {error}
-                  </div>
+                  <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
                 )}
 
-                <form onSubmit={submit} className="space-y-5">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Project <span className="text-red-500">*</span>
-                    </label>
-                    <ProjectSelector value={project?.id ?? ''} onChange={setProject} />
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormSelect
+                    label="PROJECT *"
+                    value={projectId}
+                    onChange={setProjectId}
+                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="Select a project"
+                  />
+                  <FormSelect
+                    label="TEST PLAN (OPTIONAL)"
+                    value={planId}
+                    onChange={setPlanId}
+                    options={plans.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="No test plan"
+                  />
+                </div>
 
-                  <fieldset className="p-3.5 rounded border border-[#d8dee4] bg-[#f8fafc]/50 space-y-2">
-                    <legend className="text-xs font-semibold uppercase tracking-wider text-slate-700 px-1">
-                      Linked Requirements <span className="font-normal text-slate-400 lowercase">(optional)</span>
-                    </legend>
-                    {!project ? (
-                      <p className="text-xs text-slate-400">Select a project to see its requirements.</p>
-                    ) : loadingRequirements ? (
-                      <p className="text-xs text-slate-400">Loading requirements…</p>
-                    ) : requirementsError ? (
-                      <p role="alert" className="text-xs text-red-500 font-medium">{requirementsError}</p>
-                    ) : requirements.length ? (
-                      <div className="max-h-40 space-y-2 overflow-y-auto rounded border border-[#d8dee4] bg-white p-2.5">
-                        {requirements.map((requirement) => (
-                          <label key={requirement.id} className="flex cursor-pointer items-start gap-2.5 text-xs text-slate-700 hover:text-slate-900">
-                            <input
-                              type="checkbox"
-                              checked={requirementIds.includes(requirement.id)}
-                              onChange={(event) => setRequirementIds((selected) => event.target.checked
-                                ? [...selected, requirement.id]
-                                : selected.filter((id) => id !== requirement.id))}
-                              className="mt-0.5 accent-[#48a43f]"
-                            />
-                            <span>
-                              <span className="mr-1.5 font-mono font-bold text-[#276fbf]">{requirement.req_key}</span>
-                              {requirement.title}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-slate-400">This project has no requirements to link yet.</p>
+                <FormField label="TITLE *">
+                  <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Verify login with valid credentials" className={inputCls} />
+                </FormField>
+
+                <FormField label="DESCRIPTION">
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What does this test verify?" className={`${inputCls} resize-y`} />
+                </FormField>
+
+                <FormField label="PRECONDITIONS">
+                  <textarea value={preconditions} onChange={(e) => setPreconditions(e.target.value)} rows={2} placeholder="e.g. User account exists, app is on login page" className={`${inputCls} resize-y`} />
+                </FormField>
+
+                <FormField label="STEPS (ONE PER LINE)">
+                  <textarea value={stepsText} onChange={(e) => setStepsText(e.target.value)} rows={4} placeholder={"1. Navigate to login page\n2. Enter valid email and password\n3. Click Login"} className={`${inputCls} resize-y`} />
+                </FormField>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <FormSelect
+                    label="TYPE"
+                    value={type}
+                    onChange={setType}
+                    options={[
+                      { value: 'functional', label: 'functional' },
+                      { value: 'regression', label: 'regression' },
+                      { value: 'smoke', label: 'smoke' },
+                      { value: 'integration', label: 'integration' },
+                      { value: 'ui', label: 'ui' },
+                      { value: 'api', label: 'api' },
+                    ]}
+                  />
+                  <FormSelect
+                    label="PRIORITY"
+                    value={priority}
+                    onChange={setPriority}
+                    options={[
+                      { value: 'low', label: 'low' },
+                      { value: 'medium', label: 'medium' },
+                      { value: 'high', label: 'high' },
+                      { value: 'critical', label: 'critical' },
+                    ]}
+                  />
+                  <FormSelect
+                    label="STATUS"
+                    value={status}
+                    onChange={setStatus}
+                    options={[
+                      { value: 'draft', label: 'draft' },
+                      { value: 'ready', label: 'ready' },
+                      { value: 'in_review', label: 'in_review' },
+                      { value: 'approved', label: 'approved' },
+                      { value: 'archived', label: 'archived' },
+                    ]}
+                  />
+                </div>
+
+                {/* Linked Requirements — stacked, no overlap */}
+                <div>
+                  <span className={labelCls}>LINKED REQUIREMENTS</span>
+                  <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
+                    {requirements.length === 0 && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No requirements found for this project.</p>
                     )}
-                  </fieldset>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="sm:col-span-1">
-                      <label htmlFor="case-key" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Case Key <span className="text-red-500">*</span>
+                    {requirements.map((r) => (
+                      <label key={r.id} className="flex items-start gap-2 px-1 py-1 rounded hover:bg-slate-50 dark:hover:bg-[#1e2a3a] cursor-pointer">
+                        <input type="checkbox" checked={selectedReqs.includes(r.id)} onChange={() => toggleReq(r.id)} className="mt-0.5 accent-[#48a43f]" />
+                        <span className="text-xs text-slate-700 dark:text-slate-200 leading-4">{r.name}</span>
                       </label>
-                      <input
-                        id="case-key"
-                        value={form.caseKey}
-                        onChange={(event) => setForm({ ...form, caseKey: event.target.value.toUpperCase() })}
-                        placeholder="e.g. TC-101"
-                        required
-                        maxLength={30}
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm font-mono text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label htmlFor="case-title" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Title <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="case-title"
-                        value={form.title}
-                        onChange={(event) => setForm({ ...form, title: event.target.value })}
-                        placeholder="e.g. User login with valid credentials"
-                        required
-                        maxLength={255}
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
-                      />
-                    </div>
+                    ))}
                   </div>
+                  {selectedReqs.length > 0 && (
+                    <p className="text- text-slate-500 dark:text-slate-400 mt-1">{selectedReqs.length} requirement(s) selected</p>
+                  )}
+                </div>
 
-                  <div>
-                    <label htmlFor="case-preconditions" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Preconditions
-                    </label>
-                    <textarea
-                      id="case-preconditions"
-                      value={form.preconditions}
-                      onChange={(event) => setForm({ ...form, preconditions: event.target.value })}
-                      placeholder="e.g. User account exists in database and email is verified"
-                      rows={2}
-                      className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="case-description" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Steps & Expected Result
-                    </label>
-                    <textarea
-                      id="case-description"
-                      value={form.description}
-                      onChange={(event) => setForm({ ...form, description: event.target.value })}
-                      placeholder="Step 1: Enter email...&#10;Step 2: Click submit...&#10;Expected Result: Dashboard is displayed"
-                      rows={4}
-                      className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-slate-800 focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f]"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div>
-                      <label htmlFor="case-type" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Type</label>
-                      <select
-                        id="case-type"
-                        value={form.testType}
-                        onChange={(event) => setForm({ ...form, testType: event.target.value })}
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-xs text-slate-800 focus:outline-none focus:border-[#48a43f]"
-                      >
-                        <option value="functional">Functional</option>
-                        <option value="regression">Regression</option>
-                        <option value="integration">Integration</option>
-                        <option value="system">System</option>
-                        <option value="api">API</option>
-                        <option value="ui">UI</option>
-                        <option value="performance">Performance</option>
-                        <option value="security">Security</option>
-                        <option value="exploratory">Exploratory</option>
-                        <option value="uat">UAT</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label htmlFor="case-priority" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Priority</label>
-                      <select
-                        id="case-priority"
-                        value={form.priority}
-                        onChange={(event) => setForm({ ...form, priority: event.target.value })}
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-xs text-slate-800 focus:outline-none focus:border-[#48a43f]"
-                      >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label htmlFor="case-category" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Section / Category</label>
-                      <input
-                        id="case-category"
-                        value={form.category}
-                        onChange={(event) => setForm({ ...form, category: event.target.value })}
-                        maxLength={100}
-                        placeholder="General"
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-xs text-slate-800 focus:outline-none focus:border-[#48a43f]"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="case-automation" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Automation</label>
-                      <select
-                        id="case-automation"
-                        value={form.automationStatus}
-                        onChange={(event) => setForm({ ...form, automationStatus: event.target.value })}
-                        className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-xs text-slate-800 focus:outline-none focus:border-[#48a43f]"
-                      >
-                        <option value="manual">Manual</option>
-                        <option value="automated">Automated</option>
-                        <option value="to_automate">To automate</option>
-                        <option value="not_automatable">Not automatable</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-[#edf2f7] flex items-center gap-3">
-                    <button
-                      type="submit"
-                      disabled={saving || !project}
-                      className="btn-testrail-primary"
-                    >
-                      {saving ? 'Saving...' : 'Add Test Case'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => router.push('/test-cases')}
-                      disabled={saving}
-                      className="btn-testrail-secondary"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
+                <FormActions submitLabel="Add Test Case" saving={saving} savingLabel="Adding..." cancelHref="/test-cases" />
+              </form>
             </div>
           </div>
         </main>

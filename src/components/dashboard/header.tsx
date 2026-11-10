@@ -1,178 +1,143 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
-import { Plus, Building2, User, LogOut, CheckCircle2 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
+import { Building2, Plus, ChevronDown, User, LogOut, Moon, Sun } from 'lucide-react';
 
-type OrganizationMembership = { organization: { name: string } | null };
-type OrganizationLoadState = 'loading' | 'available' | 'empty' | 'error';
+function getTitle(pathname: string): string {
+  if (pathname === '/dashboard') return 'Dashboard Overview';
+  if (pathname.startsWith('/projects')) return 'Projects';
+  if (pathname.startsWith('/milestones')) return 'Milestones';
+  if (pathname.startsWith('/requirements')) return 'Requirements';
+  if (pathname.startsWith('/test-plans')) return 'Test Plans';
+  if (pathname.startsWith('/test-suites')) return 'Test Suites';
+  if (pathname.startsWith('/test-cases')) return 'Test Cases';
+  if (pathname.startsWith('/test-runs')) return 'Test Runs & Results';
+  if (pathname.startsWith('/defects')) return 'Defects';
+  if (pathname.startsWith('/traceability')) return 'Traceability';
+  if (pathname.startsWith('/reports')) return 'Reports';
+  if (pathname.startsWith('/ai-assistant')) return 'AI Assistant';
+  if (pathname.startsWith('/settings')) return 'Settings';
+  if (pathname.startsWith('/profile')) return 'My Profile';
+  return 'Dashboard Overview';
+}
 
 export function Header() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const [organizationName, setOrganizationName] = useState('');
-  const [organizationLoadState, setOrganizationLoadState] = useState<OrganizationLoadState>('loading');
-  const [organizationRetry, setOrganizationRetry] = useState(0);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [signOutError, setSignOutError] = useState('');
+  const [dark, setDark] = useState(false);
+  const [initials, setInitials] = useState('MH');
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('Milo Haireche');
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let active = true;
-    setOrganizationName('');
-    setOrganizationLoadState('loading');
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
+    const isDark = saved ? saved === 'dark' : document.documentElement.classList.contains('dark');
+    setDark(isDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  }, []);
 
-    if (!user?.id) {
-      return () => { active = false; };
-    }
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
 
-    fetch('/api/organizations', { cache: 'no-store' })
-      .then(async (response) => {
-        if (!response.ok) throw new Error('Could not load organizations');
-        return response.json();
-      })
-      .then((data) => {
-        if (!active) return;
-        if (!Array.isArray(data.organizations)) throw new Error('Organization response was invalid');
-        const memberships = (data.organizations ?? []) as OrganizationMembership[];
-        const name = memberships.find((item) => item.organization?.name)?.organization?.name || '';
-        setOrganizationName(name);
-        setOrganizationLoadState(name ? 'available' : 'empty');
-      })
-      .catch(() => {
-        if (active) setOrganizationLoadState('error');
-      });
-    return () => { active = false; };
-  }, [user?.id, organizationRetry]);
+  useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    supabase.auth.getUser().then(({ data }) => {
+      const user = data.user;
+      if (!user) return;
+      setEmail(user.email ?? '');
+      const name = String(user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Milo Haireche');
+      setFullName(name);
+      const parts = name.trim().split(/\s+/);
+      setInitials(((parts[0]?.[0] || 'M') + (parts[1]?.[0] || 'H')).toUpperCase());
+    });
+  }, []);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
 
   const handleSignOut = async () => {
+    if (signingOut) return;
     setSigningOut(true);
-    setSignOutError('');
+    setOpen(false);
     try {
-      const { supabase } = await import('@/lib/supabase/client');
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        setSignOutError(error.message);
-        return;
-      }
-      setMenuOpen(false);
-      router.replace('/auth/login');
-      router.refresh();
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      await supabase.auth.signOut();
+      window.location.href = '/auth/login';
     } catch {
-      setSignOutError('Could not sign out. Please try again.');
-    } finally {
-      setSigningOut(false);
+      window.location.href = '/auth/login';
     }
   };
 
-  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || '';
-  const initials = displayName
-    ? displayName
-        .split(' ')
-        .map((part: string) => part[0])
-        .filter(Boolean)
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
-    : 'JD';
+  const goToProfile = () => {
+    setOpen(false);
+    window.location.href = '/profile';
+  };
 
   return (
-    <header className="h-14 bg-[#1d2d3e] text-white px-5 flex items-center justify-between border-b border-[#141f2b] shadow-sm shrink-0 z-20">
-      {/* Left section: TestRail Section Breadcrumb */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#48a43f]"></span>
-          <span className="text-white font-medium">Dashboard Overview</span>
-        </div>
+    // FIX: theme-aware, like sidebar brand bar.
+    // Light: white header + dark text. Dark: dark navy header + white text.
+    // Before it was always bg-[#141d28], so it stayed black in light mode.
+    <header className="h-14 bg-white dark:bg-[#141d28] border-b border-[#d8dee4] dark:border-[#222e3e] flex items-center justify-between gap-3 px-4 shrink-0">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <span className="w-2.5 h-2.5 rounded-full bg-[#48a43f] shrink-0" />
+        <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">{getTitle(pathname)}</span>
       </div>
 
-      {/* Right section: Org Badge, Theme Toggle, CTA, User Menu */}
-      <div className="flex items-center gap-3">
-        {organizationLoadState === 'available' ? (
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-slate-200 bg-[#2b3d51] px-3 py-1.5 rounded border border-[#384e66]">
-            <Building2 className="w-3.5 h-3.5 text-slate-400" />
-            <span>{organizationName}</span>
-          </div>
-        ) : organizationLoadState === 'empty' ? (
-          <Link
-            href="/organizations/new"
-            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-white bg-[#2b3d51] hover:bg-[#344961] px-3 py-1.5 rounded transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-[#48a43f]" />
-            Create organization
-          </Link>
-        ) : organizationLoadState === 'error' ? (
-          <button
-            type="button"
-            onClick={() => setOrganizationRetry((retry) => retry + 1)}
-            className="text-xs text-amber-300 hover:text-amber-200 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded"
-            title="Retry loading your organization"
-          >
-            Organization unavailable · Retry
-          </button>
-        ) : null}
-
-        {/* TestRail Signature Green "New Project" Button */}
-        <Link
-          href="/projects/new"
-          className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3 py-1.5 rounded shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-[#48a43f] focus:ring-offset-1 focus:ring-offset-[#1d2d3e]"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>New Project</span>
+      <div className="flex items-center gap-2 shrink-0">
+        <Link href="/settings"
+          className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded bg-slate-100 dark:bg-[#1e2a3a] hover:bg-slate-200 dark:hover:bg-[#28374d] border border-[#e2e8f0] dark:border-[#28374d] text-xs font-medium text-slate-700 dark:text-slate-200">
+          <Building2 className="w-3.5 h-3.5" /> Zamir Oy
         </Link>
 
-        {/* Dark / Light Mode Switcher */}
-        <ThemeToggle />
+        <Link href="/projects/new"
+          className="flex items-center gap-1 h-8 px-3 rounded bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold">
+          <Plus className="w-3.5 h-3.5" /> New Project
+        </Link>
 
-        {/* User Avatar & TestRail Style Dropdown */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => { setMenuOpen((open) => !open); setSignOutError(''); }}
-            className="w-8 h-8 rounded-full bg-[#276fbf] hover:ring-2 hover:ring-[#48a43f] flex items-center justify-center text-white text-xs font-bold transition-all shadow-sm focus:outline-none"
-            aria-label="Open account menu"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-          >
-            {initials || 'QA'}
+        <button type="button" onClick={toggleTheme} aria-label="Toggle theme"
+          className="w-8 h-8 rounded flex items-center justify-center text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1e2a3a]">
+          {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
+
+        <div ref={menuRef} className="relative ml-1">
+          <button type="button" onClick={() => setOpen((v) => !v)} className="flex items-center gap-1.5 hover:opacity-90">
+            <span className="w-8 h-8 rounded-full bg-[#276fbf] text-white text-xs font-bold flex items-center justify-center">{initials}</span>
+            <ChevronDown className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
           </button>
-
-          {menuOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 top-10 z-50 w-64 rounded-md border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] p-1.5 shadow-xl text-slate-800 dark:text-slate-200"
-            >
-              <div className="px-3 py-2 border-b border-slate-100 dark:border-[#28374d] mb-1">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">{user?.user_metadata?.full_name || 'QA Engineer'}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user?.email}</p>
-                <span className="inline-block mt-1 text-[10px] font-semibold bg-[#e8f5e9] dark:bg-[#132c1c] text-[#2e7d32] dark:text-[#52c41a] border border-[#c8e6c9] dark:border-[#1d4c2b] px-2 py-0.5 rounded-full">
-                  Organization Member
-                </span>
+          {open && (
+            <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-lg overflow-hidden z-50">
+              <div className="px-4 py-3 border-b border-[#e2e8f0] dark:border-[#28374d]">
+                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{fullName}</p>
+                {email && <p className="text- text-slate-500 dark:text-slate-400 truncate">{email}</p>}
               </div>
-              <Link
-                href="/profile"
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 rounded px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#202c3e] hover:text-slate-900 dark:hover:text-white transition-colors"
-              >
-                <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                My Profile
-              </Link>
-              <div className="border-t border-slate-100 dark:border-[#28374d] my-1"></div>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleSignOut}
-                disabled={signingOut}
-                className="w-full flex items-center gap-2 text-left rounded px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                {signingOut ? 'Signing out...' : 'Sign out'}
+              <button type="button" onClick={goToProfile}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 text-left">
+                <User className="w-3.5 h-3.5" /> My Profile
               </button>
-              {signOutError && <p role="alert" className="px-3 py-1.5 text-xs text-red-600 font-medium">{signOutError}</p>}
+              <button type="button" onClick={() => void handleSignOut()} disabled={signingOut}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 text-left">
+                <LogOut className="w-3.5 h-3.5" /> {signingOut ? 'Signing out...' : 'Sign Out'}
+              </button>
             </div>
           )}
         </div>

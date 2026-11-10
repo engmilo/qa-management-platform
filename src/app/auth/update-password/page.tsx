@@ -83,7 +83,7 @@ export default function UpdatePasswordPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-md bg-white border border-[#d8dee4] rounded-lg shadow-sm p-8">
+      <div className="w-full max-w-md bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-lg shadow-sm p-8">
         <div className="mb-6 pb-4 border-b border-[#e5e9ec]">
           <h2 className="text-lg font-semibold text-[#1d2d3e]">Choose a New Password</h2>
           <p className="text-xs text-[#6e7d8c] mt-0.5">Set a secure password for your account</p>
@@ -120,7 +120,7 @@ export default function UpdatePasswordPage() {
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+                className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
                 placeholder="••••••••"
                 minLength={8}
                 required
@@ -136,7 +136,7 @@ export default function UpdatePasswordPage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                className="w-full px-3 py-2 bg-white border border-[#d8dee4] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
+                className="w-full px-3 py-2 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded text-sm text-[#1d2d3e] focus:outline-none focus:border-[#48a43f] focus:ring-1 focus:ring-[#48a43f] transition placeholder-[#95a5a6]"
                 placeholder="••••••••"
                 minLength={8}
                 required
