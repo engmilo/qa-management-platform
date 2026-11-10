@@ -19,22 +19,25 @@ export default function ResetPasswordPage() {
     if (startedRef.current) return;
     startedRef.current = true;
 
-    // If ?code= is present, let the SERVER exchange it once via /auth/callback.
-    // Do NOT exchange in the browser — auto-exchange never runs reliably on Prod.
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (code) {
-      window.location.href = `/auth/callback?code=${code}&next=/auth/reset-password`;
-      return;
-    }
-
-    // No code = we came back from /auth/callback (server already exchanged).
-    // Just wait for the session from cookies.
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
+    const params = new URLSearchParams(window.location.search);
+    const token_hash = params.get('token_hash');
+    const type = params.get('type');
+
+    // token_hash flow — no PKCE verifier needed
+    if (token_hash && type === 'recovery') {
+      supabase.auth.verifyOtp({ token_hash, type: 'recovery' }).then(({ error }) => {
+        if (error) { setValidLink(false); setReady(true); }
+        else { setValidLink(true); setReady(true); }
+      });
+      return;
+    }
+
+    // Fallback: already have session from callback
     let finished = false;
     const finish = (ok: boolean) => {
       if (finished) return;
@@ -42,16 +45,9 @@ export default function ResetPasswordPage() {
       setValidLink(ok);
       setReady(true);
     };
-
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') finish(true);
-      if (event === 'SIGNED_IN') {
-        supabase.auth.getSession().then(({ data }) => {
-          if (data.session) finish(true);
-        });
-      }
     });
-
     let attempts = 0;
     const check = () => {
       supabase.auth.getSession().then(({ data }) => {
@@ -62,7 +58,6 @@ export default function ResetPasswordPage() {
       });
     };
     check();
-
     return () => listener.subscription.unsubscribe();
   }, []);
 
