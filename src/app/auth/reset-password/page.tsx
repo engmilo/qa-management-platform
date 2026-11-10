@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
 import { ShieldCheck } from 'lucide-react';
 
-// NEVER auto-redirect to /dashboard here.
-// A recovery link creates a temp session — redirecting would steal it.
 export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);
   const [validLink, setValidLink] = useState(false);
@@ -15,55 +13,51 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
-  const exchangedRef = useRef(false);
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    if (exchangedRef.current) return;
-    exchangedRef.current = true;
+    if (startedRef.current) return;
+    startedRef.current = true;
 
-    // FIX: detectSessionInUrl: false — we exchange manually ONCE below.
-    // Without this, Supabase auto-exchanges on init + our manual exchange = double exchange = "already used"
+    // NO exchangeCodeForSession here on purpose.
+    // createBrowserClient with default detectSessionInUrl:true auto-handles
+    // ?code=... AND #access_token=... exactly once.
+    // Any manual exchange = second exchange = "already used".
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { detectSessionInUrl: false } } as any
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
+    let finished = false;
     const finish = (ok: boolean) => {
+      if (finished) return;
+      finished = true;
       setValidLink(ok);
       setReady(true);
     };
 
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        if (error) {
-          setError('This reset link is expired or already used. Please request a new one - only the newest email works, and each link works once.');
-          finish(false);
-        } else {
-          finish(true);
-        }
-      });
-      return;
-    }
-
-    // Hash flow: #access_token=...&type=recovery — check session after a tick
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') finish(true);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) finish(true);
-      else {
-        setTimeout(() => {
-          supabase.auth.getSession().then(({ data: d2 }) => {
-            if (d2.session) finish(true);
-            else finish(false);
-          });
-        }, 800);
+      if (event === 'SIGNED_IN') {
+        // Recovery link also fires SIGNED_IN — check session type via getSession
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session) finish(true);
+        });
       }
     });
+
+    // Poll for session — auto-exchange can take a moment
+    let attempts = 0;
+    const check = () => {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) { finish(true); return; }
+        attempts++;
+        if (attempts < 10) setTimeout(check, 300); // up to ~3s
+        else finish(false);
+      });
+    };
+    check();
+
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -75,8 +69,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { detectSessionInUrl: false } } as any
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
@@ -96,24 +89,16 @@ export default function ResetPasswordPage() {
           <p className="text- text-slate-500 dark:text-slate-400">Enterprise Test Management</p>
         </div>
       </div>
-
       <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6">
         <h1 className="text-base font-semibold text-slate-900 dark:text-white">Choose a new password</h1>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5">Enter and confirm your new password below.</p>
-
         {!ready && <p className="text-xs text-slate-500 dark:text-slate-400">Checking your reset link...</p>}
-
         {ready && !validLink && !done && (
           <>
-            <div className="p-3 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">
-              {error || 'This reset link is expired or invalid. Please request a new one from the login page.'}
-            </div>
-            <div className="mt-5 text-center">
-              <Link href="/auth/login" className="text-xs font-medium text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Log In</Link>
-            </div>
+            <div className="p-3 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">This reset link is expired or already used. Please request a new one - only the newest email works, and each link works once.</div>
+            <div className="mt-5 text-center"><Link href="/auth/login" className="text-xs font-medium text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Log In</Link></div>
           </>
         )}
-
         {ready && validLink && !done && (
           <form onSubmit={handleUpdate} className="space-y-4">
             {error && <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>}
@@ -128,7 +113,6 @@ export default function ResetPasswordPage() {
             <button type="submit" disabled={loading} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-semibold py-2 rounded disabled:opacity-50">{loading ? 'Updating...' : 'Update password'}</button>
           </form>
         )}
-
         {done && (
           <>
             <div className="p-3 text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded">Password updated. You can now log in with your new password.</div>
