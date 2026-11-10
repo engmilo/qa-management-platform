@@ -19,10 +19,17 @@ export default function ResetPasswordPage() {
     if (startedRef.current) return;
     startedRef.current = true;
 
-    // NO exchangeCodeForSession here on purpose.
-    // createBrowserClient with default detectSessionInUrl:true auto-handles
-    // ?code=... AND #access_token=... exactly once.
-    // Any manual exchange = second exchange = "already used".
+    // If ?code= is present, let the SERVER exchange it once via /auth/callback.
+    // Do NOT exchange in the browser — auto-exchange never runs reliably on Prod.
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      window.location.href = `/auth/callback?code=${code}&next=/auth/reset-password`;
+      return;
+    }
+
+    // No code = we came back from /auth/callback (server already exchanged).
+    // Just wait for the session from cookies.
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -39,20 +46,18 @@ export default function ResetPasswordPage() {
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') finish(true);
       if (event === 'SIGNED_IN') {
-        // Recovery link also fires SIGNED_IN — check session type via getSession
         supabase.auth.getSession().then(({ data }) => {
           if (data.session) finish(true);
         });
       }
     });
 
-    // Poll for session — auto-exchange can take a moment
     let attempts = 0;
     const check = () => {
       supabase.auth.getSession().then(({ data }) => {
         if (data.session) { finish(true); return; }
         attempts++;
-        if (attempts < 10) setTimeout(check, 300); // up to ~3s
+        if (attempts < 10) setTimeout(check, 300);
         else finish(false);
       });
     };
