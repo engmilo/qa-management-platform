@@ -12,7 +12,7 @@ type TestCase = {
   priority: string;
   test_type: string;
   category: string;
-  status: string;
+  status: string | null;
   project_id: string;
   projects?: { name: string; key: string } | null;
 };
@@ -29,6 +29,8 @@ const STATUS_META: Record<string, { label: string; badge: string }> = {
   active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
   draft: { label: 'Draft', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
   deprecated: { label: 'Deprecated', badge: 'bg-slate-50 text-slate-500 border-slate-200' },
+  ready: { label: 'Ready', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
+  approved: { label: 'Approved', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
 };
 
 export default function TestCasesPage() {
@@ -80,6 +82,11 @@ export default function TestCasesPage() {
     }
     return true;
   }), [cases, projectFilter, priorityFilter, typeFilter, search]);
+
+  const statusLabel = (s: string | null) => {
+    if (!s) return '—';
+    return STATUS_META[s]?.label ?? s.charAt(0).toUpperCase() + s.slice(1);
+  };
 
   const exportCsv = async () => {
     setExporting(true);
@@ -164,7 +171,7 @@ export default function TestCasesPage() {
                     <tbody>
                       {filtered.map((c) => {
                         const pri = PRIORITY_META[c.priority] || { label: c.priority, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
-                        const st = STATUS_META[c.status] || { label: c.status, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                        const st = STATUS_META[c.status ?? ''] || { label: statusLabel(c.status), badge: 'bg-slate-100 text-slate-600 border-slate-200' };
                         return (
                           <tr key={c.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636]">
                             <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="font-mono text-xs font-bold text-[#276fbf] hover:underline">{c.case_key}</Link></td>
@@ -172,7 +179,9 @@ export default function TestCasesPage() {
                             <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${pri.badge}`}>{pri.label}</span></td>
                             <td className="px-4 py-3"><span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4]">{c.test_type}</span></td>
                             <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{c.category}</td>
-                            <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${st.badge}`}>{st.label}</span></td>
+                            <td className="px-4 py-3">
+                              {!c.status ? <span className="text-xs text-slate-400">—</span> : <span className={`px-2 py-1 rounded text-xs font-semibold border ${st.badge}`}>{st.label}</span>}
+                            </td>
                           </tr>
                         );
                       })}
