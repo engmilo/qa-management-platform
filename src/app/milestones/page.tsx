@@ -26,7 +26,6 @@ const STATUS_META: Record<string, { label: string; badge: string }> = {
   active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
 };
 
-// Safe parse: if API returns HTML 404, don't throw JSON error
 async function safeJson(res: Response) {
   const text = await res.text();
   try {
@@ -55,8 +54,8 @@ export default function MilestonesPage() {
         ]);
         const m = await safeJson(mRes);
         const p = await safeJson(pRes);
-        // Milestones API does not exist yet -> show empty state, not JSON crash
         if (!m.ok) {
+          setError(m.data?.error || 'Could not load milestones. Run the SQL above, then redeploy.');
           setMilestones([]);
         } else {
           setMilestones(m.data.milestones ?? []);
@@ -94,9 +93,7 @@ export default function MilestonesPage() {
               </div>
               <Link href="/milestones/new" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> New Milestone</Link>
             </div>
-
             {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
-
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4">
               <div className="flex flex-wrap gap-2 items-center">
                 <div className="relative">
@@ -117,11 +114,10 @@ export default function MilestonesPage() {
                 </select>
               </div>
             </div>
-
             {loading ? (
               <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading milestones...</div>
             ) : filtered.length === 0 ? (
-              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No milestones found. Milestones API is not set up yet.</div>
+              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No milestones found.</div>
             ) : (
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
                 <table className="w-full table-fixed text-left">
@@ -140,7 +136,7 @@ export default function MilestonesPage() {
                       const s = STATUS_META[m.status] || { label: m.status, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
                       return (
                         <tr key={m.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636] align-top">
-                          <td className="px-4 py-3 break-words whitespace-normal"><Link href={`/milestones/${m.id}`} className="text-xs font-semibold text-[#276fbf] hover:underline break-words">{m.name}</Link></td>
+                          <td className="px-4 py-3 break-words whitespace-normal"><span className="text-xs font-semibold text-slate-900 dark:text-white break-words">{m.name}</span></td>
                           <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{m.description || '—'}</td>
                           <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{m.projects ? `${m.projects.key} — ${m.projects.name}` : '—'}</td>
                           <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap">{m.due_date ? new Date(m.due_date).toLocaleDateString() : '—'}</td>
