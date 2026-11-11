@@ -113,3 +113,33 @@ html:not(.dark) header {
 html:not(.dark) .bg-slate-100 {
   background-color: #e2e8f0 !important;
 }
+/* GLOBAL DARK-MODE LOADING FIX — paste at END of globals.css */
+/* Fixes white flash on Projects, Milestones, Requirements, Test Plans, */
+/* Test Suites, Test Cases, Defects, Reports. Dashboard / Test Runs / */
+/* Traceability / AI Assistant / Settings already had dark: variants. */
+html.dark .bg-white {
+  background-color: #182232 !important;
+  border-color: #28374d !important;
+  color: #e2e8f0 !important;
+}
+html.dark .bg-\[\#f5f7f9\] {
+  background-color: #101622 !important;
+}
+html.dark .bg-\[\#f8fafc\] {
+  background-color: #141d28 !important;
+  border-color: #28374d !important;
+}
+html.dark .bg-slate-50 {
+  background-color: #1a2639 !important;
+}
+html.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+/* Loading text that was slate-500 on white — keep readable on dark card */
+html.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+html.dark .text-slate-900 {
+  color: #ffffff !important;
+}

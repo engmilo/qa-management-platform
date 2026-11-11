@@ -1,220 +1,305 @@
-'use client';
-
+"use client";
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import CommentsSection from '@/components/comments/CommentsSection';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 
-type Step = { action: string; expectedResult: string };
+type Step = { action: string; expected_result: string };
+type Req = { id: string; req_key: string; title: string; project_id?: string };
 
 export default function TestCaseDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = params.id;
-  const router = useRouter();
+  const params = useParams();
+  const id = String(params?.id ?? '');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [saved, setSaved] = useState(false);
-  const [tc, setTc] = useState<any>(null);
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [form, setForm] = useState({ title: '', description: '', preconditions: '', priority: 'medium', testType: 'functional', category: 'General', automationStatus: 'manual', tags: '' });
-  const [requirements, setRequirements] = useState<any[]>([]);
-  const [selectedReqs, setSelectedReqs] = useState<string[]>([]);
-  const [recent, setRecent] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [savedMsg, setSavedMsg] = useState('');
+  const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showStepConfirm, setShowStepConfirm] = useState(false);
-  const [stepToRemove, setStepToRemove] = useState<number | null>(null);
+
+  const [code, setCode] = useState('');
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    preconditions: '',
+    category: '',
+    priority: 'medium',
+    status: 'draft',
+    type: 'functional',
+    project_id: '',
+    tags: '',
+  });
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [allRequirements, setAllRequirements] = useState<Req[]>([]);
+  const [linkedIds, setLinkedIds] = useState<string[]>([]);
+  const [executions, setExecutions] = useState<any[]>([]);
+
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLTextAreaElement>(null);
+  const autoGrow = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  };
+  useEffect(() => { autoGrow(descRef.current); }, [form.description, loading]);
+  useEffect(() => { autoGrow(preRef.current); }, [form.preconditions, loading]);
 
   useEffect(() => {
+    if (!id) return;
     (async () => {
       try {
-        const res = await fetch(`/api/test-cases/${id}`, { cache: 'no-store' });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Could not load test case.');
-        setTc(data.testCase);
-        setSteps((data.steps ?? []).map((s: any) => ({ action: s.action, expectedResult: s.expected_result })));
-        setRecent(data.recentExecutions ?? []);
+        const [tcRes, reqRes, projRes] = await Promise.all([
+          fetch(`/api/test-cases/${id}`, { cache: 'no-store' }),
+          fetch('/api/requirements', { cache: 'no-store' }),
+          fetch('/api/projects', { cache: 'no-store' }),
+        ]);
+        const tcData = await tcRes.json().catch(() => ({}));
+        const reqData = await reqRes.json().catch(() => ({}));
+        const projData = await projRes.json().catch(() => ({}));
+
+        const tc = tcData.testCase ?? tcData ?? {};
+        setCode(tc.code ?? tc.test_case_code ?? '');
         setForm({
-          title: data.testCase.title ?? '',
-          description: data.testCase.description ?? '',
-          preconditions: data.testCase.preconditions ?? '',
-          priority: data.testCase.priority ?? 'medium',
-          testType: data.testCase.test_type ?? 'functional',
-          category: data.testCase.category ?? 'General',
-          automationStatus: data.testCase.automation_status ?? 'manual',
-          tags: (data.testCase.tags ?? []).join(', '),
+          title: tc.title ?? '',
+          description: tc.description ?? '',
+          preconditions: tc.preconditions ?? '',
+          category: tc.category ?? '',
+          priority: tc.priority ?? 'medium',
+          status: tc.status ?? 'draft',
+          type: tc.test_type ?? tc.type ?? 'functional',
+          project_id: tc.project_id ? String(tc.project_id) : '',
+          tags: Array.isArray(tc.tags) ? tc.tags.join(', ') : (tc.tags ?? ''),
         });
-        setSelectedReqs((data.requirements ?? []).map((r: any) => r.id));
-        const rr = await fetch(`/api/requirements?projectId=${data.testCase.project_id}`, { cache: 'no-store' });
-        const rd = await rr.json();
-        if (rr.ok) setRequirements(rd.requirements ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Could not load test case.');
+        setSteps(Array.isArray(tcData.steps) ? tcData.steps : (Array.isArray(tc.steps) ? tc.steps : []));
+        // FIX: linked IDs come from join table via API, not from a column
+        setLinkedIds((tcData.linkedRequirementIds ?? tc.linkedRequirementIds ?? []).map((x: any) => String(x)));
+        // FIX: ALL requirements, no project_id filter — that filter returned 0
+        setAllRequirements(reqData.requirements ?? reqData ?? []);
+        setProjects(projData.projects ?? projData ?? []);
+        setExecutions(tcData.executions ?? tcData.recentExecutions ?? []);
+      } catch {
+        setAllRequirements([]);
       } finally {
         setLoading(false);
       }
     })();
   }, [id]);
 
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const inputCls = 'w-full text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2';
+  const labelCls = 'block text-xs font-semibold mb-1.5 text-slate-700 dark:text-slate-300';
+
+  const save = async () => {
+    if (!form.title.trim()) { setSavedMsg('Title is required.'); return; }
     setSaving(true);
-    setError('');
-    setSaved(false);
+    setSavedMsg('');
     try {
       const res = await fetch(`/api/test-cases/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, testType: form.testType, automationStatus: form.automationStatus, tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean), steps, requirementIds: selectedReqs }),
+        body: JSON.stringify({
+          title: form.title,
+          description: form.description,
+          preconditions: form.preconditions,
+          category: form.category,
+          priority: form.priority,
+          status: form.status,
+          test_type: form.type,
+          project_id: form.project_id || null,
+          tags: form.tags,
+          steps: steps,
+          // FIX: persist link to join table
+          linkedRequirementIds: linkedIds,
+        }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not save.');
-      setTc(data.testCase);
-      setSaved(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save.');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Save failed');
+      setSavedMsg('Saved.');
+    } catch (e: any) {
+      setSavedMsg(e.message || 'Save failed.');
     } finally {
       setSaving(false);
     }
   };
 
-  const remove = async () => {
+  const doDelete = async () => {
     setDeleting(true);
     try {
       const res = await fetch(`/api/test-cases/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
-      router.push('/test-cases');
-    } finally {
+      if (!res.ok) throw new Error('Delete failed');
+      window.location.href = '/test-cases';
+    } catch {
       setDeleting(false);
+      setShowDelete(false);
     }
   };
 
-  const confirmRemoveStep = () => {
-    if (stepToRemove !== null) setSteps(steps.filter((_, j) => j !== stepToRemove));
-    setShowStepConfirm(false);
-    setStepToRemove(null);
-  };
-
-  if (loading) return <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622]"><Sidebar /><div className="flex-1 flex flex-col overflow-hidden"><Header /><main className="flex-1 p-6 text-xs">Loading...</main></div></div>;
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          <Header />
+          <main className="flex-1 overflow-y-auto p-6">
+            <div className="w-full max-w-none">
+              <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-4 text-center text-xs font-semibold text-slate-500">Loading test case...</div>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4">
-              <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Test Cases</Link>
-              <span>/</span>
-              <span className="font-medium">{tc?.case_key}</span>
-            </div>
-
-            {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
-            {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
-
-            {tc && (
-              <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between">
-                  <div>
-                    <span className="font-mono text-xs font-bold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#1a2a3a] border border-[#d8dee4] dark:border-[#28374d] px-2 py-1 rounded">{tc.case_key}</span>
-                    <h1 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{tc.title}</h1>
+          <div className="w-full max-w-none">
+            <div className="max-w-3xl mx-auto">
+              <Link href="/test-cases" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">← Test Cases</Link>
+              <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
+                <div className="p-5 border-b border-slate-200 dark:border-slate-700/50 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    {code && <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{code}</span>}
+                    <h1 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Change any field and click Save Changes. There is no separate Edit button.</p>
                   </div>
-                  <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                  <button onClick={() => setShowDelete(true)} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline shrink-0">Delete</button>
                 </div>
-                <div className="p-6 space-y-5">
+
+                <div className="p-5 space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5">Title *</label>
-                    <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" />
+                    <label className={labelCls}>Title *</label>
+                    <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputCls} />
                   </div>
-                  <div className="grid sm:grid-cols-3 gap-4">
+
+                  <div>
+                    <label className={labelCls}>Project</label>
+                    <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} className={inputCls}>
+                      <option value="">Select project</option>
+                      {projects.map((p: any) => (<option key={p.id} value={String(p.id)}>{p.name}</option>))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5">Priority</label>
-                      <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white">{['low', 'medium', 'high', 'critical'].map((v) => <option key={v} value={v}>{v}</option>)}</select>
+                      <label className={labelCls}>Priority</label>
+                      <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className={inputCls}>
+                        <option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="critical">critical</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5">Type</label>
-                      <select value={form.testType} onChange={(e) => setForm({ ...form, testType: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white">{['functional', 'regression', 'integration', 'system', 'api', 'ui', 'performance', 'security', 'exploratory', 'uat'].map((v) => <option key={v} value={v}>{v}</option>)}</select>
+                      <label className={labelCls}>Status</label>
+                      <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>
+                        <option value="draft">draft</option><option value="ready">ready</option><option value="approved">approved</option><option value="deprecated">deprecated</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5">Automation</label>
-                      <select value={form.automationStatus} onChange={(e) => setForm({ ...form, automationStatus: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white">{['manual', 'automated', 'to_automate', 'not_automatable'].map((v) => <option key={v} value={v}>{v}</option>)}</select>
+                      <label className={labelCls}>Type</label>
+                      <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputCls}>
+                        <option value="functional">functional</option><option value="regression">regression</option><option value="smoke">smoke</option><option value="security">security</option><option value="performance">performance</option>
+                      </select>
                     </div>
                   </div>
+
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5">Category</label>
-                    <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" />
+                    <label className={labelCls}>Category</label>
+                    <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. Authentication" className={inputCls} />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5">Preconditions</label>
-                    <textarea value={form.preconditions} onChange={(e) => setForm({ ...form, preconditions: e.target.value })} rows={2} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" />
+                    <label className={labelCls}>Preconditions</label>
+                    <textarea ref={preRef} value={form.preconditions} onChange={(e) => { setForm({ ...form, preconditions: e.target.value }); autoGrow(preRef.current); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5">Description</label>
-                    <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" />
+                    <label className={labelCls}>Description</label>
+                    <textarea ref={descRef} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); autoGrow(descRef.current); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
                   </div>
+
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Steps (structured — replaces free-text steps)</h3>
-                      <button type="button" onClick={() => setSteps([...steps, { action: '', expectedResult: '' }])} className="text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add Step</button>
+                    <div className="flex items-center justify-between">
+                      <label className={labelCls}>Steps (structured — replaces free-text steps)</label>
+                      <button onClick={() => setSteps([...steps, { action: '', expected_result: '' }])} className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">+ Add Step</button>
                     </div>
-                    {steps.length === 0 && <p className="text-xs text-slate-400">No steps yet. Add steps to make this case executable step-by-step.</p>}
-                    {steps.map((s, i) => (
-                      <div key={i} className="grid sm:grid-cols-[2rem_1fr_1fr_auto] gap-2 mb-2 items-start">
-                        <span className="text-xs font-bold pt-2">{i + 1}.</span>
-                        <textarea value={s.action} onChange={(e) => setSteps(steps.map((x, j) => j === i ? { ...x, action: e.target.value } : x))} rows={2} placeholder="Action" className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-2 py-1.5 text-xs text-slate-900 dark:text-white" />
-                        <textarea value={s.expectedResult} onChange={(e) => setSteps(steps.map((x, j) => j === i ? { ...x, expectedResult: e.target.value } : x))} rows={2} placeholder="Expected result" className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-2 py-1.5 text-xs text-slate-900 dark:text-white" />
-                        <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-red-500 text-xs pt-2">Remove</button>
-                      </div>
-                    ))}
+                    <div className="space-y-2">
+                      {steps.map((s, i) => (
+                        <div key={i} className="flex gap-2 items-start">
+                          <span className="text-xs font-semibold pt-2 w-5 shrink-0">{i + 1}.</span>
+                          <textarea value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); }} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls} />
+                          <textarea value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); }} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls} />
+                          <button onClick={() => setSteps(steps.filter((_, j) => j !== i))} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline pt-2 shrink-0">Remove</button>
+                        </div>
+                      ))}
+                      {steps.length === 0 && <p className="text-xs font-semibold text-slate-500">No steps yet. Click + Add Step.</p>}
+                    </div>
                   </div>
+
                   <div>
-                    <h3 className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Linked Requirements</h3>
-                    <div className="max-h-40 overflow-y-auto border border-[#d8dee4] dark:border-[#28374d] rounded p-2 space-y-1">
-                      {requirements.length === 0 && <p className="text-xs text-slate-400">No requirements in this project.</p>}
-                      {requirements.map((r: any) => (
-                        <label key={r.id} className="flex gap-2 text-xs">
-                          <input type="checkbox" checked={selectedReqs.includes(r.id)} onChange={(e) => setSelectedReqs(e.target.checked ? [...selectedReqs, r.id] : selectedReqs.filter((x) => x !== r.id))} />
-                          <span className="font-mono font-bold">{r.req_key}</span>
-                          <span>{r.title}</span>
+                    <label className={labelCls}>Linked Requirements</label>
+                    <div className="border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2 space-y-1.5 bg-white dark:bg-[#101622]">
+                      {allRequirements.length === 0 && (
+                        <p className="text-xs font-semibold text-slate-500">No requirements found. Create one in Requirements first.</p>
+                      )}
+                      {allRequirements.map((r) => (
+                        <label key={r.id} className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={linkedIds.includes(String(r.id))}
+                            onChange={(e) => {
+                              const rid = String(r.id);
+                              setLinkedIds((prev) => e.target.checked ? [...prev, rid] : prev.filter((x) => x !== rid));
+                            }}
+                          />
+                          <span>{r.req_key} — {r.title}</span>
                         </label>
                       ))}
                     </div>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Ticked requirements are saved to test_case_requirements and show in Traceability.</p>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5">Tags (comma-separated)</label>
-                    <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" placeholder="login, smoke" />
-                  </div>
-                  <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
-                </div>
-              </form>
-            )}
 
-            {recent.length > 0 && (
-              <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
-                <h3 className="text-sm font-bold mb-3 text-slate-900 dark:text-white">Recent Executions</h3>
-                {recent.map((r: any) => (
-                  <div key={r.id} className="grid grid-cols-[1fr_90px_140px] items-center gap-2 py-1.5 border-b border-[#e2e8f0] dark:border-[#28374d] last:border-0 text-xs">
-                    <span className="truncate">{r.test_runs?.name}</span>
-                    <span className="text-center font-semibold">{r.status}</span>
-                    <span className="text-right text-slate-400">{r.executed_at ? new Date(r.executed_at).toLocaleString() : '—'}</span>
+                  <div>
+                    <label className={labelCls}>Tags (comma-separated)</label>
+                    <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="login, smoke" className={inputCls} />
+                  </div>
+
+                  {savedMsg && <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">{savedMsg}</p>}
+
+                  <button onClick={save} disabled={saving} className="w-full text-xs font-semibold bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-2.5">
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-5 mt-4">
+                <h2 className="text-xs font-semibold text-slate-900 dark:text-white mb-3">Recent Executions</h2>
+                {executions.length === 0 && <p className="text-xs font-semibold text-slate-500">No executions yet.</p>}
+                {executions.map((ex: any, i: number) => (
+                  <div key={i} className="flex justify-between text-xs font-semibold py-2 border-t border-slate-100 dark:border-slate-700/50 first:border-t-0">
+                    <span>{ex.run_name ?? ex.name ?? `Run ${i + 1}`}</span>
+                    <span className="text-slate-500">{ex.status ?? ex.result ?? ''}</span>
                   </div>
                 ))}
-              </section>
-            )}
-
-            <CommentsSection entityType="test_case" entityId={id} />
+              </div>
+            </div>
           </div>
-          <ConfirmDialog open={showDeleteConfirm} title="Delete this test case?" message="This will permanently delete this test case and its executions. This cannot be undone." confirmLabel="Delete test case" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} />
-          <ConfirmDialog open={showStepConfirm} title="Remove this step?" message={stepToRemove !== null ? `Remove Step ${stepToRemove + 1}? This will remove it from the list. Save to keep the change.` : 'Remove this step?'} confirmLabel="Remove step" deleting={false} onConfirm={confirmRemoveStep} onCancel={() => { setShowStepConfirm(false); setStepToRemove(null); }} />
         </main>
       </div>
+
+      {showDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-5 w-full max-w-sm">
+            <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Delete test case?</h3>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">This cannot be undone.</p>
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setShowDelete(false)} className="flex-1 text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button onClick={doDelete} disabled={deleting} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2 disabled:opacity-50">{deleting ? 'Deleting...' : 'Delete'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
