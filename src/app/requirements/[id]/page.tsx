@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -20,6 +20,9 @@ export default function RequirementDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', priority: 'medium', status: 'draft', type: 'functional', project_id: '' });
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const autoGrow = () => { const el = descRef.current; if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } };
+  useEffect(() => { autoGrow(); }, [form.description, loading]);
 
   useEffect(() => {
     (async () => {
@@ -94,7 +97,7 @@ export default function RequirementDetailPage() {
               <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
                 <div>
                   <span className="font-mono text-xs font-bold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-1 rounded">{req.req_key}</span>
-                  <h1 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{req.title}</h1>
+                  <h1 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{req.req_key} — {req.title}</h1>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">This page is already in edit mode — change any field and click Save Changes. There is no separate Edit button.</p>
                 </div>
                 <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
@@ -114,7 +117,7 @@ export default function RequirementDetailPage() {
                   <div><label className={labelCls}>Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>{['draft','under_review','approved','implemented','verified','rejected'].map((v) => <option key={v} value={v}>{v.replace('_',' ')}</option>)}</select></div>
                   <div><label className={labelCls}>Type</label><select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputCls}>{['functional','non_functional','business','performance','security'].map((v) => <option key={v} value={v}>{v.replace('_',' ')}</option>)}</select></div>
                 </div>
-                <div><label className={labelCls}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className={inputCls} /></div>
+                <div><label className={labelCls}>Description</label><textarea ref={descRef} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); autoGrow(); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} /></div>
                 <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
               </div>
             </form>
