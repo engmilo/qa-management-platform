@@ -61,19 +61,19 @@ export default function NewMilestonePage() {
             <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6 space-y-5 max-w-3xl">
               <div>
                 <label className="block text-xs font-semibold mb-1.5">Project *</label>
-                <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} required className="w-full border rounded px-3 py-2 text-xs font-semibold">
+                <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] rounded px-3 py-2 text-xs font-semibold">
                   <option value="">Select project</option>
                   {projects.map((p) => <option key={p.id} value={p.id}>{p.key} — {p.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold mb-1.5">Name *</label>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="e.g. Beta Release" className="w-full border rounded px-3 py-2 text-sm" />
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="e.g. Beta Release" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-sm" />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold mb-1.5">Status</label>
-                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border rounded px-3 py-2 text-xs font-semibold">
+                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] rounded px-3 py-2 text-xs font-semibold">
                     <option value="planned">Planned</option>
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
@@ -83,12 +83,20 @@ export default function NewMilestonePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1.5">Due Date</label>
-                  <input type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} className="w-full border rounded px-3 py-2 text-sm" />
+                  <input
+                    type="date"
+                    value={form.due_date}
+                    onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                    onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+                    style={{ colorScheme: 'dark' }}
+                    className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-sm cursor-pointer [color-scheme:dark] dark:[&::-webkit-calendar-picker-indicator]:invert dark:[&::-webkit-calendar-picker-indicator]:opacity-90 dark:[&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  />
+                  <p className="text- text-slate-400 mt-1">Click the field / calendar icon to pick a date.</p>
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-semibold mb-1.5">Description</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full border rounded px-3 py-2 text-sm" />
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-sm" />
               </div>
               <button disabled={saving} className="w-full bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Creating...' : 'Create Milestone'}</button>
             </form>
