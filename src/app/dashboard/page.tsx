@@ -43,7 +43,6 @@ export default function DashboardPage() {
         const defects = dData.defects ?? [];
         const completed = runs.filter((r: any) => r.status === 'completed').length;
         const openDefects = defects.filter((d: any) => ['open', 'in_progress'].includes(d.status)).length;
-        // Pass rate from runs stats if available, else null
         let passRate: number | null = null;
         if (runs.length > 0 && runs[0]?.stats?.passRate != null) passRate = runs[0].stats.passRate;
         setStats({ totalCases: cases.length, totalRuns: runs.length, openDefects, passRate, completedRuns: completed });
@@ -71,9 +70,9 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden"><Header />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="mb-5">
               <h1 className="text-lg font-bold text-slate-900 dark:text-white">Dashboard</h1>
               <p className="text-xs text-slate-500 mt-0.5">Overview of your testing activity.</p>
@@ -85,11 +84,11 @@ export default function DashboardPage() {
               <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading dashboard...</div>
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
                   {cards.map((c) => {
                     const Icon = c.icon;
                     return (
-                      <Link key={c.label} href={c.link} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 hover:bg-slate-50 dark:hover:bg-[#1a2636]">
+                      <Link key={c.label} href={c.link} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 hover:bg-slate-50 dark:hover:bg-[#1a2636] block">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-semibold uppercase text-slate-400">{c.label}</span>
                           <span className={`px-2 py-1 rounded text-xs font-semibold border ${c.badge}`}><Icon className="w-3.5 h-3.5" /></span>
@@ -100,7 +99,7 @@ export default function DashboardPage() {
                   })}
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid lg:grid-cols-2 gap-4">
                   <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4">
                     <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Quick Links</h2>
                     <div className="flex flex-wrap gap-2">
@@ -120,9 +119,9 @@ export default function DashboardPage() {
                       <div className="space-y-2">
                         {activity.map((a) => (
                           <div key={a.id} className="flex items-center gap-2 border border-[#edf2f7] dark:border-[#222e3e] rounded p-2.5">
-                            <span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4]">{a.type}</span>
-                            <span className="text-xs font-semibold text-slate-900 dark:text-white flex-1 truncate">{a.title}</span>
-                            <span className="text- text-slate-400">{a.time ? new Date(a.time).toLocaleDateString() : ''}</span>
+                            <span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4] whitespace-nowrap">{a.type}</span>
+                            <span className="text-xs font-semibold text-slate-900 dark:text-white flex-1 min-w-0 break-words">{a.title}</span>
+                            <span className="text- text-slate-400 whitespace-nowrap">{a.time ? new Date(a.time).toLocaleDateString() : ''}</span>
                           </div>
                         ))}
                       </div>
