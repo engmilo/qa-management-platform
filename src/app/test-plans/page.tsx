@@ -7,8 +7,10 @@ import { Search, Plus, FileText } from 'lucide-react';
 
 type TestPlan = {
   id: string;
-  name: string;
-  description: string | null;
+  name?: string | null;
+  title?: string | null;
+  description?: string | null;
+  scope?: string | null;
   status: string;
   project_id: string;
   start_date?: string | null;
@@ -20,6 +22,7 @@ type Project = { id: string; name: string; key: string };
 
 const STATUS_META: Record<string, { label: string; badge: string }> = {
   draft: { label: 'Draft', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
+  planning: { label: 'Planning', badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
   active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
   in_progress: { label: 'In Progress', badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
   completed: { label: 'Completed', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
@@ -60,15 +63,26 @@ export default function TestPlansPage() {
     void load();
   }, []);
 
+  const projectNames = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, `${p.key} — ${p.name}`])), [projects]);
+
+  const planName = (p: TestPlan) => p.title || p.name || 'Untitled';
+  const planDesc = (p: TestPlan) => p.scope || p.description || '—';
+  const planProject = (p: TestPlan) => {
+    if (p.projects) return `${p.projects.key} — ${p.projects.name}`;
+    return projectNames[p.project_id] || '—';
+  };
+  const statusKey = (s: string) => (s || '').toLowerCase();
+  const statusLabel = (s: string) => STATUS_META[statusKey(s)]?.label ?? (s ? s.charAt(0).toUpperCase() + s.slice(1) : '—');
+
   const filtered = useMemo(() => plans.filter((p) => {
     if (projectFilter !== 'all' && p.project_id !== projectFilter) return false;
-    if (statusFilter !== 'all' && p.status !== statusFilter) return false;
+    if (statusFilter !== 'all' && statusKey(p.status) !== statusKey(statusFilter)) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
-      if (!p.name.toLowerCase().includes(q) && !(p.description ?? '').toLowerCase().includes(q)) return false;
+      if (!planName(p).toLowerCase().includes(q) && !(planDesc(p) ?? '').toLowerCase().includes(q)) return false;
     }
     return true;
-  }), [plans, projectFilter, statusFilter, search]);
+  }), [plans, projectFilter, statusFilter, search, projectNames]);
 
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
@@ -99,6 +113,7 @@ export default function TestPlansPage() {
                 <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
                   <option value="all">All Status</option>
                   <option value="draft">Draft</option>
+                  <option value="planning">Planning</option>
                   <option value="active">Active</option>
                   <option value="in_progress">In Progress</option>
                   <option value="completed">Completed</option>
@@ -130,12 +145,12 @@ export default function TestPlansPage() {
                   </thead>
                   <tbody>
                     {filtered.map((p) => {
-                      const s = STATUS_META[p.status] || { label: p.status, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                      const s = STATUS_META[statusKey(p.status)] || { label: statusLabel(p.status), badge: 'bg-slate-100 text-slate-600 border-slate-200' };
                       return (
                         <tr key={p.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636] align-top">
-                          <td className="px-4 py-3 break-words whitespace-normal"><Link href={`/test-plans/${p.id}`} className="text-xs font-semibold text-[#276fbf] hover:underline break-words">{p.name}</Link></td>
-                          <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{p.description || '—'}</td>
-                          <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{p.projects ? `${p.projects.key} — ${p.projects.name}` : '—'}</td>
+                          <td className="px-4 py-3 break-words whitespace-normal"><Link href={`/test-plans/${p.id}`} className="text-xs font-semibold text-[#276fbf] hover:underline break-words">{planName(p)}</Link></td>
+                          <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{planDesc(p)}</td>
+                          <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{planProject(p)}</td>
                           <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border whitespace-nowrap ${s.badge}`}>{s.label}</span></td>
                         </tr>
                       );
