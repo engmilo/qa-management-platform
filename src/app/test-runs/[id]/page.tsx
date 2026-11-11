@@ -1,181 +1,129 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { Search, Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
-type TestRun = {
-  id: string;
-  name: string;
-  status: string;
-  project_id: string;
-  assigned_to: string | null;
-  description: string | null;
-  configuration: string | null;
-  started_at: string;
-  completed_at: string | null;
-  projects?: { name: string; key: string } | null;
-  assigned_to_name?: string | null;
-  assignee_name?: string | null;
-  assigned_user?: { full_name?: string | null; name?: string | null; email?: string | null } | null;
-  profiles?: { full_name?: string | null; name?: string | null; email?: string | null } | null;
-  stats?: { total: number; completed: number; passed: number; progress: number } | null;
+type RunCase = { id?: string; test_case_id?: string; title?: string; name?: string; status?: string; result?: string; assignee?: string; test_case?: { title?: string } | null };
+type Run = { id: string; name?: string; title?: string; project?: string; project_name?: string; status?: string; assignee?: string; assignee_name?: string; started_at?: string; created_at?: string; description?: string; environment?: string; test_cases?: RunCase[]; cases?: RunCase[]; executions?: any[] };
+
+const pill = (s?: string) => {
+  const v = (s || '').toLowerCase();
+  if (v.includes('pass')) return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800';
+  if (v.includes('fail')) return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800';
+  if (v.includes('block')) return 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800';
+  if (v.includes('skip')) return 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600';
+  return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
 };
 
-type Project = { id: string; name: string; key: string };
-
-const STATUS_META: Record<string, { label: string; badge: string }> = {
-  in_progress: { label: 'In Progress', badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
-  completed: { label: 'Completed', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
-  not_started: { label: 'Not Started', badge: 'bg-slate-50 text-slate-500 border-slate-200' },
-  blocked: { label: 'Blocked', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
-  failed: { label: 'Failed', badge: 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]' },
-  passed: { label: 'Passed', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
-};
-
-export default function TestRunsPage() {
-  const [runs, setRuns] = useState<TestRun[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function TestRunDetailPage() {
+  const params = useParams(); const id = String((params as any)?.id || '');
+  const router = useRouter();
+  const [run, setRun] = useState<Run | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
-  const [projectFilter, setProjectFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [assigneeFilter, setAssigneeFilter] = useState('all');
+  const [updating, setUpdating] = useState<string | null>(null);
 
   useEffect(() => {
-    async function load() {
-      setLoading(true); setError('');
+    if (!id) return;
+    (async () => {
       try {
-        const [rRes, pRes] = await Promise.all([
-          fetch('/api/test-runs', { cache: 'no-store' }),
-          fetch('/api/projects', { cache: 'no-store' }),
-        ]);
-        const rData = await rRes.json();
-        const pData = await pRes.json();
-        if (!rRes.ok) throw new Error(rData.error || 'Could not load test runs.');
-        setRuns(rData.testRuns ?? rData.runs ?? []);
-        setProjects(pData.projects ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Could not load test runs.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    void load();
-  }, []);
+        const res = await fetch(`/api/test-runs/${id}`, { cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || data.message || `Run not found (${res.status})`);
+        setRun(data.run ?? data.test_run ?? data);
+      } catch (e: any) { setError(e?.message || 'Could not load test run.'); }
+      finally { setLoading(false); }
+    })();
+  }, [id]);
 
-  const assigneeName = (r: TestRun) => {
-    if (!r.assigned_to) return 'Unassigned';
-    return r.assigned_to_name || r.assignee_name || r.assigned_user?.full_name || r.assigned_user?.name || r.profiles?.full_name || r.profiles?.name || 'Assigned';
+  const cases: RunCase[] = run?.test_cases ?? run?.cases ?? (run?.executions || []).map((x: any) => ({ id: x.id, test_case_id: x.test_case_id, title: x.test_case?.title || x.title, status: x.status || x.result }));
+  const done = cases.filter((c) => ['passed', 'failed', 'blocked', 'skipped'].includes((c.status || c.result || '').toLowerCase())).length;
+  const progress = cases.length ? Math.round((done / cases.length) * 100) : 0;
+
+  const setResult = async (c: RunCase, result: string) => {
+    const cid = c.test_case_id || c.id; if (!cid) return;
+    setUpdating(cid);
+    try {
+      const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test_case_id: cid, status: result, result }) });
+      if (!res.ok) throw new Error();
+      setRun((r) => r ? { ...r, test_cases: (r.test_cases || []).map((x) => (x.test_case_id === cid || x.id === cid ? { ...x, status: result, result } : x)), cases: (r.cases || []).map((x) => (x.test_case_id === cid || x.id === cid ? { ...x, status: result, result } : x)) } : r);
+    } catch { setError('Could not save result. Try again.'); }
+    finally { setUpdating(null); }
   };
 
-  const assigneeOptions = useMemo(() => {
-    const names = new Map<string, string>();
-    runs.forEach((r) => {
-      if (r.assigned_to) names.set(r.assigned_to, assigneeName(r));
-    });
-    return Array.from(names.entries()).map(([id, name]) => ({ id, name }));
-  }, [runs]);
-
-  const filtered = useMemo(() => runs.filter((r) => {
-    if (projectFilter !== 'all' && r.project_id !== projectFilter) return false;
-    if (statusFilter !== 'all' && r.status !== statusFilter) return false;
-    if (assigneeFilter === 'assigned' && !r.assigned_to) return false;
-    if (assigneeFilter === 'unassigned' && r.assigned_to) return false;
-    if (assigneeFilter !== 'all' && assigneeFilter !== 'assigned' && assigneeFilter !== 'unassigned' && r.assigned_to !== assigneeFilter) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      if (!r.name.toLowerCase().includes(q) && !(r.projects?.name ?? '').toLowerCase().includes(q) && !(r.projects?.key ?? '').toLowerCase().includes(q)) return false;
-    }
-    return true;
-  }), [runs, projectFilter, statusFilter, assigneeFilter, search]);
+  const completeRun = async () => {
+    if (!confirm('Complete this run?')) return;
+    try {
+      const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'Completed' }) });
+      if (!res.ok) throw new Error();
+      setRun((r) => r ? { ...r, status: 'Completed' } : r);
+    } catch { setError('Could not complete run.'); }
+  };
 
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden"><Header />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-              <div>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white">Test Runs &amp; Results</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Execute test plans and track results.</p>
-              </div>
-              <Link href="/test-runs/new" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> New Run</Link>
-            </div>
-
-            {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
-
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4">
-              <div className="flex flex-wrap gap-2 items-center">
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search runs..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64" />
+          <div className="w-full max-w-none">
+            <Link href="/test-runs" className="inline-flex items-center gap-1 text-xs font-semibold text-[#276fbf]"><ArrowLeft className="w-3.5 h-3.5" /> Test Runs & Results</Link>
+            {loading ? <div className="mt-4 bg-white dark:bg-[#182232] border rounded-md p-8 text-center text-xs font-semibold text-slate-500">Loading test run...</div> : error && !run ? (
+              <div className="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4 text-xs font-semibold text-red-700 dark:text-red-300">{error}<br /><button onClick={() => router.push('/test-runs')} className="mt-2 underline">Back to Test Runs</button></div>
+            ) : run && (
+              <>
+                <div className="flex flex-wrap items-start justify-between gap-3 mt-3 mb-4">
+                  <div>
+                    <h1 className="text-xs font-semibold text-slate-900 dark:text-white">{run.name || run.title || 'Test Run'}</h1>
+                    <p className="text-xs font-semibold text-slate-500 mt-0.5">{run.project || run.project_name || 'QA Studio'} {run.environment ? `· ${run.environment}` : ''} {run.started_at || run.created_at ? `· ${new Date(run.started_at || run.created_at || '').toLocaleString()}` : ''}</p>
+                    {error && <p className="text-xs font-semibold text-red-600 mt-1">{error}</p>}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${pill(run.status)}`}>{run.status || 'In Progress'}</span>
+                    <button onClick={() => router.push('/test-runs/new')} className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-2 rounded">+ New Run</button>
+                    <button onClick={completeRun} className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-3 py-2 rounded">Complete Run</button>
+                  </div>
                 </div>
-                <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
-                  <option value="all">All Projects</option>
-                  {projects.map((p) => <option key={p.id} value={p.id}>{p.key} — {p.name}</option>)}
-                </select>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
-                  <option value="all">All Status</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="not_started">Not Started</option>
-                </select>
-                <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
-                  <option value="all">All Assignees</option>
-                  <option value="assigned">Assigned</option>
-                  <option value="unassigned">Unassigned</option>
-                  {assigneeOptions.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </div>
-            </div>
 
-            {loading ? (
-              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading test runs...</div>
-            ) : filtered.length === 0 ? (
-              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No test runs found.</div>
-            ) : (
-              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Name</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Project</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Assignee</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Progress</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filtered.map((r) => {
-                        const meta = STATUS_META[r.status] || { label: r.status, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
-                        const progress = r.stats?.progress ?? 0;
-                        return (
-                          <tr key={r.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636]">
-                            <td className="px-4 py-3">
-                              <Link href={`/test-runs/${r.id}`} className="text-xs font-semibold text-[#276fbf] hover:underline">{r.name}</Link>
-                              {r.configuration && <p className="text- text-slate-400 mt-0.5">{r.configuration}</p>}
-                            </td>
-                            <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{r.projects?.key} — {r.projects?.name}</td>
-                            <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${meta.badge}`}>{meta.label}</span></td>
-                            <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{assigneeName(r)}</td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <div className="h-2 w-24 bg-slate-100 rounded-full overflow-hidden border"><div className="h-full bg-[#48a43f]" style={{ width: `${progress}%` }} /></div>
-                                <span className="text-xs font-semibold">{progress}%</span>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 mb-4">
+                  <div className="flex items-center justify-between mb-2"><span className="text-xs font-semibold text-slate-900 dark:text-white">Progress</span><span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{done} / {cases.length} · {progress}%</span></div>
+                  <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-green-500" style={{ width: `${progress}%` }} /></div>
+                  <p className="text-xs font-semibold text-slate-500 mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run.assignee_name || run.assignee || 'Milo Haireche'}</span></p>
+                  {run.description && <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">{run.description}</p>}
                 </div>
-              </div>
+
+                <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+                  <div className="p-4 border-b border-[#e2e8f0] dark:border-[#28374d]"><h2 className="text-xs font-semibold text-slate-900 dark:text-white">Execution History — Test Cases</h2></div>
+                  {cases.length === 0 ? <p className="p-4 text-xs font-semibold text-slate-500">No test cases in this run.</p> : (
+                    <table className="w-full table-fixed text-left">
+                      <colgroup><col className="w-[45%]" /><col className="w-[20%]" /><col className="w-[35%]" /></colgroup>
+                      <thead><tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Test Case</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Result</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Actions</th>
+                      </tr></thead>
+                      <tbody>
+                        {cases.map((c, i) => {
+                          const st = c.status || c.result || 'Not Run';
+                          return (
+                            <tr key={c.id || c.test_case_id || i} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0">
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white break-words">{c.title || c.name || c.test_case?.title || `Case ${i + 1}`}</td>
+                              <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${pill(st)}`}>{st}</span></td>
+                              <td className="px-4 py-3"><div className="flex flex-wrap gap-1">
+                                {['Passed', 'Failed', 'Blocked', 'Skipped'].map((r) => (
+                                  <button key={r} disabled={updating === (c.test_case_id || c.id)} onClick={() => setResult(c, r)} className="px-2 py-1 rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50">{r}</button>
+                                ))}
+                              </div></td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </main>
