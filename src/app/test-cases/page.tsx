@@ -1,190 +1,187 @@
 'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { Plus, CheckSquare, Download, Upload } from 'lucide-react';
+import { Search, Plus, Download, Upload } from 'lucide-react';
 
-type TestCase = { id: string; case_key: string; title: string; project_id: string; test_type: string; priority: string; automation_status: string; description?: string | null; preconditions?: string | null; category?: string | null; estimate_minutes?: number | null; tags?: string[] | null; created_at?: string | null };
-type Project = { id: string; name: string };
+type TestCase = {
+  id: string;
+  case_key: string;
+  title: string;
+  priority: string;
+  test_type: string;
+  category: string;
+  status: string;
+  project_id: string;
+  projects?: { name: string; key: string } | null;
+};
+
+type Project = { id: string; name: string; key: string };
+
+const PRIORITY_META: Record<string, { label: string; badge: string }> = {
+  high: { label: 'High', badge: 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]' },
+  medium: { label: 'Medium', badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
+  low: { label: 'Low', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
+};
+
+const STATUS_META: Record<string, { label: string; badge: string }> = {
+  active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
+  draft: { label: 'Draft', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
+  deprecated: { label: 'Deprecated', badge: 'bg-slate-50 text-slate-500 border-slate-200' },
+};
 
 export default function TestCasesPage() {
-  const [testCases, setTestCases] = useState<TestCase[]>([]);
-  const [projectNames, setProjectNames] = useState<Record<string, string>>({});
+  const [cases, setCases] = useState<TestCase[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [projectFilter, setProjectFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    Promise.all([fetch('/api/test-cases', { cache: 'no-store' }), fetch('/api/projects', { cache: 'no-store' })])
-      .then(async ([casesResponse, projectsResponse]) => {
-        const [casesData, projectsData] = await Promise.all([casesResponse.json(), projectsResponse.json()]);
-        if (!casesResponse.ok) throw new Error(casesData.error || 'Could not load test cases.');
-        if (!projectsResponse.ok) throw new Error(projectsData.error || 'Could not load projects.');
-        setTestCases(casesData.testCases ?? []);
-        setProjectNames(Object.fromEntries((projectsData.projects as Project[]).map((project) => [project.id, project.name])));
-      })
-      .catch((loadError: unknown) => setError(loadError instanceof Error ? loadError.message : 'Could not load test cases.'))
-      .finally(() => setLoading(false));
+    async function load() {
+      setLoading(true); setError('');
+      try {
+        const [cRes, pRes] = await Promise.all([
+          fetch('/api/test-cases', { cache: 'no-store' }),
+          fetch('/api/projects', { cache: 'no-store' }),
+        ]);
+        const cData = await cRes.json();
+        const pData = await pRes.json();
+        if (!cRes.ok) throw new Error(cData.error || 'Could not load test cases.');
+        setCases(cData.testCases ?? cData.cases ?? []);
+        setProjects(pData.projects ?? []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Could not load test cases.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    void load();
   }, []);
 
-  const getPriorityBadge = (priority: string) => {
-    switch (priority?.toLowerCase()) {
-      case 'critical':
-        return 'bg-[#f2dede] dark:bg-[#34161a] text-[#a94442] dark:text-[#ff7875] border border-[#ebccd1] dark:border-[#521e24]';
-      case 'high':
-        return 'bg-[#fcf8e3] dark:bg-[#332711] text-[#8a6d3b] dark:text-[#faad14] border border-[#faebcc] dark:border-[#534019]';
-      case 'medium':
-        return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900';
-      case 'low':
-      default:
-        return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+  const typeOptions = useMemo(() => {
+    const s = new Set<string>();
+    cases.forEach((c) => { if (c.test_type) s.add(c.test_type); });
+    return Array.from(s).sort();
+  }, [cases]);
+
+  const filtered = useMemo(() => cases.filter((c) => {
+    if (projectFilter !== 'all' && c.project_id !== projectFilter) return false;
+    if (priorityFilter !== 'all' && c.priority !== priorityFilter) return false;
+    if (typeFilter !== 'all' && c.test_type !== typeFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (!c.title.toLowerCase().includes(q) && !c.case_key.toLowerCase().includes(q) && !(c.category ?? '').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  }), [cases, projectFilter, priorityFilter, typeFilter, search]);
+
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (projectFilter !== 'all') params.set('projectId', projectFilter);
+      const res = await fetch(`/api/test-cases/export?${params.toString()}`);
+      if (!res.ok) throw new Error('Export failed.');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'test-cases.csv'; a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Export failed.');
+    } finally {
+      setExporting(false);
     }
   };
 
-  // EXPORT — client-side only, reads already-loaded cases, downloads CSV. No API, no DB.
-  const exportCsv = () => {
-    if (!testCases.length) return;
-    const esc = (v: unknown) => {
-      const s = v == null ? '' : String(v);
-      return `"${s.replace(/"/g, '""')}"`;
-    };
-    const header = ['Key', 'Title', 'Project', 'Type', 'Priority', 'Category', 'Automation', 'Description', 'Preconditions', 'Estimate (min)', 'Tags', 'Created At'];
-    const rows = testCases.map((c) => [
-      c.case_key,
-      c.title,
-      projectNames[c.project_id] || '',
-      c.test_type,
-      c.priority,
-      c.category || '',
-      c.automation_status,
-      c.description || '',
-      c.preconditions || '',
-      c.estimate_minutes ?? '',
-      (c.tags ?? []).join('; '),
-      c.created_at ? new Date(c.created_at).toLocaleString() : '',
-    ]);
-    const csv = [header, ...rows].map((r) => r.map(esc).join(',')).join('\r\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `test-cases-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   return (
-    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+      <div className="flex-1 flex flex-col overflow-hidden"><Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Test Cases</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Test case repository for manual and automated test execution
-              </p>
-            </div>
-            <div className="flex gap-2">
-  <button onClick={exportCsv} disabled={loading || testCases.length === 0} className="bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none">
-    <Download className="w-4 h-4" />
-    <span>Export CSV</span>
-  </button>
-  <Link href="/test-cases/import" className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors inline-flex items-center gap-1.5">
-    <Upload className="w-4 h-4" />
-    <span>Import CSV</span>
-  </Link>
-  <Link href="/test-cases/new" className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none">
-    <Plus className="w-4 h-4 stroke-[2.5]" />
-    <span>Add Test Case</span>
-  </Link>
-
-            </div>
-          </div>
-
-          {error && (
-            <div role="alert" className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs font-medium">
-              {error}
-            </div>
-          )}
-
-          {loading ? (
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-8 text-center text-xs text-slate-500 dark:text-slate-400 shadow-sm">
-              Loading test cases...
-            </div>
-          ) : testCases.length === 0 ? (
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-10 text-center shadow-sm">
-              <CheckSquare className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No test cases yet</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                Create structured test cases with preconditions, test types, and priorities.
-              </p>
-              <Link
-                href="/test-cases/new"
-                className="mt-4 inline-flex items-center gap-1.5 bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                Add your first test case
-              </Link>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w- text-left">
-                  <thead className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
-                    <tr>
-                      <th className="px-4 py-3 text- font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Key</th>
-                      <th className="px-4 py-3 text- font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Title</th>
-                      <th className="px-4 py-3 text- font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Project</th>
-                      <th className="px-4 py-3 text- font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-                      <th className="px-4 py-3 text- font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority</th>
-                      <th className="px-4 py-3 text- font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Automation</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#edf2f7] dark:divide-[#222e3e]">
-                    {testCases.map((item) => (
-                      <tr key={item.id} className="hover:bg-[#f8fafc] dark:hover:bg-[#1f2c3f] transition-colors">
-                        <td className="px-4 py-3 text-xs">
-                          <Link href={`/test-cases/${item.id}`} className="font-mono font-bold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-0.5 rounded hover:underline">
-                            {item.case_key}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-xs font-medium text-slate-900 dark:text-white">
-                          <Link href={`/test-cases/${item.id}`} className="hover:underline">
-                            {item.title}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
-                          {projectNames[item.project_id] || 'General'}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 capitalize">
-                          {item.test_type}
-                        </td>
-                        <td className="px-4 py-3 text-xs">
-                          <span className={`inline-block text- font-semibold px-2 py-0.5 rounded-full capitalize ${getPriorityBadge(item.priority)}`}>
-                            {item.priority}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs">
-                          <span className={`inline-block text- font-semibold px-2 py-0.5 rounded-full capitalize ${
-                            item.automation_status === 'automated'
-                              ? 'bg-[#dff0d8] dark:bg-[#132c1c] text-[#3c763d] dark:text-[#52c41a] border border-[#d6e9c6] dark:border-[#1d4c2b]'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
-                          }`}>
-                            {item.automation_status.replace('_', ' ')}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div>
+                <h1 className="text-lg font-bold text-slate-900 dark:text-white">Test Cases</h1>
+                <p className="text-xs text-slate-500 mt-0.5">Design and manage test cases.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={exportCsv} disabled={exporting} className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Download className="w-3.5 h-3.5" />{exporting ? 'Exporting...' : 'Export CSV'}</button>
+                <Link href="/test-cases/import" className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Upload className="w-3.5 h-3.5" /> Import</Link>
+                <Link href="/test-cases/new" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> New Test Case</Link>
               </div>
             </div>
-          )}
+
+            {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
+
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4">
+              <div className="flex flex-wrap gap-2 items-center">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64" />
+                </div>
+                <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
+                  <option value="all">All Projects</option>
+                  {projects.map((p) => <option key={p.id} value={p.id}>{p.key} — {p.name}</option>)}
+                </select>
+                <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
+                  <option value="all">All Priority</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
+                  <option value="all">All Types</option>
+                  {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading test cases...</div>
+            ) : filtered.length === 0 ? (
+              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No test cases found.</div>
+            ) : (
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Key</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Title</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Priority</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Type</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Category</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((c) => {
+                        const pri = PRIORITY_META[c.priority] || { label: c.priority, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                        const st = STATUS_META[c.status] || { label: c.status, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                        return (
+                          <tr key={c.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636]">
+                            <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="font-mono text-xs font-bold text-[#276fbf] hover:underline">{c.case_key}</Link></td>
+                            <td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white max-w- truncate">{c.title}</td>
+                            <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${pri.badge}`}>{pri.label}</span></td>
+                            <td className="px-4 py-3"><span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4]">{c.test_type}</span></td>
+                            <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{c.category}</td>
+                            <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${st.badge}`}>{st.label}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </div>
