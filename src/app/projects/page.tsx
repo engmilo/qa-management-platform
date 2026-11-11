@@ -1,169 +1,128 @@
 'use client';
-
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import Link from 'next/link';
-import { FolderKanban, Plus, Search, X } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
-type Project = { id: string; key: string; name: string; description: string | null; status: string };
+type Project = {
+  id: string;
+  name: string;
+  key: string;
+  description: string | null;
+  status: string | null;
+  created_at: string;
+};
 
-const PAGE_SIZE = 12;
+const STATUS_META: Record<string, { label: string; badge: string }> = {
+  active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
+  archived: { label: 'Archived', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
+  on_hold: { label: 'On Hold', badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
+};
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    fetch('/api/projects', { cache: 'no-store' })
-      .then((res) => res.json())
-      .then((data) => {
-        setProjects(data.projects || []);
+    async function load() {
+      setLoading(true); setError('');
+      try {
+        const res = await fetch('/api/projects', { cache: 'no-store' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Could not load projects.');
+        setProjects(data.projects ?? []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Could not load projects.');
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    }
+    void load();
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return projects.filter((p) => {
-      if (q && !`${p.key} ${p.name} ${p.description ?? ''}`.toLowerCase().includes(q)) return false;
-      if (statusFilter && (p.status ?? '').toLowerCase().trim() !== statusFilter) return false;
-      return true;
-    });
-  }, [projects, search, statusFilter]);
+  const filtered = useMemo(() => projects.filter((p) => {
+    if (statusFilter !== 'all' && (p.status ?? 'active') !== statusFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (!p.name.toLowerCase().includes(q) && !p.key.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  }), [projects, statusFilter, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
-  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  const clearAll = () => { setSearch(''); setStatusFilter(''); setPage(1); };
-  const hasFilter = search || statusFilter;
-
-  const selectCls = "border border-[#d8dee4] dark:border-[#28374d] rounded px-2.5 py-2 text-xs bg-white dark:bg-[#182232] text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#48a43f]";
+  const statusLabel = (s: string | null) => {
+    if (!s) return 'Active';
+    return STATUS_META[s]?.label ?? s.charAt(0).toUpperCase() + s.slice(1);
+  };
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+      <div className="flex-1 flex flex-col overflow-hidden"><Header />
         <main className="flex-1 overflow-y-auto p-6">
-          {/* Header row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Projects</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Manage all your testing projects, milestone suites, and repositories
-              </p>
-            </div>
-            <Link
-              href="/projects/new"
-              className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors inline-flex items-center gap-1.5 focus:outline-none"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Add Project</span>
-            </Link>
-          </div>
-
-          {/* Search / Filter — same pattern as other lists */}
-          <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-3 mb-4 flex flex-col gap-3">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-                <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search by key, name or description, e.g. ZAM..." className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded pl-9 pr-3 py-2 text-xs bg-white dark:bg-[#182232] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#48a43f]" />
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div>
+                <h1 className="text-lg font-bold text-slate-900 dark:text-white">Projects</h1>
+                <p className="text-xs text-slate-500 mt-0.5">Manage your test projects.</p>
               </div>
-              {hasFilter && <button onClick={clearAll} className="inline-flex items-center gap-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-200 bg-white dark:bg-[#182232] hover:bg-slate-50 dark:hover:bg-[#202c3e]"><X className="w-3.5 h-3.5" /> Clear</button>}
+              <Link href="/projects/new" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> New Project</Link>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className={selectCls}>
-                <option value="">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="archived">Archived</option>
-              </select>
-              <span className="ml-auto text-xs text-slate-500 dark:text-slate-400 self-center">Showing {filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}-{Math.min(filtered.length, safePage * PAGE_SIZE)} of {filtered.length} {filtered.length !== projects.length ? `(filtered from ${projects.length})` : ''}</span>
-            </div>
-          </div>
 
-          {loading ? (
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-8 text-center text-xs text-slate-500 dark:text-slate-400">
-              Loading projects...
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-10 text-center shadow-sm">
-              <FolderKanban className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{hasFilter ? 'No projects match' : 'No projects found'}</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                {hasFilter ? 'Try a different search or clear the filters.' : 'Get started by creating your first testing project to store requirements and test cases.'}
-              </p>
-              {hasFilter ? (
-                <button onClick={clearAll} className="mt-4 border border-[#d8dee4] dark:border-[#28374d] rounded px-3.5 py-2 text-xs font-semibold bg-white dark:bg-[#182232] text-slate-800 dark:text-slate-100">Clear all filters</button>
-              ) : (
-                <Link
-                  href="/projects/new"
-                  className="mt-4 inline-flex items-center gap-1.5 bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-3.5 py-2 rounded shadow-sm transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" /> Create your first project
-                </Link>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {paged.map((project) => (
-                  <div
-                    key={project.id}
-                    className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5 shadow-sm hover:shadow hover:border-[#b0c4de] dark:hover:border-[#3a4e6b] transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-0.5 rounded">
-                            {project.key}
-                          </span>
-                          <span
-                            className={`text- font-semibold px-2 py-0.5 rounded-full capitalize ${
-                              project.status === 'active'
-                                ? 'bg-[#dff0d8] dark:bg-[#132c1c] text-[#3c763d] dark:text-[#52c41a] border border-[#d6e9c6] dark:border-[#1d4c2b]'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
-                            }`}
-                          >
-                            {project.status}
-                          </span>
-                        </div>
-                      </div>
+            {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
 
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-                        {project.name}
-                      </h3>
-
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 line-clamp-2 leading-relaxed">
-                        {project.description || 'No description provided.'}
-                      </p>
-                    </div>
-
-                    <div className="mt-5 pt-3 border-t border-[#edf2f7] dark:border-[#222e3e] flex items-center justify-between">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:text-[#1d5ea8] dark:hover:text-[#7bb7ff] hover:underline inline-flex items-center gap-1"
-                      >
-                        View Project Details →
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4">
+              <div className="flex flex-wrap gap-2 items-center">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search projects..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64" />
+                </div>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="archived">Archived</option>
+                </select>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Page {safePage} of {totalPages}</p>
-                <div className="flex gap-2">
-                  <button disabled={safePage <= 1} onClick={() => setPage(safePage - 1)} className="border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-1.5 text-xs font-semibold disabled:opacity-40 bg-white dark:bg-[#182232] text-slate-800 dark:text-slate-100">← Prev</button>
-                  <button disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)} className="border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-1.5 text-xs font-semibold disabled:opacity-40 bg-white dark:bg-[#182232] text-slate-800 dark:text-slate-100">Next →</button>
+            </div>
+
+            {loading ? (
+              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading projects...</div>
+            ) : filtered.length === 0 ? (
+              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No projects found.</div>
+            ) : (
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Key</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Name</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Description</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((p) => {
+                        const st = STATUS_META[p.status ?? 'active'] || { label: statusLabel(p.status), badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                        return (
+                          <tr key={p.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636]">
+                            <td className="px-4 py-3"><Link href={`/projects/${p.id}`} className="font-mono text-xs font-bold text-[#276fbf] hover:underline">{p.key}</Link></td>
+                            <td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white">{p.name}</td>
+                            <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 max-w- truncate">{p.description || '—'}</td>
+                            <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${st.badge}`}>{st.label}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </main>
       </div>
     </div>
