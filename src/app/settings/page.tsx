@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { Building2, Users } from 'lucide-react';
+import { Building2, Users, X, AlertTriangle } from 'lucide-react';
 
 type Member = {
   id?: string; user_id?: string; email?: string; full_name?: string; role?: string;
@@ -31,6 +31,7 @@ export default function SettingsPage() {
   const [members, setMembers] = useState<Member[]>(FALLBACK);
   const [msg, setMsg] = useState('');
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
+  const [pendingDeactivate, setPendingDeactivate] = useState<Member | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -63,36 +64,26 @@ export default function SettingsPage() {
     } catch { setMsg('Could not invite. User must be registered.'); }
   };
 
-  const deactivate = async (m: Member) => {
+  const confirmDeactivate = async () => {
+    const m = pendingDeactivate; if (!m) return;
     const id = idOf(m);
-    if (!confirm(`Deactivate ${nameOf(m)}? They will lose access to this organization.`)) return;
+    setPendingDeactivate(null);
     setDeactivatingId(id);
     setMsg('');
-    // Optimistic UI — always updates, even if API endpoint is missing
-    const prev = members;
     setMembers((cur) => cur.filter((x) => idOf(x) !== id));
-
     let ok = false;
-    // Try PATCH first, then DELETE — old code only tried one that doesn't exist
     try {
       const r1 = await fetch(`/api/organization/members/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ is_active: false, status: 'inactive' }) });
       if (r1.ok) ok = true;
     } catch {}
     if (!ok) {
-      try {
-        const r2 = await fetch(`/api/organization/members/${id}`, { method: 'DELETE' });
-        if (r2.ok) ok = true;
-      } catch {}
+      try { const r2 = await fetch(`/api/organization/members/${id}`, { method: 'DELETE' }); if (r2.ok) ok = true; } catch {}
     }
     if (!ok) {
-      try {
-        const r3 = await fetch('/api/organization/members', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ member_id: id, user_id: id, is_active: false }) });
-        if (r3.ok) ok = true;
-      } catch {}
+      try { const r3 = await fetch('/api/organization/members', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ member_id: id, user_id: id, is_active: false }) }); if (r3.ok) ok = true; } catch {}
     }
     setDeactivatingId(null);
     setMsg(ok ? `${nameOf(m)} deactivated.` : `${nameOf(m)} removed from list. Note: server deactivate endpoint not found — if they reappear after refresh, the API route needs to be added.`);
-    // If server failed, keep UI removed — do NOT restore prev, otherwise it looks like button does nothing
   };
 
   return (
@@ -173,7 +164,7 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-2">
                           <span className="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200">{labelFor(m.role)}</span>
                           {isYou ? <span className="text-xs font-semibold text-[#276fbf]">You</span> : (
-                            <button onClick={() => deactivate(m)} disabled={busy} className="text-xs font-semibold text-red-600 disabled:opacity-50">{busy ? 'Deactivating...' : 'Deactivate'}</button>
+                            <button onClick={() => setPendingDeactivate(m)} disabled={busy} className="text-xs font-semibold text-red-600 disabled:opacity-50">{busy ? 'Deactivating...' : 'Deactivate'}</button>
                           )}
                         </div>
                       </div>
@@ -185,6 +176,28 @@ export default function SettingsPage() {
           </div>
         </main>
       </div>
+
+      {/* In-app Deactivate confirmation — same style as Test Cases step-remove */}
+      {pendingDeactivate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setPendingDeactivate(null)}>
+          <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-red-600" /></span>
+                <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Deactivate member?</h3>
+              </div>
+              <button onClick={() => setPendingDeactivate(null)} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+            </div>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
+              Deactivate <span className="text-slate-900 dark:text-white">{nameOf(pendingDeactivate)}</span> ({emailOf(pendingDeactivate)})? They will lose access to this organization.
+            </p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button onClick={() => setPendingDeactivate(null)} className="px-3 py-2 rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 text-xs font-semibold">Cancel</button>
+              <button onClick={confirmDeactivate} className="px-3 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-semibold">Deactivate</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
