@@ -12,7 +12,6 @@ export default function AIAssistantPage() {
   ]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +30,6 @@ export default function AIAssistantPage() {
     const q = input.trim();
     if (!q || sending) return;
     setInput('');
-    setError('');
     setMessages((m) => [...m, { role: 'user', text: q }]);
     setSending(true);
     try {
@@ -39,13 +37,12 @@ export default function AIAssistantPage() {
       const text = await res.text();
       let data: any = {};
       try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
-      if (!res.ok) throw new Error(data.error || 'AI Assistant API is not set up yet.');
+      if (!res.ok) throw new Error(data.error || 'Could not get a reply.');
       const reply = data.reply || data.message || data.answer || 'No reply.';
       setMessages((m) => [...m, { role: 'assistant', text: reply }]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not get a reply.';
-      setError(msg);
-      setMessages((m) => [...m, { role: 'assistant', text: `I could not reach the AI service: ${msg}. Try again after the API is configured.` }]);
+      setMessages((m) => [...m, { role: 'assistant', text: `Sorry, I could not reply: ${msg}` }]);
     } finally {
       setSending(false);
     }
@@ -53,7 +50,6 @@ export default function AIAssistantPage() {
 
   const clear = () => {
     setMessages([{ role: 'assistant', text: 'Cleared. What do you want to do next?' }]);
-    setError('');
   };
 
   const prompts = [
@@ -75,8 +71,6 @@ export default function AIAssistantPage() {
               </div>
               <button onClick={clear} className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Clear Chat</button>
             </div>
-
-            {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
 
             <div className="flex flex-wrap gap-2 mb-4">
               {prompts.map((p) => (
