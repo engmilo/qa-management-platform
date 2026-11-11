@@ -110,9 +110,9 @@ export default function TestCasesPage() {
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden"><Header />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <div>
                 <h1 className="text-lg font-bold text-slate-900 dark:text-white">Test Cases</h1>
@@ -124,14 +124,12 @@ export default function TestCasesPage() {
                 <Link href="/test-cases/new" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> New Test Case</Link>
               </div>
             </div>
-
             {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
-
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4">
               <div className="flex flex-wrap gap-2 items-center">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64" />
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64 max-w-full" />
                 </div>
                 <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
                   <option value="all">All Projects</option>
@@ -149,45 +147,41 @@ export default function TestCasesPage() {
                 </select>
               </div>
             </div>
-
             {loading ? (
               <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading test cases...</div>
             ) : filtered.length === 0 ? (
               <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No test cases found.</div>
             ) : (
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Key</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Title</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Priority</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Type</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Category</th>
-                        <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filtered.map((c) => {
-                        const pri = PRIORITY_META[c.priority] || { label: c.priority, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
-                        const st = STATUS_META[c.status ?? ''] || { label: statusLabel(c.status), badge: 'bg-slate-100 text-slate-600 border-slate-200' };
-                        return (
-                          <tr key={c.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636]">
-                            <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="font-mono text-xs font-bold text-[#276fbf] hover:underline">{c.case_key}</Link></td>
-                            <td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white max-w- truncate">{c.title}</td>
-                            <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border ${pri.badge}`}>{pri.label}</span></td>
-                            <td className="px-4 py-3"><span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4]">{c.test_type}</span></td>
-                            <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{c.category}</td>
-                            <td className="px-4 py-3">
-                              {!c.status ? <span className="text-xs text-slate-400">—</span> : <span className={`px-2 py-1 rounded text-xs font-semibold border ${st.badge}`}>{st.label}</span>}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <table className="w-full table-fixed text-left">
+                  <colgroup><col className="w-[10%]" /><col className="w-[32%]" /><col className="w-[12%]" /><col className="w-[14%]" /><col className="w-[16%]" /><col className="w-[16%]" /></colgroup>
+                  <thead>
+                    <tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
+                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Key</th>
+                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Title</th>
+                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Priority</th>
+                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Type</th>
+                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Category</th>
+                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((c) => {
+                      const pri = PRIORITY_META[c.priority] || { label: c.priority, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                      const st = STATUS_META[c.status ?? ''] || { label: statusLabel(c.status), badge: 'bg-slate-100 text-slate-600 border-slate-200' };
+                      return (
+                        <tr key={c.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636] align-top">
+                          <td className="px-4 py-3 break-words"><Link href={`/test-cases/${c.id}`} className="font-mono text-xs font-bold text-[#276fbf] hover:underline break-all">{c.case_key}</Link></td>
+                          <td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white break-words whitespace-normal">{c.title}</td>
+                          <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border whitespace-nowrap ${pri.badge}`}>{pri.label}</span></td>
+                          <td className="px-4 py-3"><span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4] whitespace-nowrap">{c.test_type}</span></td>
+                          <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{c.category}</td>
+                          <td className="px-4 py-3">{!c.status ? <span className="text-xs text-slate-400">—</span> : <span className={`px-2 py-1 rounded text-xs font-semibold border whitespace-nowrap ${st.badge}`}>{st.label}</span>}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
