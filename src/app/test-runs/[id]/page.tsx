@@ -171,7 +171,7 @@ export default function TestRunDetailPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                       {(['passed','failed','blocked','notRun'] as const).map((k) => {
                         const v = k === 'notRun' ? stats?.notRun ?? 0 : (stats as any)?.[k] ?? 0;
-                        return <div key={k} className="border rounded p-2"><p className="text- font-semibold uppercase text-slate-400">{k === 'notRun' ? 'Not Run' : k}</p><p className="text-base font-semibold">{v}</p></div>;
+                        return <div key={k} className="border rounded p-2"><p className="text-xs font-semibold uppercase text-slate-400">{k === 'notRun' ? 'Not Run' : k}</p><p className="text-base font-semibold">{v}</p></div>;
                       })}
                     </div>
                     <div className="flex justify-between text-xs mb-1.5"><span className="font-medium">{stats?.completed ?? 0} of {stats?.total ?? 0} executed</span><span className="font-semibold">{stats?.progress ?? 0}% · Pass rate {stats?.passRate == null ? '—' : `${stats?.passRate}%`}</span></div>
@@ -181,7 +181,7 @@ export default function TestRunDetailPage() {
                 </section>
 
                 <div className="flex flex-wrap gap-2 items-center mb-4">
-                  <div className="flex gap-1 flex-wrap">{FILTERS.map((f) => <button key={f} onClick={() => setFilter(f)} className={`px-1 py-0 rounded text- font-semibold leading-4 border ${filter === f ? 'bg-[#1d2d3e] text-white' : 'bg-white text-slate-600 border-[#d8dee4]'}`}>{f === 'all' ? `All (${executions.length})` : `${STATUS_META[f]?.label ?? f} (${executions.filter((e) => e.status === f).length})`}</button>)}</div>
+                  <div className="flex gap-1.5 flex-wrap">{FILTERS.map((f) => <button key={f} onClick={() => setFilter(f)} className={`px-2 py-1 rounded text-xs font-semibold border ${filter === f ? 'bg-[#1d2d3e] text-white' : 'bg-white text-slate-600 border-[#d8dee4]'}`}>{f === 'all' ? `All (${executions.length})` : `${STATUS_META[f]?.label ?? f} (${executions.filter((e) => e.status === f).length})`}</button>)}</div>
                   <div className="relative ml-auto"><Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search case key or title..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64" /></div>
                 </div>
 
@@ -198,12 +198,12 @@ export default function TestRunDetailPage() {
                         <div className="flex items-start gap-3 p-4">
                           <input type="checkbox" checked={selected.has(ex.id)} onChange={(e) => { const s = new Set(selected); if (e.target.checked) s.add(ex.id); else s.delete(ex.id); setSelected(s); }} className="mt-1" />
                           <button onClick={() => setExpanded(isOpen ? '' : ex.id)} className="flex-1 text-left min-w-0">
-                            <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#276fbf]">{ex.test_cases?.case_key}</span><span className={`px-1 py-0 rounded text- font-semibold leading-4 border ${STATUS_META[ex.status]?.badge ?? ''}`}>{STATUS_META[ex.status]?.label ?? ex.status}</span><span className="text- text-slate-400">{ex.test_cases?.priority} · {ex.test_cases?.test_type} · {ex.test_cases?.category}</span></div>
+                            <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#276fbf]">{ex.test_cases?.case_key}</span><span className={`px-2 py-1 rounded text-xs font-semibold border ${STATUS_META[ex.status]?.badge ?? ''}`}>{STATUS_META[ex.status]?.label ?? ex.status}</span><span className="text- text-slate-400">{ex.test_cases?.priority} · {ex.test_cases?.test_type} · {ex.test_cases?.category}</span></div>
                             <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 truncate">{ex.test_cases?.title}</p>
                             {ex.executed_at && <p className="text- text-slate-400 mt-0.5">Last executed {new Date(ex.executed_at).toLocaleString()}</p>}
                           </button>
-                          <div className="flex gap-1 shrink-0 flex-wrap justify-end">
-                            {(['passed','failed','blocked','retest','not_run'] as const).map((s) => <button key={s} disabled={isCompleted} onClick={() => quickSet(ex.id, s)} className={`px-1 py-0 rounded text- font-semibold leading-4 border ${d.status === s ? 'bg-[#1d2d3e] text-white' : 'bg-white text-slate-600 border-[#d8dee4]'}`}>{STATUS_META[s].label}</button>)}
+                          <div className="flex gap-1.5 shrink-0 flex-wrap justify-end">
+                            {(['passed','failed','blocked','retest','not_run'] as const).map((s) => <button key={s} disabled={isCompleted} onClick={() => quickSet(ex.id, s)} className={`px-2 py-1 rounded text-xs font-semibold border ${d.status === s ? 'bg-[#1d2d3e] text-white' : 'bg-white text-slate-600 border-[#d8dee4]'}`}>{STATUS_META[s].label}</button>)}
                           </div>
                         </div>
                         {isOpen && (
@@ -242,7 +242,7 @@ export default function TestRunDetailPage() {
                           {history.map((h) => (
                             <div key={h.id} className="flex flex-wrap items-start gap-2 border border-[#edf2f7] dark:border-[#222e3e] rounded p-3">
                               <span className="font-mono text-xs font-bold text-[#276fbf] shrink-0">{h.test_cases?.case_key}</span>
-                              <span className={`px-1 py-0 rounded text- font-semibold leading-4 border shrink-0 ${STATUS_META[h.status]?.badge ?? ''}`}>{STATUS_META[h.status]?.label ?? h.status}</span>
+                              <span className={`px-2 py-1 rounded text-xs font-semibold border shrink-0 ${STATUS_META[h.status]?.badge ?? ''}`}>{STATUS_META[h.status]?.label ?? h.status}</span>
                               <span className="text-xs font-medium text-slate-900 dark:text-white flex-1 min-w-">{h.test_cases?.title}</span>
                               <span className="text- text-slate-400">{new Date(h.executed_at!).toLocaleString()} · {testerName(h.tester_id)}</span>
                               {(h.comments || h.actual_result) && <p className="w-full text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{[h.actual_result, h.comments].filter(Boolean).join(' — ')}</p>}
