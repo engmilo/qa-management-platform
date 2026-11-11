@@ -15,6 +15,7 @@ export default function TestCaseDetailPage() {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
   const [showDelete, setShowDelete] = useState(false);
+  const [pendingRemoveStep, setPendingRemoveStep] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const [code, setCode] = useState('');
@@ -116,7 +117,12 @@ export default function TestCaseDetailPage() {
       if (!res.ok) throw new Error(data.error || 'Save failed');
       setSavedMsg('Saved.');
     } catch (e: any) {
-      setSavedMsg(e.message || 'Save failed.');
+      const msg = String(e.message || 'Save failed.');
+      if (msg.includes('row-level security') || msg.includes('test_case_requirements')) {
+        setSavedMsg('Save blocked by database permissions (RLS) on test_case_requirements. Run the SQL fix in Supabase > SQL Editor, then try Save again.');
+      } else {
+        setSavedMsg(msg);
+      }
     } finally {
       setSaving(false);
     }
@@ -230,7 +236,7 @@ export default function TestCaseDetailPage() {
                           <span className="text-xs font-semibold pt-2 w-5 shrink-0">{i + 1}.</span>
                           <textarea value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); }} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls} />
                           <textarea value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); }} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls} />
-                          <button onClick={() => setSteps(steps.filter((_, j) => j !== i))} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline pt-2 shrink-0">Remove</button>
+                          <button onClick={() => setPendingRemoveStep(i)} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline pt-2 shrink-0">Remove</button>
                         </div>
                       ))}
                       {steps.length === 0 && <p className="text-xs font-semibold text-slate-500">No steps yet. Click + Add Step.</p>}
@@ -288,6 +294,18 @@ export default function TestCaseDetailPage() {
         </main>
       </div>
 
+      {pendingRemoveStep !== null && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-5 w-full max-w-sm">
+            <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Remove this step?</h3>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Step {pendingRemoveStep + 1}: {steps[pendingRemoveStep]?.action || ''} — this will remove it from the list. Click Save Changes to persist.</p>
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button onClick={() => { setSteps(steps.filter((_, j) => j !== pendingRemoveStep)); setPendingRemoveStep(null); }} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2">Remove</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-5 w-full max-w-sm">
