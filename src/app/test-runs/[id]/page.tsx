@@ -171,7 +171,7 @@ export default function TestRunDetailPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                       {(['passed','failed','blocked','notRun'] as const).map((k) => {
                         const v = k === 'notRun' ? stats?.notRun ?? 0 : (stats as any)?.[k] ?? 0;
-                        return <div key={k} className="border rounded p-3"><p className="text- uppercase font-bold text-slate-400">{k === 'notRun' ? 'Not Run' : k}</p><p className="text-xl font-bold">{v}</p></div>;
+                        return <div key={k} className="border rounded p-2"><p className="text- font-normal uppercase text-slate-400">{k === 'notRun' ? 'Not Run' : k}</p><p className="text-base font-normal">{v}</p></div>;
                       })}
                     </div>
                     <div className="flex justify-between text-xs mb-1.5"><span className="font-medium">{stats?.completed ?? 0} of {stats?.total ?? 0} executed</span><span className="font-semibold">{stats?.progress ?? 0}% · Pass rate {stats?.passRate == null ? '—' : `${stats?.passRate}%`}</span></div>
