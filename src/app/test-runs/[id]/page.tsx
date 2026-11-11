@@ -14,6 +14,7 @@ export default function TestRunDetailPage() {
   const [loading, setLoading] = useState(true);
   const [run, setRun] = useState<any>(null);
   const [execs, setExecs] = useState<Exec[]>([]);
+  const [caseById, setCaseById] = useState<Record<string, any>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [stepsByExec, setStepsByExec] = useState<Record<string, StepRow[]>>({});
   const [loadingSteps, setLoadingSteps] = useState<Record<string, boolean>>({});
@@ -29,6 +30,17 @@ export default function TestRunDetailPage() {
       const j = await res.json().catch(() => ({}));
       setRun(j.testRun ?? j.run ?? j ?? null);
       setExecs(j.executions ?? j.testExecutions ?? j.execs ?? []);
+      // FIX: API does not join test_cases, so fetch them to resolve ID -> TC-001 + title
+      try {
+        const tcRes = await fetch('/api/test-cases', { cache: 'no-store' });
+        const tcJ = await tcRes.json().catch(() => ({}));
+        const list = tcJ.testCases ?? tcJ.test_cases ?? tcJ ?? [];
+        const map: Record<string, any> = {};
+        (Array.isArray(list) ? list : []).forEach((c: any) => { map[String(c.id)] = c; });
+        // Also use any already-joined test_case from executions
+        (j.executions ?? []).forEach((e: any) => { if (e.test_case) map[String(e.test_case_id)] = e.test_case; });
+        setCaseById(map);
+      } catch {}
     } catch {} finally { setLoading(false); }
   };
   useEffect(() => { if (id) load(); }, [id]);
@@ -68,14 +80,20 @@ export default function TestRunDetailPage() {
     } finally { setSavingSteps((p) => ({ ...p, [execId]: false })); }
   };
 
+  const [runMsg, setRunMsg] = useState('');
   const setRunStatus = async (status: string, closeModal = false) => {
     if (status === 'completed') setCompleting(true); else setReopening(true);
+    setRunMsg('');
     try {
-      const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-      if (!res.ok) throw new Error('Failed');
+      let res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+      // FIX: some APIs use 'active' not 'in_progress' for reopened runs — try fallback
+      if (!res.ok && status === 'in_progress') {
+        res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'active' }) });
+      }
+      if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error || 'Reopen failed — run stayed Completed, steps stay locked.'); }
       if (closeModal) setShowComplete(false);
       await load();
-    } catch {} finally { setCompleting(false); setReopening(false); }
+    } catch (e: any) { setRunMsg(e.message || 'Failed'); } finally { setCompleting(false); setReopening(false); }
   };
 
   const passed = execs.filter((e) => e.status === 'passed').length;
@@ -116,7 +134,7 @@ export default function TestRunDetailPage() {
                 <h1 className="text-xs font-semibold text-slate-900 dark:text-white">{run?.name ?? 'Test Run'}</h1>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}
                 <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status ?? ''}</span>
                 {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
@@ -139,15 +157,15 @@ export default function TestRunDetailPage() {
                 <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5">Test Case</th><th className="px-4 py-2.5">Result</th><th className="px-4 py-2.5">Actions</th></tr></thead>
                 <tbody>
                   {execs.map((ex) => {
-                    const tc = ex.test_case ?? {};
+                    const tc = caseById[String(ex.test_case_id)] ?? ex.test_case ?? {};
                     const code = tc.case_key ?? tc.code ?? '';
-                    const title = tc.title ?? ex.test_case_id;
+                    const title = tc.title ?? (code ? '' : ex.test_case_id);
                     const open = !!expanded[ex.id];
                     const steps = stepsByExec[ex.id] ?? [];
                     return (
                       <React.Fragment key={ex.id}>
                         <tr className="border-t border-slate-200 dark:border-slate-700/50 align-top">
-                          <td className="px-4 py-3"><Link href={`/test-cases/${ex.test_case_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{code ? `${code} — ` : ''}{title}</Link></td>
+                          <td className="px-4 py-3"><Link href={`/test-cases/${ex.test_case_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{code ? `${code} — ${title || 'Untitled'}` : title}</Link></td>
                           <td className="px-4 py-3"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${badge(ex.status)}`}>{ex.status}</span></td>
                           <td className="px-4 py-3"><button onClick={() => toggleSteps(ex.id)} className="text-blue-600 dark:text-blue-400 hover:underline">{open ? 'Hide steps ▲' : 'View steps ▼'}</button></td>
                         </tr>
@@ -158,7 +176,7 @@ export default function TestRunDetailPage() {
                                 <div className="space-y-2">
                                   {steps.map((s, i) => (
                                     <div key={i} className="border border-[#b6c2cf] dark:border-[#28374d] rounded p-3 bg-white dark:bg-[#182232]">
-                                      <div className="flex flex-wrap gap-2 justify-between">
+                                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 justify-between">
                                         <p><span className="text-slate-500">Step {s.step_number}:</span> {s.action}</p>
                                         <select disabled={isCompleted} value={s.status} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], status: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1">
                                           <option value="not_run">Not Run</option><option value="passed">Passed</option><option value="failed">Failed</option><option value="blocked">Blocked</option><option value="retest">Retest</option>
@@ -168,7 +186,7 @@ export default function TestRunDetailPage() {
                                       <textarea disabled={isCompleted} value={s.actual_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], actual_result: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} placeholder="Actual result..." rows={1} style={{ overflow: 'hidden', resize: 'none' }} className="w-full mt-2 text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5" />
                                     </div>
                                   ))}
-                                  {isCompleted ? <p className="text-amber-600 dark:text-amber-400">Run is Completed — click Reopen Run to change step results.</p> : (
+                                  {isCompleted ? <p className="text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p> : (
                                     <div className="flex gap-2 items-center">
                                       <button onClick={() => saveSteps(ex.id)} disabled={!!savingSteps[ex.id]} className="text-xs font-semibold bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-1.5">{savingSteps[ex.id] ? 'Saving...' : 'Save Steps'}</button>
                                       {stepMsg[ex.id] && <span className="text-slate-600 dark:text-slate-300">{stepMsg[ex.id]}</span>}
