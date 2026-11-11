@@ -203,7 +203,7 @@ export default function TestRunDetailPage() {
                             {ex.executed_at && <p className="text- text-slate-400 mt-0.5">Last executed {new Date(ex.executed_at).toLocaleString()}</p>}
                           </button>
                           <div className="flex gap-1.5 shrink-0 flex-wrap justify-end">
-                            {(['passed','failed','blocked','retest','not_run'] as const).map((s) => <button key={s} disabled={isCompleted} onClick={() => quickSet(ex.id, s)} className={`px-2 py-1 rounded text- font-semibold border ${d.status === s ? 'bg-[#1d2d3e] text-white' : 'bg-white text-slate-600 border-[#d8dee4]'}`}>{STATUS_META[s].label}</button>)}
+                            {(['passed','failed','blocked','retest','not_run'] as const).map((s) => <button key={s} disabled={isCompleted} onClick={() => quickSet(ex.id, s)} className={`px-2 py-1 rounded text- font-normal border ${d.status === s ? 'bg-[#1d2d3e] text-white' : 'bg-white text-slate-600 border-[#d8dee4]'}`}>{STATUS_META[s].label}</button>)}
                           </div>
                         </div>
                         {isOpen && (
