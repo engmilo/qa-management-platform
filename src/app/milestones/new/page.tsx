@@ -1,15 +1,16 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 
 type Project = { id: string; name: string; key: string };
 
 export default function NewMilestonePage() {
   const router = useRouter();
+  const dateRef = useRef<HTMLInputElement>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [form, setForm] = useState({ project_id: '', name: '', description: '', status: 'planned', due_date: '' });
   const [saving, setSaving] = useState(false);
@@ -83,15 +84,25 @@ export default function NewMilestonePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1.5">Due Date</label>
-                  <input
-                    type="date"
-                    value={form.due_date}
-                    onChange={(e) => setForm({ ...form, due_date: e.target.value })}
-                    onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
-                    style={{ colorScheme: 'dark' }}
-                    className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-sm cursor-pointer [color-scheme:dark] dark:[&::-webkit-calendar-picker-indicator]:invert dark:[&::-webkit-calendar-picker-indicator]:opacity-90 dark:[&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
-                  <p className="text- text-slate-400 mt-1">Click the field / calendar icon to pick a date.</p>
+                  <div className="relative">
+                    <input
+                      ref={dateRef}
+                      type="date"
+                      value={form.due_date}
+                      onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                      onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+                      style={{ colorScheme: 'dark' }}
+                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded pl-3 pr-10 py-2 text-sm cursor-pointer [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Open calendar"
+                      onClick={() => dateRef.current?.showPicker?.()}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white dark:text-slate-300 dark:hover:text-white p-0.5"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
               <div>
