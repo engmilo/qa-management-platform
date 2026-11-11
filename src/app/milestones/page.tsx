@@ -26,6 +26,16 @@ const STATUS_META: Record<string, { label: string; badge: string }> = {
   active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
 };
 
+// Safe parse: if API returns HTML 404, don't throw JSON error
+async function safeJson(res: Response) {
+  const text = await res.text();
+  try {
+    return { ok: res.ok, data: text ? JSON.parse(text) : {} };
+  } catch {
+    return { ok: false, data: {} };
+  }
+}
+
 export default function MilestonesPage() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -43,11 +53,15 @@ export default function MilestonesPage() {
           fetch('/api/milestones', { cache: 'no-store' }),
           fetch('/api/projects', { cache: 'no-store' }),
         ]);
-        const mData = await mRes.json();
-        const pData = await pRes.json();
-        if (!mRes.ok) throw new Error(mData.error || 'Could not load milestones.');
-        setMilestones(mData.milestones ?? []);
-        setProjects(pData.projects ?? []);
+        const m = await safeJson(mRes);
+        const p = await safeJson(pRes);
+        // Milestones API does not exist yet -> show empty state, not JSON crash
+        if (!m.ok) {
+          setMilestones([]);
+        } else {
+          setMilestones(m.data.milestones ?? []);
+        }
+        if (p.ok) setProjects(p.data.projects ?? []);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Could not load milestones.');
       } finally {
@@ -107,7 +121,7 @@ export default function MilestonesPage() {
             {loading ? (
               <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading milestones...</div>
             ) : filtered.length === 0 ? (
-              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No milestones found.</div>
+              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No milestones found. Milestones API is not set up yet.</div>
             ) : (
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
                 <table className="w-full table-fixed text-left">
