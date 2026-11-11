@@ -6,8 +6,8 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ArrowLeft, X, CheckCircle2 } from 'lucide-react';
 
-type Exec = { id?: string; test_case_id?: string; status?: string; test_cases?: { title?: string } | null; test_case?: { title?: string } | null };
-type Run = { id: string; name?: string; title?: string; projects?: { name?: string; key?: string } | null; project?: string; status?: string; assigned_to?: string; assignee_name?: string; started_at?: string; created_at?: string; description?: string };
+type Exec = { id?: string; test_case_id?: string; status?: string; test_cases?: { title?: string; case_key?: string } | null; test_case?: { title?: string; case_key?: string } | null };
+type Run = { id: string; name?: string; title?: string; projects?: { name?: string; key?: string } | null; project?: string; status?: string; assigned_to?: string; assignee_name?: string; assignee_email?: string; started_at?: string; created_at?: string; description?: string };
 
 const pill = (s?: string) => {
   const v = (s || '').toLowerCase();
@@ -16,7 +16,7 @@ const pill = (s?: string) => {
   if (v.includes('block')) return 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800';
   return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
 };
-const fmt = (s?: string) => (s || 'In Progress').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+const fmt = (s?: string) => (s || 'Not Run').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function TestRunDetailPage() {
   const params = useParams(); const id = String((params as any)?.id || '');
@@ -26,8 +26,10 @@ export default function TestRunDetailPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [updating, setUpdating] = useState<string | null>(null);
   const [showComplete, setShowComplete] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [reopening, setReopening] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -36,8 +38,7 @@ export default function TestRunDetailPage() {
         const res = await fetch(`/api/test-runs/${id}`, { cache: 'no-store' });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Run not found (${res.status})`);
-        const parsed = data.testRun ?? data.run ?? data.test_run ?? data.data ?? data;
-        setRun(parsed);
+        setRun(data.testRun ?? data.run ?? data.test_run ?? data.data ?? data);
         setStats(data.stats ?? null);
         setExecs(data.executions ?? data.test_cases ?? []);
       } catch (e: any) { setError(e?.message || 'Could not load test run.'); }
@@ -45,14 +46,41 @@ export default function TestRunDetailPage() {
     })();
   }, [id]);
 
+  const isCompleted = (run?.status || '').toLowerCase() === 'completed';
+
+  const setResult = async (c: Exec, result: string) => {
+    const key = c.id || c.test_case_id; if (!key) return;
+    setUpdating(key); setError('');
+    try {
+      const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ execution_id: c.id, test_case_id: c.test_case_id, status: result.toLowerCase(), result: result.toLowerCase() }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || `Save failed (${res.status})`);
+      if (d.executions) setExecs(d.executions);
+      if (d.stats) setStats(d.stats);
+      else setExecs((prev) => prev.map((x) => ((x.id === c.id || x.test_case_id === c.test_case_id) ? { ...x, status: result.toLowerCase() } : x)));
+    } catch (e: any) { setError(e?.message || 'Could not save result.'); }
+    finally { setUpdating(null); }
+  };
+
+  const toggleComplete = async (toCompleted: boolean) => {
+    if (toCompleted) { setShowComplete(true); return; }
+    setReopening(true); setError('');
+    try {
+      const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'in_progress' }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || `Reopen failed (${res.status})`);
+      setRun((r) => r ? { ...r, status: 'in_progress' } : r);
+    } catch (e: any) { setError(e?.message || 'Could not reopen run.'); }
+    finally { setReopening(false); }
+  };
+
   const confirmComplete = async () => {
     setCompleting(true); setError('');
     try {
       const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'completed' }) });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.error || `Complete failed (${res.status})`);
-      const updated = d.testRun ?? d.run ?? d.data ?? d;
-      setRun((r) => ({ ...r, ...updated, status: 'completed' }));
+      setRun((r) => ({ ...r, ...(d.testRun ?? d.run ?? {}), status: 'completed' }));
       setShowComplete(false);
     } catch (e: any) { setError(e?.message || 'Could not complete run.'); setShowComplete(false); }
     finally { setCompleting(false); }
@@ -61,7 +89,7 @@ export default function TestRunDetailPage() {
   const runName = run?.name || run?.title || 'Test Run';
   const projectName = run?.projects ? `${run.projects.key ? `${run.projects.key} — ` : ''}${run.projects.name || ''}` : (run?.project || 'QA Studio');
   const total = stats?.total ?? execs.length;
-  const done = stats?.completed ?? execs.filter((x) => x.status !== 'not_run').length;
+  const done = stats?.completed ?? execs.filter((x) => (x.status || '').toLowerCase() !== 'not_run').length;
   const progress = stats?.progress ?? (total ? Math.round((done / total) * 100) : 0);
 
   return (
@@ -84,22 +112,56 @@ export default function TestRunDetailPage() {
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${pill(run.status)}`}>{fmt(run.status)}</span>
                     <button onClick={() => router.push('/test-runs/new')} className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-2 rounded">+ New Run</button>
-                    <button onClick={() => setShowComplete(true)} className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-3 py-2 rounded">Complete Run</button>
+                    {isCompleted ? (
+                      <button onClick={() => toggleComplete(false)} disabled={reopening} className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-semibold px-3 py-2 rounded">{reopening ? 'Reopening...' : 'Reopen Run'}</button>
+                    ) : (
+                      <button onClick={() => toggleComplete(true)} className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-3 py-2 rounded">Complete Run</button>
+                    )}
                   </div>
                 </div>
                 <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 mb-4">
                   <div className="flex items-center justify-between mb-2"><span className="text-xs font-semibold text-slate-900 dark:text-white">Progress</span><span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{done} / {total} · {progress}%</span></div>
                   <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-green-500" style={{ width: `${progress}%` }} /></div>
-                  <p className="text-xs font-semibold text-slate-500 mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run.assignee_name || run.assigned_to || 'Milo Haireche'}</span></p>
+                  <p className="text-xs font-semibold text-slate-500 mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run.assignee_name || run.assignee_email || 'Milo Haireche'}</span></p>
+                  {stats && <p className="text-xs font-semibold text-slate-500 mt-1">Passed: <span className="text-green-600">{stats.passed}</span> · Failed: <span className="text-red-600">{stats.failed}</span> · Blocked: <span className="text-amber-600">{stats.blocked}</span> · Not Run: <span className="text-slate-500">{stats.notRun}</span></p>}
                   {run.description && <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">{run.description}</p>}
+                  {isCompleted && <p className="text-xs font-semibold text-amber-600 mt-2">Run is Completed — click Reopen Run to change results.</p>}
                 </div>
                 <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
                   <div className="p-4 border-b border-[#e2e8f0] dark:border-[#28374d]"><h2 className="text-xs font-semibold text-slate-900 dark:text-white">Execution History — Test Cases</h2></div>
-                  {execs.length === 0 ? <p className="p-4 text-xs font-semibold text-slate-500">No test cases in this run. This run was created without cases — completing it is still allowed.</p> : (
+                  {execs.length === 0 ? <p className="p-4 text-xs font-semibold text-slate-500">No test cases in this run.</p> : (
                     <table className="w-full table-fixed text-left">
-                      <colgroup><col className="w-[60%]" /><col className="w-[40%]" /></colgroup>
-                      <thead><tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]"><th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Test Case</th><th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Result</th></tr></thead>
-                      <tbody>{execs.map((c, i) => (<tr key={c.id || c.test_case_id || i} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0"><td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white break-words">{c.test_cases?.title || c.test_case?.title || `Case ${i + 1}`}</td><td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${pill(c.status)}`}>{fmt(c.status)}</span></td></tr>))}</tbody>
+                      <colgroup><col className="w-[45%]" /><col className="w-[15%]" /><col className="w-[40%]" /></colgroup>
+                      <thead><tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]"><th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Test Case</th><th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Result</th><th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Actions</th></tr></thead>
+                      <tbody>
+                        {execs.map((c, i) => {
+                          const tc = c.test_cases || c.test_case;
+                          const title = tc?.title || `Case ${i + 1}`;
+                          const key = tc?.case_key || '';
+                          const st = c.status || 'not_run';
+                          const busy = updating === (c.id || c.test_case_id);
+                          return (
+                            <tr key={c.id || c.test_case_id || i} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0">
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {key && <span className="font-mono text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-0.5 rounded whitespace-nowrap">{key}</span>}
+                                  <span className="text-xs font-semibold text-slate-900 dark:text-white break-words">{title}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${pill(st)}`}>{fmt(st)}</span></td>
+                              <td className="px-4 py-3">
+                                {isCompleted ? <span className="text-xs font-semibold text-slate-400">Reopen to edit</span> : (
+                                  <div className="flex flex-wrap gap-1">
+                                    {['Passed', 'Failed', 'Blocked', 'Not Run', 'Retest'].map((r) => (
+                                      <button key={r} disabled={busy} onClick={() => setResult(c, r)} className="px-2 py-1 rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50">{r}</button>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
                     </table>
                   )}
                 </div>
