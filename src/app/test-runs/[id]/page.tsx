@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X, CheckCircle2 } from 'lucide-react';
 
 type RunCase = { id?: string; test_case_id?: string; title?: string; name?: string; status?: string; result?: string; assignee?: string; test_case?: { title?: string } | null };
 type Run = { id: string; name?: string; title?: string; project?: string; project_name?: string; status?: string; assignee?: string; assignee_name?: string; started_at?: string; created_at?: string; description?: string; environment?: string; test_cases?: RunCase[]; cases?: RunCase[]; executions?: any[] };
@@ -25,6 +25,8 @@ export default function TestRunDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState<string | null>(null);
+  const [showComplete, setShowComplete] = useState(false);
+  const [completing, setCompleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -54,13 +56,15 @@ export default function TestRunDetailPage() {
     finally { setUpdating(null); }
   };
 
-  const completeRun = async () => {
-    if (!confirm('Complete this run?')) return;
+  const confirmComplete = async () => {
+    setCompleting(true);
     try {
       const res = await fetch(`/api/test-runs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'Completed' }) });
       if (!res.ok) throw new Error();
       setRun((r) => r ? { ...r, status: 'Completed' } : r);
-    } catch { setError('Could not complete run.'); }
+      setShowComplete(false);
+    } catch { setError('Could not complete run.'); setShowComplete(false); }
+    finally { setCompleting(false); }
   };
 
   return (
@@ -83,7 +87,7 @@ export default function TestRunDetailPage() {
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${pill(run.status)}`}>{run.status || 'In Progress'}</span>
                     <button onClick={() => router.push('/test-runs/new')} className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-2 rounded">+ New Run</button>
-                    <button onClick={completeRun} className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-3 py-2 rounded">Complete Run</button>
+                    <button onClick={() => setShowComplete(true)} className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-3 py-2 rounded">Complete Run</button>
                   </div>
                 </div>
 
@@ -128,6 +132,28 @@ export default function TestRunDetailPage() {
           </div>
         </main>
       </div>
+
+      {/* In-app Complete Run confirmation — same style as Settings Deactivate */}
+      {showComplete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowComplete(false)}>
+          <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-green-600" /></span>
+                <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Complete this run?</h3>
+              </div>
+              <button onClick={() => setShowComplete(false)} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+            </div>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
+              Complete <span className="text-slate-900 dark:text-white">{run?.name || run?.title || 'this run'}</span>? Status will change to Completed. You can still view its results.
+            </p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button onClick={() => setShowComplete(false)} className="px-3 py-2 rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 text-xs font-semibold">Cancel</button>
+              <button onClick={confirmComplete} disabled={completing} className="px-3 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs font-semibold">{completing ? 'Completing...' : 'Complete Run'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
