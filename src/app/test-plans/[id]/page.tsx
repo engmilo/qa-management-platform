@@ -138,7 +138,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
   <div key={s.id} className="border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
     <div className="flex items-center justify-between gap-2">
       <span className="flex-1 min-w-0 text-xs font-semibold">{s.name} — <span className="text-slate-500">{s.description}</span></span>
-      <button className="inline-flex flex-row items-center gap-1.5 whitespace-nowrap shrink-0 text-xs font-semibold text-red-500 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 rounded px-2.5 py-1.5"><span aria-hidden="true">✕</span><span>Remove</span></button>
+      <button className="inline-flex flex-row items-center gap-1.5 whitespace-nowrap shrink-0 text-xs font-semibold text-red-500 hover:text-red-400 bg-transparent border-0 p-0">🗑 Delete</button>
     </div>
   </div>
 ))}
