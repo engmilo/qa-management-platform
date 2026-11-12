@@ -165,7 +165,7 @@ export default function TestPlanDetailPage() {
 
                 <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
                   <h3 className="text-sm font-semibold mb-2">Suites in this Plan</h3>
-                  {suites.length === 0 ? <p className="text-xs text-slate-400">No suites linked to this plan.</p> : suites.map((s: any) => <div key={s.id} className="py-1.5 text-xs border-b last:border-0"><span className="font-semibold">{s.name}</span> — {s.description ?? ''}</div>)}
+                  {suites.length === 0 ? <p className="text-xs text-slate-400">No suites linked to this plan.</p> : suites.map((s: any) => <Link key={s.id} href={`/test-suites/${s.id}`} className="block py-1.5 text-xs border-b last:border-0 hover:bg-slate-50 dark:hover:bg-[#1e2a3a] px-2 rounded"><span className="font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">{s.name}</span></Link>)}
                 </section>
               </>
             )}
