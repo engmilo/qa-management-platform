@@ -40,15 +40,34 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         const sJ = await sRes.json().catch(() => ({}));
         const s = sJ.testSuite ?? sJ.suite ?? sJ ?? null;
         setSuite(s);
-        if (s) {
-          setForm({ name: s.name ?? '', description: s.description ?? '' });
-          // Cases in suite: from suite.cases, suite.testCases, or join
-          const inSuite = s.cases ?? s.testCases ?? s.test_cases ?? [];
-          setCases(Array.isArray(inSuite) ? inSuite : []);
-        }
         const cJ = await cRes.json().catch(() => ({}));
         const all = cJ.testCases ?? cJ.cases ?? cJ ?? [];
-        setAllCases(Array.isArray(all) ? all : []);
+        const allArr = Array.isArray(all) ? all : [];
+        setAllCases(allArr);
+        if (s) {
+          setForm({ name: s.name ?? '', description: s.description ?? '' });
+          // FIX: restore TC-001 — try EVERY shape, don't assume one:
+          // 1) suite carries full case objects
+          // 2) suite carries only case IDs -> map to full objects from /api/test-cases
+          // 3) suite carries nothing -> filter all cases by suite_id / test_suite_id / suite_ids
+          const raw = s.cases ?? s.testCases ?? s.test_cases ?? s.testCaseIds ?? s.case_ids ?? null;
+          let found: any[] = [];
+          if (Array.isArray(raw) && raw.length > 0) {
+            if (typeof raw[0] === 'object') found = raw;
+            else found = raw.map((cid: any) => allArr.find((c: any) => String(c.id) === String(cid))).filter(Boolean);
+          }
+          if (found.length === 0) {
+            found = allArr.filter((c: any) => {
+              const sid = c.suite_id ?? c.test_suite_id ?? c.suiteId;
+              if (sid && String(sid) === String(id)) return true;
+              const arr = c.suite_ids ?? c.suites ?? c.suiteIds ?? [];
+              if (Array.isArray(arr) && arr.some((x: any) => String(typeof x === 'object' ? x.id : x) === String(id))) return true;
+              if (c.suite && String(typeof c.suite === 'object' ? c.suite.id : c.suite) === String(id)) return true;
+              return false;
+            });
+          }
+          setCases(found);
+        }
       } catch {} finally { setLoading(false); }
     })();
   }, [id]);
@@ -121,7 +140,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Delete this test suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will permanently delete this suite and unlink its test cases. The test cases themselves are kept. This cannot be undone.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => setShowDelete(false)} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doDelete} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Delete suite</button></div></div></div>
       )}
       {showRemove && caseToRemove && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this test case from the suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will remove {caseToRemove.case_key ?? caseToRemove.code} - {caseToRemove.title} from this suite. The test case itself is kept, you can add it back later. This cannot be undone, but you can re-add it.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={() => { setCases(cases.filter((x: any) => x.id !== caseToRemove.id)); setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Remove case</button></div></div></div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this test case from the suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will remove {caseToRemove.case_key ?? caseToRemove.code} - {caseToRemove.title} from this suite. The test case itself is kept, you can add it back later. This cannot be undone, but you can re-add it.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={async () => { const keep = cases; setCases(cases.filter((x: any) => x.id !== caseToRemove.id)); setShowRemove(false); setCaseToRemove(null); try { await fetch(`/api/test-suites/${id}/cases/${caseToRemove.id}`, { method: 'DELETE' }); } catch { setCases(keep); } }} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Remove case</button></div></div></div>
       )}
     </div>
   );
