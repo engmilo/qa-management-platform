@@ -116,9 +116,8 @@ export default function DashboardPage() {
             </p>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              <Link
-                href="/test-cases"
-                className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-blue-500 transition"
+              <div
+                className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
                 <p className="text-xs font-semibold text-slate-500 text-center">TEST CASES</p>
                 <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
@@ -130,12 +129,11 @@ export default function DashboardPage() {
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-blue-500" style={{ width: `${caseAutoPct}%` }} />
                 </div>
-                <p className="text-xs font-semibold text-slate-400 mt-1.5">Click to view →</p>
-              </Link>
+                <Link href="/test-cases" className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+              </div>
 
-              <Link
-                href="/test-runs"
-                className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-green-500 transition"
+              <div
+                className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
                 <p className="text-xs font-semibold text-slate-500 text-center">TEST RUNS</p>
                 <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
@@ -147,12 +145,11 @@ export default function DashboardPage() {
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-green-500" style={{ width: `${runPct}%` }} />
                 </div>
-                <p className="text-xs font-semibold text-slate-400 mt-1.5">Click to view →</p>
-              </Link>
+                <Link href="/test-runs" className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+              </div>
 
-              <Link
-                href="/defects"
-                className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-red-500 transition"
+              <div
+                className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
                 <p className="text-xs font-semibold text-slate-500 text-center">OPEN DEFECTS</p>
                 <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
@@ -169,12 +166,11 @@ export default function DashboardPage() {
                     ? `Latest: ${d.latestDefect.key ? `${d.latestDefect.key} — ` : ''}${d.latestDefect.title}`
                     : 'No open defects'}
                 </p>
-                <p className="text-xs font-semibold text-slate-400 mt-1.5">Click to view →</p>
-              </Link>
+                <Link href="/defects" className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+              </div>
 
-              <Link
-                href={d?.lastPassed?.runId ? `/test-runs/${d.lastPassed.runId}` : '/test-runs'}
-                className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-emerald-500 transition"
+              <div
+                className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
                 <p className="text-xs font-semibold text-slate-500 text-center">PASS RATE</p>
                 <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
@@ -189,13 +185,13 @@ export default function DashboardPage() {
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-blue-500" style={{ width: `${d?.passRate ?? 0}%` }} />
                 </div>
-                <p className="text-xs font-semibold text-slate-400 mt-2 truncate">
+                <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-2 truncate">
                   {d?.lastPassed
                     ? `Passed: ${d.lastPassed.testCaseCode} — ${d.lastPassed.testCaseTitle}`
                     : 'No passed cases yet'}
                 </p>
-                <p className="text-xs font-semibold text-slate-400 mt-1">Click to view passed case →</p>
-              </Link>
+                <Link href={d?.lastPassed?.runId ? `/test-runs/${d.lastPassed.runId}` : '/test-runs'} className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+              </div>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-4">
