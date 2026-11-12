@@ -120,11 +120,11 @@ export default function DashboardPage() {
                 href="/test-cases"
                 className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-blue-500 transition"
               >
-                <p className="text-xs font-semibold text-slate-500">TEST CASES</p>
-                <p className="text-xs font-semibold text-slate-900 dark:text-white mt-2 text-lg leading-none">
+                <p className="text-xs font-semibold text-slate-500 text-center">TEST CASES</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testCases}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2">
+                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.manual} manual · ${d?.automated} automated`}
                 </p>
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
@@ -137,11 +137,11 @@ export default function DashboardPage() {
                 href="/test-runs"
                 className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-green-500 transition"
               >
-                <p className="text-xs font-semibold text-slate-500">TEST RUNS</p>
-                <p className="text-xs font-semibold text-slate-900 dark:text-white mt-2 text-lg leading-none">
+                <p className="text-xs font-semibold text-slate-500 text-center">TEST RUNS</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testRuns}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2">
+                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.completedRuns} completed · ${d?.inProgressRuns} in progress`}
                 </p>
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
@@ -154,11 +154,11 @@ export default function DashboardPage() {
                 href="/defects"
                 className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-red-500 transition"
               >
-                <p className="text-xs font-semibold text-slate-500">OPEN DEFECTS</p>
-                <p className="text-xs font-semibold text-slate-900 dark:text-white mt-2 text-lg leading-none">
+                <p className="text-xs font-semibold text-slate-500 text-center">OPEN DEFECTS</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.openDefects}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2">
+                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.openDefects} open of ${d?.totalDefects} total · ${d?.fixedDefects} fixed`}
                 </p>
                 <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -176,20 +176,18 @@ export default function DashboardPage() {
                 href={d?.lastPassed?.runId ? `/test-runs/${d.lastPassed.runId}` : '/test-runs'}
                 className="block bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 hover:border-emerald-500 transition"
               >
-                <p className="text-xs font-semibold text-slate-500">PASS RATE</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <Donut value={d?.passRate ?? null} />
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900 dark:text-white">
-                      {loading ? '—' : d?.passRate === null ? '—' : `${d.passRate}%`}
-                    </p>
-                    <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                      {loading ? '' : `${d?.passed} passed · ${d?.failed} failed`}
-                    </p>
-                    <p className="text-xs font-semibold text-slate-400">
-                      {loading ? '' : `${d?.blocked} blocked · ${d?.notRun} not run`}
-                    </p>
-                  </div>
+                <p className="text-xs font-semibold text-slate-500 text-center">PASS RATE</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
+                  {loading ? '—' : d?.passRate === null ? '—' : `${d.passRate}%`}
+                </p>
+                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
+                  {loading ? '' : `${d?.passed} passed · ${d?.failed} failed`}
+                </p>
+                <p className="text-xs font-semibold text-slate-400 text-center">
+                  {loading ? '' : `${d?.blocked} blocked · ${d?.notRun} not run`}
+                </p>
+                <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
+                  <div className="h-full bg-blue-500" style={{ width: `${d?.passRate ?? 0}%` }} />
                 </div>
                 <p className="text-xs font-semibold text-slate-400 mt-2 truncate">
                   {d?.lastPassed
