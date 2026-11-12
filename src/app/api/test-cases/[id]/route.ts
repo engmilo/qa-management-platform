@@ -7,7 +7,6 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { data: tc, error } = await supabase.from('test_cases').select('*').eq('id', params.id).maybeSingle();
   if (error || !tc) return NextResponse.json({ error: 'Test case not found.' }, { status: 404 });
-  // FIX: read linked requirements from JOIN table, not from test_cases column
   const { data: links } = await supabase.from('test_case_requirements').select('requirement_id').eq('test_case_id', params.id);
   const { data: steps } = await supabase.from('test_case_steps').select('*').eq('test_case_id', params.id).order('step_number');
   return NextResponse.json({
@@ -24,7 +23,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   let body: any;
   try { body = await req.json(); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
 
-  // Save normal test-case fields
   const patch: any = {};
   if (typeof body.title === 'string') patch.title = body.title;
   if (typeof body.description === 'string') patch.description = body.description;
@@ -33,6 +31,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (typeof body.priority === 'string') patch.priority = body.priority;
   if (typeof body.test_type === 'string') patch.test_type = body.test_type;
   if (typeof body.automation_status === 'string') patch.automation_status = body.automation_status;
+  // FIX: Status now has a column in test_cases (Step 1 SQL) — save it
+  if (typeof body.status === 'string' && ['draft', 'ready', 'approved', 'deprecated'].includes(body.status)) patch.status = body.status;
   if (typeof body.tags === 'string') patch.tags = body.tags.split(',').map((s: string) => s.trim()).filter(Boolean);
   if (Array.isArray(body.tags)) patch.tags = body.tags;
   if (Object.keys(patch).length) {
@@ -40,7 +40,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  // FIX: persist LINKED REQUIREMENTS to JOIN table — this was missing, so ticks were lost on reload
   if (Array.isArray(body.linkedRequirementIds)) {
     await supabase.from('test_case_requirements').delete().eq('test_case_id', params.id);
     const rows = body.linkedRequirementIds.filter(Boolean).map((rid: string) => ({ test_case_id: params.id, requirement_id: rid }));
@@ -50,7 +49,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
   }
 
-  // Steps: replace all
   if (Array.isArray(body.steps)) {
     await supabase.from('test_case_steps').delete().eq('test_case_id', params.id);
     const stepRows = body.steps.map((s: any, i: number) => ({ test_case_id: params.id, step_number: i + 1, action: s.action ?? '', expected_result: s.expected_result ?? '' }));

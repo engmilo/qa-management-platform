@@ -1,189 +1,117 @@
-'use client';
+"use client";
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { Search, Plus, Download, Upload } from 'lucide-react';
 
-type TestCase = {
-  id: string;
-  case_key: string;
-  title: string;
-  priority: string;
-  test_type: string;
-  category: string;
-  status: string | null;
-  project_id: string;
-  projects?: { name: string; key: string } | null;
-};
-
-type Project = { id: string; name: string; key: string };
-
-const PRIORITY_META: Record<string, { label: string; badge: string }> = {
-  high: { label: 'High', badge: 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]' },
-  medium: { label: 'Medium', badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
-  low: { label: 'Low', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
-};
-
-const STATUS_META: Record<string, { label: string; badge: string }> = {
-  active: { label: 'Active', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
-  draft: { label: 'Draft', badge: 'bg-slate-100 text-slate-600 border-slate-200' },
-  deprecated: { label: 'Deprecated', badge: 'bg-slate-50 text-slate-500 border-slate-200' },
-  ready: { label: 'Ready', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
-  approved: { label: 'Approved', badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
-};
+type TC = { id: string; case_key?: string; code?: string; title: string; priority: string; test_type?: string; type?: string; category: string; status?: string; project_id?: string };
 
 export default function TestCasesPage() {
-  const [cases, setCases] = useState<TestCase[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [cases, setCases] = useState<TC[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [projectFilter, setProjectFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [exporting, setExporting] = useState(false);
+  const [projectFilter, setProjectFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
-    async function load() {
-      setLoading(true); setError('');
+    (async () => {
       try {
         const [cRes, pRes] = await Promise.all([
           fetch('/api/test-cases', { cache: 'no-store' }),
           fetch('/api/projects', { cache: 'no-store' }),
         ]);
-        const cData = await cRes.json();
-        const pData = await pRes.json();
-        if (!cRes.ok) throw new Error(cData.error || 'Could not load test cases.');
-        setCases(cData.testCases ?? cData.cases ?? []);
-        setProjects(pData.projects ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Could not load test cases.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    void load();
+        const cJ = await cRes.json().catch(() => ({}));
+        const pJ = await pRes.json().catch(() => ({}));
+        setCases(cJ.testCases ?? cJ.test_cases ?? cJ ?? []);
+        setProjects(pJ.projects ?? pJ ?? []);
+      } catch { setCases([]); } finally { setLoading(false); }
+    })();
   }, []);
 
-  const typeOptions = useMemo(() => {
-    const s = new Set<string>();
-    cases.forEach((c) => { if (c.test_type) s.add(c.test_type); });
-    return Array.from(s).sort();
-  }, [cases]);
+  const statusBadge = (s?: string) => {
+    const v = (s ?? '').toLowerCase();
+    if (v === 'approved') return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+    if (v === 'ready') return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+    if (v === 'deprecated') return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+    if (v === 'draft') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+    return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+  };
 
-  const filtered = useMemo(() => cases.filter((c) => {
-    if (projectFilter !== 'all' && c.project_id !== projectFilter) return false;
-    if (priorityFilter !== 'all' && c.priority !== priorityFilter) return false;
-    if (typeFilter !== 'all' && c.test_type !== typeFilter) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      if (!c.title.toLowerCase().includes(q) && !c.case_key.toLowerCase().includes(q) && !(c.category ?? '').toLowerCase().includes(q)) return false;
-    }
+  const filtered = cases.filter((c) => {
+    if (search && !`${c.case_key ?? c.code ?? ''} ${c.title}`.toLowerCase().includes(search.toLowerCase())) return false;
+    if (projectFilter && String(c.project_id) !== projectFilter) return false;
+    if (priorityFilter && c.priority !== priorityFilter) return false;
+    if (typeFilter && (c.test_type ?? c.type) !== typeFilter) return false;
+    if (statusFilter && (c.status ?? '') !== statusFilter) return false;
     return true;
-  }), [cases, projectFilter, priorityFilter, typeFilter, search]);
-
-  const statusLabel = (s: string | null) => {
-    if (!s) return '—';
-    return STATUS_META[s]?.label ?? s.charAt(0).toUpperCase() + s.slice(1);
-  };
-
-  const exportCsv = async () => {
-    setExporting(true);
-    try {
-      const params = new URLSearchParams();
-      if (projectFilter !== 'all') params.set('projectId', projectFilter);
-      const res = await fetch(`/api/test-cases/export?${params.toString()}`);
-      if (!res.ok) throw new Error('Export failed.');
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'test-cases.csv'; a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Export failed.');
-    } finally {
-      setExporting(false);
-    }
-  };
+  });
 
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white">Test Cases</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Design and manage test cases.</p>
+                <h1 className="text-xs font-semibold text-slate-900 dark:text-white">Test Cases</h1>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={exportCsv} disabled={exporting} className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Download className="w-3.5 h-3.5" />{exporting ? 'Exporting...' : 'Export CSV'}</button>
-                <Link href="/test-cases/import" className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Upload className="w-3.5 h-3.5" /> Import</Link>
-                <Link href="/test-cases/new" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> New Test Case</Link>
+                <Link href="/api/test-cases/export" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</Link>
+                <Link href="/test-cases/import" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Import</Link>
+                <Link href="/test-cases/new" className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Test Case</Link>
               </div>
             </div>
-            {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4">
-              <div className="flex flex-wrap gap-2 items-center">
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="pl-8 pr-3 py-1.5 border rounded text-xs w-64 max-w-full" />
-                </div>
-                <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
-                  <option value="all">All Projects</option>
-                  {projects.map((p) => <option key={p.id} value={p.id}>{p.key} — {p.name}</option>)}
-                </select>
-                <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
-                  <option value="all">All Priority</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-                <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-semibold bg-white dark:bg-[#1f2c3f]">
-                  <option value="all">All Types</option>
-                  {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
+
+            <div className="flex flex-wrap gap-2 items-center bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mt-4">
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
+              <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Projects</option>
+                {projects.map((p: any) => (<option key={p.id} value={String(p.id)}>{p.name}</option>))}
+              </select>
+              <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option>
+              </select>
+              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Types</option><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="security">Security</option><option value="performance">Performance</option>
+              </select>
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Status</option><option value="draft">Draft</option><option value="ready">Ready</option><option value="approved">Approved</option><option value="deprecated">Deprecated</option>
+              </select>
+              <span className="text-xs font-semibold text-slate-500">{filtered.length} of {cases.length}</span>
             </div>
-            {loading ? (
-              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">Loading test cases...</div>
-            ) : filtered.length === 0 ? (
-              <div className="bg-white border rounded-md p-8 text-center text-xs text-slate-500">No test cases found.</div>
-            ) : (
-              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <table className="w-full table-fixed text-left">
-                  <colgroup><col className="w-[10%]" /><col className="w-[32%]" /><col className="w-[12%]" /><col className="w-[14%]" /><col className="w-[16%]" /><col className="w-[16%]" /></colgroup>
-                  <thead>
-                    <tr className="bg-[#f8fafc] dark:bg-[#141d28] border-b border-[#e2e8f0] dark:border-[#28374d]">
-                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Key</th>
-                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Title</th>
-                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Priority</th>
-                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Type</th>
-                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Category</th>
-                      <th className="px-4 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+
+            <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
+              <table className="w-full text-xs font-semibold">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400">
+                    <th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Title</th><th className="px-4 py-2.5">Priority</th><th className="px-4 py-2.5">Type</th><th className="px-4 py-2.5">Category</th><th className="px-4 py-2.5">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => (
+                    <tr key={c.id} className="border-t border-slate-200 dark:border-slate-700/50">
+                      <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{c.case_key ?? c.code ?? ''}</Link></td>
+                      <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="hover:underline">{c.title}</Link></td>
+                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize">{c.priority}</span></td>
+                      <td className="px-4 py-3">{c.test_type ?? c.type ?? ''}</td>
+                      <td className="px-4 py-3">{c.category}</td>
+                      <td className="px-4 py-3">
+                        {/* FIX: Status now comes from DB column (Step 1) + API (Step 2). Before it was undefined -> "—" */}
+                        {c.status ? <span className={`inline-block px-2 py-0.5 rounded capitalize ${statusBadge(c.status)}`}>{c.status}</span> : <span>—</span>}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((c) => {
-                      const pri = PRIORITY_META[c.priority] || { label: c.priority, badge: 'bg-slate-100 text-slate-600 border-slate-200' };
-                      const st = STATUS_META[c.status ?? ''] || { label: statusLabel(c.status), badge: 'bg-slate-100 text-slate-600 border-slate-200' };
-                      return (
-                        <tr key={c.id} className="border-b border-[#edf2f7] dark:border-[#222e3e] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1a2636] align-top">
-                          <td className="px-4 py-3 break-words"><Link href={`/test-cases/${c.id}`} className="font-mono text-xs font-bold text-[#276fbf] hover:underline break-all">{c.case_key}</Link></td>
-                          <td className="px-4 py-3 text-xs font-semibold text-slate-900 dark:text-white break-words whitespace-normal">{c.title}</td>
-                          <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-semibold border whitespace-nowrap ${pri.badge}`}>{pri.label}</span></td>
-                          <td className="px-4 py-3"><span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4] whitespace-nowrap">{c.test_type}</span></td>
-                          <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal">{c.category}</td>
-                          <td className="px-4 py-3">{!c.status ? <span className="text-xs text-slate-400">—</span> : <span className={`px-2 py-1 rounded text-xs font-semibold border whitespace-nowrap ${st.badge}`}>{st.label}</span>}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  ))}
+                  {filtered.length === 0 && !loading && <tr><td colSpan={6} className="px-4 py-6 text-center text-slate-500">No test cases found.</td></tr>}
+                  {loading && <tr><td colSpan={6} className="px-4 py-6 text-center text-slate-500">Loading test cases...</td></tr>}
+                </tbody>
+              </table>
+            </div>
           </div>
         </main>
       </div>
