@@ -26,12 +26,13 @@ export default function ReportsPage() {
     async function load() {
       setLoading(true); setError('');
       try {
-        const [cRes, rRes, dRes, reqRes, pRes] = await Promise.all([
+        const [cRes, rRes, dRes, reqRes, pRes, dashRes] = await Promise.all([
           fetch('/api/test-cases', { cache: 'no-store' }),
           fetch('/api/test-runs', { cache: 'no-store' }),
           fetch('/api/defects', { cache: 'no-store' }),
           fetch('/api/requirements', { cache: 'no-store' }),
           fetch('/api/projects', { cache: 'no-store' }),
+          fetch('/api/dashboard', { cache: 'no-store' }),
         ]);
         const parse = async (res: Response) => {
           const t = await res.text();
@@ -42,6 +43,7 @@ export default function ReportsPage() {
         const d = await parse(dRes);
         const req = await parse(reqRes);
         const p = await parse(pRes);
+        const dash = await parse(dashRes);
         const cases = c.testCases ?? c.cases ?? [];
         const allRuns = r.testRuns ?? r.runs ?? [];
         const defects = d.defects ?? [];
@@ -51,7 +53,7 @@ export default function ReportsPage() {
         const completed = allRuns.filter((x: any) => x.status === 'completed').length;
         const open = defects.filter((x: any) => ['new', 'open', 'in_progress', 'reopened'].includes((x.status || '').toLowerCase())).length;
         let passRate: number | null = null;
-        if (allRuns.length > 0 && allRuns[0]?.stats?.passRate != null) passRate = allRuns[0].stats.passRate;
+        if (dash?.passRate != null) passRate = dash.passRate;
         const byStatus: Record<string, number> = {};
         defects.forEach((x: any) => { const k = (x.status || 'unknown').toLowerCase(); byStatus[k] = (byStatus[k] || 0) + 1; });
         setDefectsByStatus(byStatus);
