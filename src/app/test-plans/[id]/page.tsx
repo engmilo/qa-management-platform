@@ -97,8 +97,8 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                   <h1 className="text-base font-bold text-slate-900 dark:text-white">{form.title}</h1>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{projectName(form.project_id)}{form.milestone_id ? ` · Milestone: ${releaseName(form.milestone_id)}` : ''}</p>
                 </div>
-                {/* FIX 2: Delete now exactly like Test Suites — boxed red, trash icon, not plain text */}
-                <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-500 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 rounded px-3 py-1.5">🗑 Delete</button>
+                {/* FIX 2: Delete exactly like Test Suites — plain red text, no border, no background, no box */}
+                <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer">🗑 Delete</button>
               </div>
               <div className="px-5 py-4 space-y-4">
                 <div><label className={labelCls}>Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputCls + ' mt-1'} /></div>
@@ -135,13 +135,14 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
               <h2 className="text-xs font-semibold text-slate-900 dark:text-white">Suites in this Plan</h2>
               <div className="mt-3 space-y-2">
                 {suites.map((s: any) => (
-  <div key={s.id} className="border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
-    <div className="flex items-center justify-between gap-2">
-      <span className="flex-1 min-w-0 text-xs font-semibold">{s.name} — <span className="text-slate-500">{s.description}</span></span>
-      <button className="inline-flex flex-row items-center gap-1.5 whitespace-nowrap shrink-0 text-xs font-semibold text-red-500 hover:text-red-400 bg-transparent border-0 p-0">🗑 Delete</button>
-    </div>
-  </div>
-))}
+                  <div key={s.id} className="border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex-1 min-w-0 text-xs font-semibold">{s.name} — <span className="text-slate-500">{s.description}</span></span>
+                      {/* FIX 2: Remove exactly like Test Suites — plain red text, X left of Remove, no box */}
+                      <button className="inline-flex flex-row items-center gap-1.5 whitespace-nowrap shrink-0 text-xs font-semibold text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer"><span aria-hidden="true">✕</span><span>Remove</span></button>
+                    </div>
+                  </div>
+                ))}
                 {suites.length === 0 && <p className="text-xs font-semibold text-slate-500">No suites linked to this plan.</p>}
               </div>
             </div>
