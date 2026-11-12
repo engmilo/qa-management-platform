@@ -1,154 +1,128 @@
-'use client';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+"use client";
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { ArrowLeft, Trash2, X } from 'lucide-react';
 
-type CaseItem = { id: string; case_key: string; title: string; priority: string; test_type: string };
+// Unified confirmation — EXACT same as Step 1 Test Plans v2:
+// Title text-sm font-semibold, Body text-xs font-normal, Buttons text-xs font-medium
+const WarningIcon = () => (
+  <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+  </div>
+);
+const TrashIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+);
+// Page Delete / Remove buttons: normal font-medium, NOT bold — matches Test Plans preference
+const plainRedBtn = "inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer";
 
-export default function TestSuiteDetailPage() {
-  const params = useParams<{ id: string }>();
+export default function TestSuiteDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [saved, setSaved] = useState(false);
   const [suite, setSuite] = useState<any>(null);
-  const [cases, setCases] = useState<CaseItem[]>([]);
-  const [allCases, setAllCases] = useState<CaseItem[]>([]);
-  const [selectedCaseId, setSelectedCaseId] = useState('');
+  const [cases, setCases] = useState<any[]>([]);
+  const [allCases, setAllCases] = useState<any[]>([]);
+  const [selected, setSelected] = useState('');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [caseToRemove, setCaseToRemove] = useState<CaseItem | null>(null);
-  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-  const [removingCase, setRemovingCase] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [showRemove, setShowRemove] = useState(false);
+  const [caseToRemove, setCaseToRemove] = useState<any>(null);
   const [form, setForm] = useState({ name: '', description: '' });
-
-  const load = async () => {
-    const res = await fetch(`/api/test-suites/${id}`, { cache: 'no-store' });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Could not load suite.');
-    setSuite(data.testSuite);
-    setCases(data.cases ?? []);
-    setForm({ name: data.testSuite.name ?? '', description: data.testSuite.description ?? '' });
-    const cr = await fetch('/api/test-cases', { cache: 'no-store' });
-    const cd = await cr.json();
-    if (cr.ok) setAllCases(((cd.testCases ?? []) as CaseItem[]).filter((c) => (c as any).project_id === data.testSuite.project_id));
-  };
 
   useEffect(() => {
     (async () => {
-      try { await load(); } catch (e) { setError(e instanceof Error ? e.message : 'Could not load suite.'); }
-      finally { setLoading(false); }
+      try {
+        const [sRes, cRes] = await Promise.all([
+          fetch(`/api/test-suites/${id}`, { cache: 'no-store' }),
+          fetch('/api/test-cases', { cache: 'no-store' }),
+        ]);
+        const sJ = await sRes.json().catch(() => ({}));
+        const s = sJ.testSuite ?? sJ.suite ?? sJ ?? null;
+        setSuite(s);
+        if (s) {
+          setForm({ name: s.name ?? '', description: s.description ?? '' });
+          // Cases in suite: from suite.cases, suite.testCases, or join
+          const inSuite = s.cases ?? s.testCases ?? s.test_cases ?? [];
+          setCases(Array.isArray(inSuite) ? inSuite : []);
+        }
+        const cJ = await cRes.json().catch(() => ({}));
+        const all = cJ.testCases ?? cJ.cases ?? cJ ?? [];
+        setAllCases(Array.isArray(all) ? all : []);
+      } catch {} finally { setLoading(false); }
     })();
   }, [id]);
 
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true); setError(''); setSaved(false);
+  const save = async () => {
+    setSaving(true);
     try {
-      const res = await fetch(`/api/test-suites/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not save.');
-      setSuite(data.testSuite); setSaved(true);
-    } catch (err) { setError(err instanceof Error ? err.message : 'Could not save.'); }
-    finally { setSaving(false); }
+      const res = await fetch(`/api/test-suites/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+      if (!res.ok) throw new Error('Save failed');
+    } catch { alert('Save failed'); } finally { setSaving(false); }
+  };
+  const doDelete = async () => {
+    try { const res = await fetch(`/api/test-suites/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-suites'; } catch { alert('Delete failed'); }
+  };
+  const addCase = () => {
+    if (!selected) return;
+    const found = allCases.find((c: any) => String(c.id) === String(selected));
+    if (found && !cases.find((c: any) => String(c.id) === String(found.id))) setCases([...cases, found]);
+    setSelected('');
   };
 
-  const remove = async () => {
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/test-suites/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
-      router.push('/test-suites');
-    } finally { setDeleting(false); }
-  };
+  const inputCls = "text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2 w-full";
+  const labelCls = "text-xs font-semibold text-slate-500 dark:text-slate-400";
 
-  const addCase = async () => {
-    if (!selectedCaseId) return;
-    setAdding(true); setError('');
-    try {
-      const res = await fetch(`/api/test-suites/${id}/cases`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ testCaseId: selectedCaseId }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not add case.');
-      setSelectedCaseId('');
-      await load();
-    } catch (e) { setError(e instanceof Error ? e.message : 'Could not add case.'); }
-    finally { setAdding(false); }
-  };
-
-  const confirmRemoveCase = async () => {
-    if (!caseToRemove) return;
-    setRemovingCase(true); setError('');
-    try {
-      const res = await fetch(`/api/test-suites/${id}/cases?testCaseId=${caseToRemove.id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Could not remove case.'); setShowRemoveConfirm(false); return; }
-      setShowRemoveConfirm(false);
-      setCaseToRemove(null);
-      await load();
-    } finally { setRemovingCase(false); }
-  };
-
-  if (loading) return <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors"><Sidebar /><div className="flex-1 flex flex-col overflow-hidden"><Header /><main className="flex-1 p-6 text-xs">Loading...</main></div></div>;
-
-  const available = allCases.filter((c) => !cases.some((x) => x.id === c.id));
+  if (loading) return (<div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622]"><Sidebar /><div className="flex-1 flex flex-col overflow-hidden"><Header /><main className="flex-1 p-6 text-xs font-semibold">Loading...</main></div></div>);
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors"><Sidebar /><div className="flex-1 flex flex-col overflow-hidden"><Header />
-      <main className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-            <Link href="/test-suites" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Test Suites</Link>
-            <span>/</span><span className="font-medium">{suite?.name}</span>
-          </div>
-          {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
-          {saved && <div className="mb-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded text-xs">Saved.</div>}
-          {suite && (
-            <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-              <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
-                <div><h1 className="text-lg font-bold">{suite.name}</h1><p className="text-xs text-slate-500 mt-1">{cases.length} test case(s)</p></div>
-                <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="w-full max-w-3xl mx-auto">
+            <Link href="/test-suites" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">← Test Suites</Link>
+            <span className="text-xs font-semibold text-slate-500"> / {form.name}</span>
+            <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
+              <div className="flex items-start justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700/50">
+                <div>
+                  <h1 className="text-base font-bold text-slate-900 dark:text-white">{form.name}</h1>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{cases.length} test case(s)</p>
+                </div>
+                <button onClick={() => setShowDelete(true)} className={plainRedBtn}><TrashIcon /><span>Delete</span></button>
               </div>
-              <div className="p-6 space-y-5">
-                <div><label className="block text-xs font-semibold mb-1.5">Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                <div><label className="block text-xs font-semibold mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
+              <div className="px-5 py-4 space-y-4">
+                <div><label className={labelCls}>Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls + ' mt-1'} /></div>
+                <div><label className={labelCls}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} /></div>
+                <button onClick={save} disabled={saving} className="w-full text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : 'Save Changes'}</button>
               </div>
-            </form>
-          )}
-          <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
-            <h3 className="text-sm font-bold mb-3">Test Cases in this Suite</h3>
-            <div className="flex gap-2 mb-4">
-              <select value={selectedCaseId} onChange={(e) => setSelectedCaseId(e.target.value)} className="flex-1 border rounded px-3 py-2 text-sm">
-                <option value="">Select a test case to add...</option>
-                {available.map((c) => <option key={c.id} value={c.id}>{c.case_key} - {c.title}</option>)}
-              </select>
-              <button type="button" onClick={addCase} disabled={!selectedCaseId || adding} className="bg-[#276fbf] hover:bg-[#1f5a9a] disabled:opacity-50 text-white text-xs font-semibold px-3.5 py-2 rounded">{adding ? 'Adding...' : 'Add Case'}</button>
             </div>
-            {cases.length === 0 ? (
-              <p className="text-xs text-slate-400">No cases in this suite yet. Add one above.</p>
-            ) : (
-              <div className="space-y-2">
-                {cases.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between gap-3 border rounded px-3 py-2">
-                    <Link href={`/test-cases/${c.id}`} className="text-xs font-semibold text-[#276fbf] hover:underline">{c.case_key} - {c.title}</Link>
-                    <button type="button" onClick={() => { setCaseToRemove(c); setShowRemoveConfirm(true); }} className="text-xs text-red-600 font-semibold inline-flex items-center gap-1"><X className="w-3.5 h-3.5" /> Remove</button>
+            <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-5 mt-4">
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-white">Test Cases in this Suite</h2>
+              <div className="flex gap-2 mt-3">
+                <select value={selected} onChange={(e) => setSelected(e.target.value)} className={inputCls + ' flex-1'}><option value="">Select a test case to add...</option>{allCases.map((c: any) => (<option key={c.id} value={String(c.id)}>{c.case_key ?? c.code} - {c.title}</option>))}</select>
+                <button onClick={addCase} className="text-xs font-semibold bg-slate-600 hover:bg-slate-700 text-white rounded px-3 py-2 shrink-0">Add<br />Case</button>
+              </div>
+              <div className="mt-3 space-y-2">
+                {cases.map((c: any) => (
+                  <div key={c.id} className="flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
+                    <Link href={`/test-cases/${c.id}`} className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex-1 min-w-0">{c.case_key ?? c.code} - {c.title}</Link>
+                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={plainRedBtn + " whitespace-nowrap shrink-0"}><span aria-hidden="true" className="text-sm leading-none">×</span><span>Remove</span></button>
                   </div>
                 ))}
+                {cases.length === 0 && <p className="text-xs font-semibold text-slate-500">No test cases in this suite yet.</p>}
               </div>
-            )}
-          </section>
-        </div>
-        <ConfirmDialog open={showRemoveConfirm} title="Remove this test case from the suite?" message={caseToRemove ? `This will remove ${caseToRemove.case_key} - ${caseToRemove.title} from this suite. The test case itself is kept, you can add it back later. This cannot be undone, but you can re-add it.` : 'This will remove this test case from this suite.'} confirmLabel="Remove case" deleting={removingCase} onConfirm={confirmRemoveCase} onCancel={() => { setShowRemoveConfirm(false); setCaseToRemove(null); }} />
-        <ConfirmDialog open={showDeleteConfirm} title="Delete this test suite?" message="This will permanently delete this suite and unlink its test cases. The test cases themselves are kept. This cannot be undone." confirmLabel="Delete suite" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} />
-      </main>
-    </div></div>
+            </div>
+          </div>
+        </main>
+      </div>
+      {showDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Delete this test suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will permanently delete this suite and unlink its test cases. The test cases themselves are kept. This cannot be undone.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => setShowDelete(false)} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doDelete} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Delete suite</button></div></div></div>
+      )}
+      {showRemove && caseToRemove && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this test case from the suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will remove {caseToRemove.case_key ?? caseToRemove.code} - {caseToRemove.title} from this suite. The test case itself is kept, you can add it back later. This cannot be undone, but you can re-add it.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={() => { setCases(cases.filter((x: any) => x.id !== caseToRemove.id)); setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Remove case</button></div></div></div>
+      )}
+    </div>
   );
 }
