@@ -135,7 +135,7 @@ export default function TestRunDetailPage() {
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}
-                <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status ?? ''}</span>
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status === 'in_progress' ? 'In Progress' : run?.status === 'completed' ? 'Completed' : run?.status ?? ''}</span>
                 {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
                 <Link href="/test-runs/new" className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
