@@ -113,7 +113,7 @@ export default function DefectDetailPage() {
                     <div><label className="block text-xs font-semibold mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white">{['new','open','in_progress','fixed','ready_for_retest','reopened','closed','rejected'].map((v) => <option key={v} value={v}>{v.replace('_',' ')}</option>)}</select></div>
                   </div>
                   <div><label className="block text-xs font-semibold mb-1.5">Environment</label><input value={form.environment} onChange={(e) => setForm({ ...form, environment: e.target.value })} placeholder="Chrome / Windows, iOS 17..." className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" /></div>
-                  <div><label className="block text-xs font-semibold mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" /></div>
+                  <div><label className="block text-xs font-semibold mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} /></div>
 
                   <div>
                     <div className="flex justify-between items-center mb-2">
@@ -123,15 +123,15 @@ export default function DefectDetailPage() {
                     {reproSteps.map((step, i) => (
                       <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                         <span className="text-xs font-bold pt-2">{i + 1}.</span>
-                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-2 py-1.5 text-xs text-slate-900 dark:text-white" />
+                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-2 py-1.5 text-xs text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} />
                         <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-red-500 text-xs pt-2">Remove</button>
                       </div>
                     ))}
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div><label className="block text-xs font-semibold mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} rows={2} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" /></div>
-                    <div><label className="block text-xs font-semibold mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} rows={2} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" /></div>
+                    <div><label className="block text-xs font-semibold mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} rows={2} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} /></div>
+                    <div><label className="block text-xs font-semibold mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} rows={2} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} /></div>
                   </div>
                   <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
                 </div>
