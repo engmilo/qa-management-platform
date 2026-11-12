@@ -15,6 +15,14 @@ const formatStatus = (s: any) => {
 const TrashIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /></svg>
 );
+// Unified confirmation style — used for ALL Delete / Remove in the app:
+// Title: text-base font-semibold, Body: text-sm font-normal, Buttons: text-sm font-medium
+// Red triangle: same in every modal
+const WarningIcon = () => (
+  <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+  </div>
+);
 const plainRedBtn = "inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer";
 
 export default function TestPlanDetailPage({ params }: { params: { id: string } }) {
@@ -159,10 +167,10 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
         </main>
       </div>
       {showDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"><div className="bg-white dark:bg-[#182232] rounded-md p-5 w-80"><h3 className="text-sm font-bold">Delete this test plan?</h3><p className="text-xs font-semibold text-slate-500 mt-1">This cannot be undone.</p><div className="flex gap-2 mt-4"><button onClick={() => setShowDelete(false)} className="flex-1 text-xs font-semibold border rounded px-3 py-2">Cancel</button><button onClick={doDelete} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2">Delete</button></div></div></div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-base font-semibold text-slate-900 dark:text-white">Delete this test plan?</h3><p className="text-sm font-normal text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">This will permanently delete this plan and unlink its test runs and suites. This cannot be undone.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => setShowDelete(false)} className="text-sm font-medium border border-slate-300 dark:border-slate-600 rounded-md px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doDelete} className="text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-4 py-2">Delete plan</button></div></div></div>
       )}
       {showRemove && suiteToRemove && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"><div className="bg-white dark:bg-[#182232] rounded-md p-5 w-80"><h3 className="text-sm font-bold">Remove suite from plan?</h3><p className="text-xs font-semibold text-slate-500 mt-1">Remove {suiteToRemove.name} from this plan? The suite itself will not be deleted.</p><div className="flex gap-2 mt-4"><button onClick={() => { setShowRemove(false); setSuiteToRemove(null); }} className="flex-1 text-xs font-semibold border rounded px-3 py-2">Cancel</button><button onClick={() => { setSuites(suites.filter((x: any) => x.id !== suiteToRemove.id)); setShowRemove(false); setSuiteToRemove(null); }} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2">Remove</button></div></div></div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-base font-semibold text-slate-900 dark:text-white">Remove suite from plan?</h3><p className="text-sm font-normal text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">Remove {suiteToRemove.name} from this plan? The suite itself will not be deleted. This cannot be undone.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowRemove(false); setSuiteToRemove(null); }} className="text-sm font-medium border border-slate-300 dark:border-slate-600 rounded-md px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={() => { setSuites(suites.filter((x: any) => x.id !== suiteToRemove.id)); setShowRemove(false); setSuiteToRemove(null); }} className="text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-4 py-2">Remove</button></div></div></div>
       )}
     </div>
   );
