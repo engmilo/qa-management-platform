@@ -159,7 +159,7 @@ export default function DashboardPage() {
                   {loading ? '' : `${d?.openDefects} open of ${d?.totalDefects} total · ${d?.fixedDefects} fixed`}
                 </p>
                 <p className="text-xs font-semibold text-slate-500 mt-1">
-                  {loading ? '' : `${d?.criticalDefects} Critical · ${d?.majorDefects} Major (total)`}
+                  {loading ? '' : (<>{d?.criticalDefects} <span className="text-red-600 dark:text-red-400">Critical</span> · {d?.majorDefects} <span className="text-orange-600 dark:text-orange-400">Major</span> (total)</>)}
                 </p>
                 <p className="text-xs font-semibold text-slate-400 mt-2 truncate">
                   {d?.latestDefect
