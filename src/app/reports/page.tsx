@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { FileText, PlayCircle, Bug, CheckCircle2 } from 'lucide-react';
+
 
 type Project = { id: string; name: string; key: string };
 
@@ -18,6 +18,7 @@ export default function ReportsPage() {
     openDefects: 0,
     totalRequirements: 0,
     passRate: null as number | null,
+    coveragePct: 0,
   });
   const [defectsByStatus, setDefectsByStatus] = useState<Record<string, number>>({});
   const [runs, setRuns] = useState<any[]>([]);
@@ -26,13 +27,14 @@ export default function ReportsPage() {
     async function load() {
       setLoading(true); setError('');
       try {
-        const [cRes, rRes, dRes, reqRes, pRes, dashRes] = await Promise.all([
+        const [cRes, rRes, dRes, reqRes, pRes, dashRes, traceRes] = await Promise.all([
           fetch('/api/test-cases', { cache: 'no-store' }),
           fetch('/api/test-runs', { cache: 'no-store' }),
           fetch('/api/defects', { cache: 'no-store' }),
           fetch('/api/requirements', { cache: 'no-store' }),
           fetch('/api/projects', { cache: 'no-store' }),
           fetch('/api/dashboard', { cache: 'no-store' }),
+          fetch('/api/traceability', { cache: 'no-store' }),
         ]);
         const parse = async (res: Response) => {
           const t = await res.text();
@@ -44,6 +46,8 @@ export default function ReportsPage() {
         const req = await parse(reqRes);
         const p = await parse(pRes);
         const dash = await parse(dashRes);
+        const trace = await parse(traceRes);
+        const coveragePct = trace.coveragePct ?? trace.coverage ?? 0;
         const cases = c.testCases ?? c.cases ?? [];
         const allRuns = r.testRuns ?? r.runs ?? [];
         const defects = d.defects ?? [];
@@ -57,7 +61,7 @@ export default function ReportsPage() {
         const byStatus: Record<string, number> = {};
         defects.forEach((x: any) => { const k = (x.status || 'unknown').toLowerCase(); byStatus[k] = (byStatus[k] || 0) + 1; });
         setDefectsByStatus(byStatus);
-        setStats({ totalCases: cases.length, totalRuns: allRuns.length, completedRuns: completed, openDefects: open, totalRequirements: reqs.length, passRate });
+        setStats({ totalCases: cases.length, totalRuns: allRuns.length, completedRuns: completed, openDefects: open, totalRequirements: reqs.length, passRate, coveragePct });
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Could not load reports.');
       } finally {
@@ -72,11 +76,12 @@ export default function ReportsPage() {
     return runs.filter((r: any) => r.project_id === projectFilter);
   }, [runs, projectFilter]);
 
+  const totalDefectsForCards = Object.values(defectsByStatus).reduce((a, b) => a + b, 0);
   const cards = [
-    { label: 'Test Cases', value: stats.totalCases, icon: FileText, badge: 'bg-[#eef5fc] text-[#276fbf] border-[#d2e3f5]' },
-    { label: 'Test Runs', value: stats.totalRuns, icon: PlayCircle, badge: 'bg-[#fcf8e3] text-[#8a6d3b] border-[#faebcc]' },
-    { label: 'Open Defects', value: stats.openDefects, icon: Bug, badge: 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]' },
-    { label: 'Pass Rate', value: stats.passRate == null ? '—' : `${stats.passRate}%`, icon: CheckCircle2, badge: 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' },
+    { label: 'Total Requirements', value: stats.totalRequirements },
+    { label: 'Coverage', value: `${stats.coveragePct}%` },
+    { label: 'Fixed Defects', value: totalDefectsForCards - stats.openDefects },
+    { label: 'Open Defects', value: stats.openDefects },
   ];
 
   const totalDefects = Object.values(defectsByStatus).reduce((a, b) => a + b, 0);
@@ -106,14 +111,10 @@ export default function ReportsPage() {
               <>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
                   {cards.map((c) => {
-                    const Icon = c.icon;
                     return (
                       <div key={c.label} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold uppercase text-slate-400">{c.label}</span>
-                          <span className={`px-2 py-1 rounded text-xs font-semibold border ${c.badge}`}><Icon className="w-3.5 h-3.5" /></span>
-                        </div>
-                        <p className="text-base font-semibold text-slate-900 dark:text-white">{c.value}</p>
+                        <p className="text-xs font-semibold uppercase text-slate-400">{c.label}</p>
+                        <p className="text-base font-semibold text-slate-900 dark:text-white mt-2">{c.value}</p>
                       </div>
                     );
                   })}
@@ -128,8 +129,8 @@ export default function ReportsPage() {
                       <div className="space-y-2">
                         {Object.entries(defectsByStatus).map(([status, count]) => (
                           <div key={status} className="flex items-center gap-2">
-                            <span className="text-xs font-semibold capitalize w-28 break-words">{status.replace('_', ' ')}</span>
-                            <div className="flex-1 h-2 bg-slate-100 dark:bg-[#222e3e] rounded-full overflow-hidden"><div className="h-full bg-[#276fbf]" style={{ width: `${Math.round((count / totalDefects) * 100)}%` }} /></div>
+                            <span className={status==='open' ? 'text-xs font-semibold capitalize w-28 break-words text-red-600 dark:text-red-400' : status==='fixed' || status==='closed' ? 'text-xs font-semibold capitalize w-28 break-words text-green-600 dark:text-green-400' : status==='in_progress' ? 'text-xs font-semibold capitalize w-28 break-words text-yellow-600 dark:text-yellow-400' : 'text-xs font-semibold capitalize w-28 break-words'}>{status.replace('_', ' ')}</span>
+                            <div className="flex-1 h-2 bg-slate-100 dark:bg-[#222e3e] rounded-full overflow-hidden"><div className={status==='open' ? 'h-full bg-red-500' : status==='fixed' || status==='closed' ? 'h-full bg-green-500' : status==='in_progress' ? 'h-full bg-yellow-500' : 'h-full bg-[#276fbf]'} style={{ width: `${Math.round((count / totalDefects) * 100)}%` }} /></div>
                             <span className="text-xs font-semibold w-10 text-right">{count}</span>
                           </div>
                         ))}
@@ -147,7 +148,7 @@ export default function ReportsPage() {
                         {filteredRuns.map((r: any) => (
                           <div key={r.id} className="flex items-center gap-2 border border-[#edf2f7] dark:border-[#222e3e] rounded p-2.5">
                             <span className="text-xs font-semibold text-slate-900 dark:text-white flex-1 min-w-0 break-words">{r.name}</span>
-                            <span className="px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4] whitespace-nowrap capitalize">{(r.status || '').replace('_', ' ')}</span>
+                            <span className={r.status==='completed' ? 'px-2 py-1 rounded text-xs font-semibold border bg-green-50 text-green-600 border-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-900 whitespace-nowrap capitalize' : r.status==='in_progress' ? 'px-2 py-1 rounded text-xs font-semibold border bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-900 whitespace-nowrap capitalize' : r.status==='failed' ? 'px-2 py-1 rounded text-xs font-semibold border bg-red-50 text-red-600 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900 whitespace-nowrap capitalize' : r.status==='blocked' ? 'px-2 py-1 rounded text-xs font-semibold border bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-900 whitespace-nowrap capitalize' : 'px-2 py-1 rounded text-xs font-semibold border bg-white text-slate-600 border-[#d8dee4] whitespace-nowrap capitalize'}>{(r.status || '').replace('_', ' ')}</span>
                           </div>
                         ))}
                       </div>
