@@ -10,6 +10,13 @@ const formatStatus = (s: any) => {
   return String(s).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
+// Exact Test Suites style: thin outline trash SVG, NOT emoji. Emoji renders bigger / different font.
+// Test Suites uses text-xs font-medium, 14px icon, gap-1.
+const TrashIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+);
+const plainRedBtn = "inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer";
+
 export default function TestPlanDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
   const [plan, setPlan] = useState<any>(null);
@@ -20,6 +27,8 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showRemove, setShowRemove] = useState(false);
+  const [suiteToRemove, setSuiteToRemove] = useState<any>(null);
   const [form, setForm] = useState({ title: '', scope: '', status: 'planning', start_date: '', end_date: '', milestone_id: '', project_id: '' });
 
   // FIX 1: auto-grow for SCOPE textarea — no scrollbar
@@ -98,7 +107,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{projectName(form.project_id)}{form.milestone_id ? ` · Milestone: ${releaseName(form.milestone_id)}` : ''}</p>
                 </div>
                 {/* FIX 2: Delete exactly like Test Suites — plain red text, no border, no background, no box */}
-                <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer">🗑 Delete</button>
+                <button onClick={() => setShowDelete(true)} className={plainRedBtn}><TrashIcon /><span>Delete</span></button>
               </div>
               <div className="px-5 py-4 space-y-4">
                 <div><label className={labelCls}>Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputCls + ' mt-1'} /></div>
@@ -139,7 +148,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                     <div className="flex items-center justify-between gap-2">
                       <span className="flex-1 min-w-0 text-xs font-semibold">{s.name} — <span className="text-slate-500">{s.description}</span></span>
                       {/* FIX 2: Remove exactly like Test Suites — plain red text, X left of Remove, no box */}
-                      <button className="inline-flex flex-row items-center gap-1.5 whitespace-nowrap shrink-0 text-xs font-semibold text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer"><span aria-hidden="true">✕</span><span>Remove</span></button>
+                      <button onClick={() => { setSuiteToRemove(s); setShowRemove(true); }} className={plainRedBtn + " whitespace-nowrap shrink-0"}><span aria-hidden="true" className="text-sm leading-none">×</span><span>Remove</span></button>
                     </div>
                   </div>
                 ))}
@@ -151,6 +160,9 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
       </div>
       {showDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"><div className="bg-white dark:bg-[#182232] rounded-md p-5 w-80"><h3 className="text-sm font-bold">Delete this test plan?</h3><p className="text-xs font-semibold text-slate-500 mt-1">This cannot be undone.</p><div className="flex gap-2 mt-4"><button onClick={() => setShowDelete(false)} className="flex-1 text-xs font-semibold border rounded px-3 py-2">Cancel</button><button onClick={doDelete} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2">Delete</button></div></div></div>
+      )}
+      {showRemove && suiteToRemove && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"><div className="bg-white dark:bg-[#182232] rounded-md p-5 w-80"><h3 className="text-sm font-bold">Remove suite from plan?</h3><p className="text-xs font-semibold text-slate-500 mt-1">Remove {suiteToRemove.name} from this plan? The suite itself will not be deleted.</p><div className="flex gap-2 mt-4"><button onClick={() => { setShowRemove(false); setSuiteToRemove(null); }} className="flex-1 text-xs font-semibold border rounded px-3 py-2">Cancel</button><button onClick={() => { setSuites(suites.filter((x: any) => x.id !== suiteToRemove.id)); setShowRemove(false); setSuiteToRemove(null); }} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2">Remove</button></div></div></div>
       )}
     </div>
   );
