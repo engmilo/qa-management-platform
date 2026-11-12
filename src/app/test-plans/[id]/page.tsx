@@ -34,6 +34,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
   const [suites, setSuites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState('');
   const [showDelete, setShowDelete] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [suiteToRemove, setSuiteToRemove] = useState<any>(null);
@@ -84,14 +85,23 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
 
   const save = async () => {
     setSaving(true);
+    setNotice('');
     try {
-      const res = await fetch(`/api/test-plans/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
-      if (!res.ok) throw new Error('Save failed');
-      alert('Saved');
-    } catch { alert('Save failed'); } finally { setSaving(false); }
+      const payload = {
+        ...form,
+        description: form.scope,
+        release_id: form.milestone_id,
+      };
+      const res = await fetch(`/api/test-plans/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error(txt || 'Save failed');
+      }
+      setNotice('Saved');
+    } catch (e: any) { setNotice(e?.message || 'Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
-    try { const res = await fetch(`/api/test-plans/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-plans'; } catch { alert('Delete failed'); }
+    try { const res = await fetch(`/api/test-plans/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-plans'; } catch { setNotice('Delete failed'); }
   };
 
   const inputCls = "text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2 w-full";
@@ -130,6 +140,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                   <div><label className={labelCls}>End</label><input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className={inputCls + ' mt-1'} /></div>
                 </div>
                 <div><label className={labelCls}>Milestone (Release)</label><select value={form.milestone_id} onChange={(e) => setForm({ ...form, milestone_id: e.target.value })} className={inputCls + ' mt-1'}><option value="">—</option>{releases.map((r: any) => (<option key={r.id} value={String(r.id)}>{r.version_name ?? r.name} — {formatStatus(r.status)}</option>))}</select></div>
+                {notice && <p className="text-xs font-medium text-slate-600 dark:text-slate-300">{notice}</p>}
                 <button onClick={save} disabled={saving} className="w-full text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : 'Save Changes'}</button>
               </div>
             </div>
