@@ -131,7 +131,7 @@ export default function TestPlanDetailPage() {
                       <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className={inputCls} />
                     </FormField>
                     <FormField label="SCOPE">
-                      <textarea value={form.scope} onChange={(e) => setForm({ ...form, scope: e.target.value })} rows={3} className={`${inputCls} resize-y`} />
+                      <textarea value={form.scope} onChange={(e) => setForm({ ...form, scope: e.target.value })} rows={3} className={`${inputCls} resize-none overflow-hidden`} onInput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} />
                     </FormField>
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div>
