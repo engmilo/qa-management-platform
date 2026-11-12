@@ -44,6 +44,8 @@ export default function TestCaseDetailPage() {
     el.style.height = el.scrollHeight + 'px';
   };
   useEffect(() => { autoGrow(descRef.current); }, [form.description, loading]);
+  const growStep = (el: HTMLTextAreaElement | null) => { if (!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+  useEffect(() => { document.querySelectorAll<HTMLTextAreaElement>('textarea[data-step]').forEach((el) => growStep(el)); }, [steps, loading]);
   useEffect(() => { autoGrow(preRef.current); }, [form.preconditions, loading]);
 
   useEffect(() => {
@@ -234,8 +236,8 @@ export default function TestCaseDetailPage() {
                       {steps.map((s, i) => (
                         <div key={i} className="flex gap-2 items-start">
                           <span className="text-xs font-semibold pt-2 w-5 shrink-0">{i + 1}.</span>
-                          <textarea value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); }} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls} />
-                          <textarea value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); }} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls} />
+                          <textarea data-step value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
+                          <textarea data-step value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
                           <button onClick={() => setPendingRemoveStep(i)} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline pt-2 shrink-0">Remove</button>
                         </div>
                       ))}
