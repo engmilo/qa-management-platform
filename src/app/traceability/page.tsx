@@ -48,8 +48,8 @@ export default function TraceabilityPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Traceability</h1>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Requirements to Test Cases to Defects coverage. Link is read from test_case_requirements join table.</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Traceability</h1>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Requirements to Test Cases to Defects coverage. Link is read from test_case_requirements join table.</p>
             <div className="flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mb-4">
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search requirements..." className="text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{loading ? '—' : `${covered} of ${total} covered · ${pct}%`}</p>

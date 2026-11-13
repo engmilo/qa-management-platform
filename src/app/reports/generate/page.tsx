@@ -116,9 +116,9 @@ export default function GenerateReportPage() {
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
-                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Generate Report</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Export test results for a project and period</p>
+              <div className="px-6 py-4 dark:border-[#28374d]">
+                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Generate Report</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Export test results for a project and period</p>
               </div>
 
               <form onSubmit={handleDownload} className="p-6 space-y-4">

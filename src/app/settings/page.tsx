@@ -92,8 +92,8 @@ export default function SettingsPage() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Organization Settings</h1>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 mb-5">Manage your team workspace profile, permissions, and members</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Organization Settings</h1>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-5">Manage your team workspace profile, permissions, and members</p>
 
             {msg && <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 rounded text-xs font-semibold">{msg}</div>}
 

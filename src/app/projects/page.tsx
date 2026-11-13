@@ -35,8 +35,8 @@ export default function ProjectsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Projects</h1>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Manage your test projects.</p>
+                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Projects</h1>
+                <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Manage your test projects.</p>
               </div>
               <Link href="/projects/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Project</Link>
             </div>

@@ -97,11 +97,11 @@ export default function DefectDetailPage() {
             {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
             {defect && (
               <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
+                <div className="dark:bg-[#141d28] px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                   <div>
                     <span className="font-mono text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#1a2a3a] border border-[#d8dee4] dark:border-[#28374d] px-2 py-1 rounded">{defect.defect_key}</span>
-                    <h1 className="mt-2 dark:text-white text-base font-bold text-slate-900 tracking-tight">{defect.summary}</h1>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Created {defect.created_at ? new Date(defect.created_at).toLocaleString() : ''}</p>
+                    <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0 mt-2">{defect.summary}</h1>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Created {defect.created_at ? new Date(defect.created_at).toLocaleString() : ''}</p>
                   </div>
                   <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 </div>

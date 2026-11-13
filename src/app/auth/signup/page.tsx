@@ -70,9 +70,9 @@ export default function SignupPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6">
-        <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Create an account</h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5">Enter your details below to get started</p>
+      <div className="w-full max-w-sm dark:bg-[#182232] dark:border-[#28374d] p-6">
+        <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Create an account</h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5 font-normal">Enter your details below to get started</p>
 
         {error && (
           <div className="mb-4 p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>

@@ -75,8 +75,8 @@ export default function NewDefectPage() {
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
               <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center justify-center"><Bug className="w-4 h-4" /></div>
-                <div><h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Report Defect</h1><p className="text-xs text-slate-500 dark:text-slate-400">Record an issue, steps to reproduce, and impact details</p></div>
+                <div className="w-7 h-7 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center justify-center"><Bug className="w-4 h-4" /></div>
+                <div><h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Report Defect</h1><p className="text-xs text-slate-500 dark:text-slate-400 font-normal">Record an issue, steps to reproduce, and impact details</p></div>
               </div>
               <div className="p-6">
                 {error && <div role="alert" className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}

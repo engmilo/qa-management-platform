@@ -65,11 +65,11 @@ export default function NewOrganizationPage() {
 
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h1 className="flex items-center gap-2 text-base font-bold text-slate-900 tracking-tight">
+                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">
                   <Building2 className="w-5 h-5 text-[#48a43f]" />
                   Create Organization
                 </h1>
-                <p className="text-xs text-[#6e7d8c] mt-0.5">
+                <p className="text-xs text-[#6e7d8c] mt-0.5 font-normal">
                   Organizations isolate your projects, repositories, and test runs
                 </p>
               </div>

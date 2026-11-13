@@ -40,12 +40,12 @@ export default function RegisterPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] px-4 py-12">
       {/* TestRail Brand Header */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded bg-[#48a43f] flex items-center justify-center text-white font-bold text-lg shadow-sm">
+        <div className="w-10 h-10 flex items-center justify-center text-white font-bold text-lg">
           TR
         </div>
         <div>
-          <h1 className="whitespace-nowrap text-base font-bold text-slate-900 tracking-tight">QA Management Platform</h1>
-          <p className="text-xs text-[#6e7d8c]">Enterprise Test Management</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">QA Management Platform</h1>
+          <p className="text-xs text-[#6e7d8c] font-normal">Enterprise Test Management</p>
         </div>
       </div>
 

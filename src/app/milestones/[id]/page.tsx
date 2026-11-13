@@ -107,10 +107,10 @@ export default function MilestoneDetailPage() {
 
             {rel && (
               <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
-                <div className="px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
+                <div className="px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                   <div>
-                    <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">{rel.version_name}</h1>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Status: {rel.status?.replace('_', ' ')}</p>
+                    <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">{rel.version_name}</h1>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace('_', ' ')}</p>
                   </div>
                   <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold">Delete</button>
                 </div>

@@ -58,8 +58,8 @@ export default function TestCasesPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Test Cases</h1>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
+                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Test Cases</h1>
+                <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
               </div>
               <div className="flex gap-2">
                 <Link href="/api/test-cases/export" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</Link>

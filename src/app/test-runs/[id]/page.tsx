@@ -131,8 +131,8 @@ export default function TestRunDetailPage() {
             <Link href="/test-runs" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">← Test Runs &amp; Results</Link>
             <div className="flex flex-wrap gap-2 items-start justify-between mt-3">
               <div>
-                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">{run?.name ?? 'Test Run'}</h1>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
+                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">{run?.name ?? 'Test Run'}</h1>
+                <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}
                 <span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status === 'in_progress' ? 'In Progress' : run?.status === 'completed' ? 'Completed' : run?.status ?? ''}</span>

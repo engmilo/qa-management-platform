@@ -137,9 +137,9 @@ export default function NewTestCasePage() {
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-visible">
-              <div className="px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
-                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Add Test Case</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Define steps to verify a requirement</p>
+              <div className="px-6 py-4 dark:border-[#28374d]">
+                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Add Test Case</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Define steps to verify a requirement</p>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 pb-64 space-y-6">

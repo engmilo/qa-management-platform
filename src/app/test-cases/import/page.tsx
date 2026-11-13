@@ -159,8 +159,8 @@ export default function ImportTestCasesPage() {
               <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Test Cases</Link>
               <span>/</span><span className="text-slate-800 dark:text-slate-200 font-medium">Import CSV</span>
             </div>
-            <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Import Test Cases</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Same format as Export. Preview first — duplicates are skipped, nothing is overwritten or deleted.</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Import Test Cases</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 font-normal">Same format as Export. Preview first — duplicates are skipped, nothing is overwritten or deleted.</p>
 
             {error && <div role="alert" className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
             {result && (
