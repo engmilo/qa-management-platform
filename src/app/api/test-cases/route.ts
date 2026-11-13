@@ -25,10 +25,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 });
   }
 
-  const projectId = typeof body.projectId === 'string' ? body.projectId : '';
-  const caseKey = typeof body.caseKey === 'string' ? body.caseKey.trim().toUpperCase() : '';
+  const projectId = typeof body.projectId === 'string' ? body.projectId : typeof body.project_id === 'string' ? body.project_id : '';
+  const caseKey = typeof body.caseKey === 'string' ? body.caseKey.trim().toUpperCase() : typeof body.case_key === 'string' ? body.case_key.trim().toUpperCase() : typeof body.code === 'string' ? body.code.trim().toUpperCase() : '';
   const title = typeof body.title === 'string' ? body.title.trim() : '';
-  const rawRequirementIds = Array.isArray(body.requirementIds) ? body.requirementIds : [];
+  const rawRequirementIds = Array.isArray(body.requirementIds) ? body.requirementIds : Array.isArray(body.requirement_ids) ? body.requirement_ids : [];
+  const testType = typeof body.testType === 'string' ? body.testType : typeof body.type === 'string' ? body.type : 'functional';
+  const status = typeof body.status === 'string' ? body.status : 'draft';
+  const stepsInput = Array.isArray(body.steps) ? body.steps : [];
   const requirementIds = [...new Set(rawRequirementIds.filter((id): id is string => typeof id === 'string'))];
   if (!projectId || !caseKey || !title) {
     return NextResponse.json({ error: 'Project, test case key, and title are required.' }, { status: 400 });
@@ -60,7 +63,8 @@ export async function POST(request: NextRequest) {
     description: typeof body.description === 'string' ? body.description.trim() || null : null,
     preconditions: typeof body.preconditions === 'string' ? body.preconditions.trim() || null : null,
     priority: typeof body.priority === 'string' ? body.priority : 'medium',
-    test_type: typeof body.testType === 'string' ? body.testType : 'functional',
+    test_type: testType,
+    status,
     category: typeof body.category === 'string' && body.category.trim() ? body.category.trim() : 'General',
     automation_status: typeof body.automationStatus === 'string' ? body.automationStatus : 'manual',
     author_id: user.id,
@@ -80,6 +84,15 @@ export async function POST(request: NextRequest) {
     if (linkError) {
       await supabase.from('test_cases').delete().eq('id', testCase.id);
       return NextResponse.json({ error: 'Could not link the selected requirements to this test case.' }, { status: 400 });
+    }
+  }
+
+  if (stepsInput.length) {
+    const stepRows = stepsInput.map((s: any, i: number) => ({ test_case_id: testCase.id, step_number: i + 1, action: s.action ?? '', expected_result: s.expected_result ?? '' }));
+    const { error: stepsError } = await supabase.from('test_case_steps').insert(stepRows);
+    if (stepsError) {
+      // don't fail the whole create if steps table is missing - test case itself is saved
+      console.error('Could not save test case steps:', stepsError.message);
     }
   }
 

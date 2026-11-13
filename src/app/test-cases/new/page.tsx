@@ -42,6 +42,7 @@ export default function NewTestCasePage() {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [projectId, setProjectId] = useState('');
   const [planId, setPlanId] = useState('');
+  const [caseKey, setCaseKey] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [preconditions, setPreconditions] = useState('');
@@ -82,6 +83,7 @@ export default function NewTestCasePage() {
     e.preventDefault();
     setError('');
     if (!projectId) { setError('Select a project.'); return; }
+    if (!caseKey.trim()) { setError('Test case key is required (e.g. TC-001).'); return; }
     if (!title.trim()) { setError('Title is required.'); return; }
     setSaving(true);
     try {
@@ -92,13 +94,20 @@ export default function NewTestCasePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          project_id: projectId,
-          test_plan_id: planId || null,
+          projectId,
+          caseKey: caseKey.trim(),
           title: title.trim(),
           description: description.trim(),
           preconditions: preconditions.trim(),
           steps: stepsPayload,
-          type, priority, status,
+          testType: type,
+          priority,
+          status,
+          testPlanId: planId || null,
+          requirementIds: selectedReqs,
+          // keep snake_case too for backward compat
+          project_id: projectId,
+          case_key: caseKey.trim(),
           requirement_ids: selectedReqs,
         }),
       });
@@ -152,6 +161,10 @@ export default function NewTestCasePage() {
                     placeholder="No test plan"
                   />
                 </div>
+
+                <FormField label="CASE KEY *">
+                  <input value={caseKey} onChange={(e) => setCaseKey(e.target.value.toUpperCase())} placeholder="e.g. TC-001" className={inputCls} />
+                </FormField>
 
                 <FormField label="TITLE *">
                   <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Verify login with valid credentials" className={inputCls} />
