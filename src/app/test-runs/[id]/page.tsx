@@ -153,7 +153,7 @@ export default function TestRunDetail() {
                   {run?.name ?? "Test Run"}
                 </h1>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="inline-flex items-center bg-[#1e2a3d] text-blue-300 text-xs px-2.5 py-1 rounded font-normal">
+                  <span className="inline-flex items-center shrink-0 bg-[#1e2a3d] text-blue-300 text-xs px-3 py-1.5 rounded font-normal">
                     {isCompleted ? "Completed" : "In Progress"}
                   </span>
                   <button

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { ArrowLeft, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 
 type CaseItem = { id: string; case_key: string; title: string; priority: string; test_type: string };
 
@@ -139,7 +139,7 @@ export default function TestSuiteDetailPage() {
                 {cases.map((c) => (
                   <div key={c.id} className="flex items-center justify-between gap-3 border rounded px-3 py-2">
                     <Link href={`/test-cases/${c.id}`} className="text-xs font-normal text-[#276fbf] hover:underline">{c.case_key} - {c.title}</Link>
-                    <button type="button" onClick={() => { setCaseToRemove(c); setShowRemoveConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><X className="w-3.5 h-3.5" /> Remove</button>
+                    <button type="button" onClick={() => { setCaseToRemove(c); setShowRemoveConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded">Remove</button>
                   </div>
                 ))}
               </div>
