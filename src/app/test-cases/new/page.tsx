@@ -76,7 +76,7 @@ export default function NewTestCasePage() {
     setSteps((prev) => prev.map((s, i) => i === idx ? { ...s, [field]: val } : s));
   };
   const addStep = () => setSteps((prev) => [...prev, { action: '', expected_result: '' }]);
-  const removeStep = (idx: number) => setSteps((prev) => prev.length <= 1 ? [{ action: '', expected_result: '' }] : prev.filter((_, i) => i !== idx));
+  const removeStep = (idx: number) => setSteps((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,6 +167,9 @@ export default function NewTestCasePage() {
 
                 <div>
                   <span className={labelCls}>STEPS</span>
+                  {steps.length === 0 && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 py-1">No steps yet. Click + Add Step to add one.</p>
+                  )}
                   <div className="space-y-2">
                     {steps.map((s, idx) => (
                       <div key={idx} className="flex items-start gap-2">
