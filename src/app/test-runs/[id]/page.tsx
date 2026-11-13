@@ -18,8 +18,10 @@ type TestRun = {
 type TestCase = {
   id: string;
   caseKey?: string;
+  case_key?: string;
   key?: string;
   title: string;
+  steps?: any[];
 };
 
 type Execution = {
@@ -43,6 +45,8 @@ export default function TestRunDetail() {
   const [showComplete, setShowComplete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [stepsByCase, setStepsByCase] = useState<Record<string, any[]>>({});
+  const [loadingSteps, setLoadingSteps] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -118,6 +122,44 @@ export default function TestRunDetail() {
     }
   };
 
+  const toggleSteps = async (tc: TestCase) => {
+    if (expanded === tc.id) {
+      setExpanded(null);
+      return;
+    }
+    setExpanded(tc.id);
+    // FIX: only skip fetch if we already have NON-EMPTY fetched steps
+    // Old code: [] is truthy, so it never fetched
+    const already = stepsByCase[tc.id];
+    if (already && already.length > 0) return;
+    const listSteps = (tc as any).steps;
+    if (listSteps && listSteps.length > 0) return;
+    setLoadingSteps(tc.id);
+    try {
+      const res = await fetch(`/api/test-cases/${tc.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        // Try every shape the API might use
+        const steps =
+          data.testCase?.steps ??
+          data.testCase?.testSteps ??
+          data.testCase?.test_steps ??
+          data.testCase?.testCaseSteps ??
+          data.steps ??
+          data.testSteps ??
+          data.test_steps ??
+          [];
+        setStepsByCase((prev) => ({ ...prev, [tc.id]: Array.isArray(steps) ? steps : [] }));
+      } else {
+        setStepsByCase((prev) => ({ ...prev, [tc.id]: [] }));
+      }
+    } catch {
+      setStepsByCase((prev) => ({ ...prev, [tc.id]: [] }));
+    } finally {
+      setLoadingSteps(null);
+    }
+  };
+
   const labelFor = (raw: string) => {
     if (raw === "not_run" || raw === "notrun") return "Not Run";
     if (raw === "passed" || raw === "pass") return "Passed";
@@ -147,7 +189,6 @@ export default function TestRunDetail() {
                 ← Test Runs &amp; Results
               </Link>
 
-              {/* Header - Delete is FAR RIGHT, not on title */}
               <div className="flex justify-between items-start mt-3 mb-4 gap-4">
                 <h1 className="text-base font-bold text-white tracking-tight text-left m-0">
                   {run?.name ?? "Test Run"}
@@ -183,7 +224,6 @@ export default function TestRunDetail() {
                 </div>
               </div>
 
-              {/* Progress */}
               <div className="bg-white dark:bg-[#182232] border border-slate-200 dark:border-[#28374d] rounded-lg p-4 mb-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-normal">Progress</span>
@@ -211,7 +251,6 @@ export default function TestRunDetail() {
                 </p>
               </div>
 
-              {/* Execution History */}
               <div className="bg-white dark:bg-[#182232] border border-slate-200 dark:border-[#28374d] rounded-lg overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-200 dark:border-[#28374d]">
                   <h2 className="text-sm font-normal m-0">
@@ -245,36 +284,65 @@ export default function TestRunDetail() {
                             : label === "Blocked"
                             ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
                             : "bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-300";
-                        const key = tc.caseKey ?? tc.key ?? tc.id;
+                        const key = (tc as any).caseKey ?? (tc as any).case_key ?? tc.key ?? tc.id;
+                        // FIX: prefer fetched steps, only use list steps if non-empty
+                        const listSteps = (tc as any).steps;
+                        const steps =
+                          stepsByCase[tc.id] ??
+                          (listSteps && listSteps.length > 0 ? listSteps : []);
                         return (
-                          <tr
-                            key={tc.id}
-                            className="border-b border-slate-100 dark:border-[#232f45] last:border-0"
-                          >
-                            <td className="px-4 py-3 font-normal">
-                              <span className="text-blue-500">
-                                {key} — {tc.title}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`inline-flex px-2 py-0.5 rounded text-xs font-normal ${pill}`}
-                              >
-                                {label}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setExpanded(expanded === tc.id ? null : tc.id)
-                                }
-                                className="text-blue-500 hover:underline font-normal text-sm"
-                              >
-                                View steps {expanded === tc.id ? "▲" : "▼"}
-                              </button>
-                            </td>
-                          </tr>
+                          <React.Fragment key={tc.id}>
+                            <tr className="border-b border-slate-100 dark:border-[#232f45]">
+                              <td className="px-4 py-3 font-normal">
+                                <Link href={`/test-cases/${tc.id}`} className="text-blue-500 hover:underline">
+                                  {key} — {tc.title}
+                                </Link>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span
+                                  className={`inline-flex px-2 py-0.5 rounded text-xs font-normal ${pill}`}
+                                >
+                                  {label}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleSteps(tc)}
+                                  className="text-blue-500 hover:underline font-normal text-sm"
+                                >
+                                  View steps {expanded === tc.id ? "▲" : "▼"}
+                                </button>
+                              </td>
+                            </tr>
+                            {expanded === tc.id && (
+                              <tr className="border-b border-slate-100 dark:border-[#232f45]">
+                                <td colSpan={3} className="px-4 py-3 bg-slate-50 dark:bg-[#101622]">
+                                  {loadingSteps === tc.id ? (
+                                    <p className="text-xs text-slate-400 font-normal m-0">Loading steps...</p>
+                                  ) : steps.length === 0 ? (
+                                    <p className="text-xs text-slate-400 font-normal m-0">
+                                      No steps for this test case yet.{" "}
+                                      <Link href={`/test-cases/${tc.id}`} className="text-blue-500 hover:underline">
+                                        Open test case
+                                      </Link>
+                                    </p>
+                                  ) : (
+                                    <ol className="m-0 pl-5 text-xs font-normal space-y-1">
+                                      {steps.map((s: any, i: number) => (
+                                        <li key={i}>
+                                          {s.action ?? s.description ?? s.step ?? s.text ?? `Step ${i + 1}`}
+                                          {s.expected ?? s.expected_result ?? s.expectedResult
+                                            ? ` — Expected: ${s.expected ?? s.expected_result ?? s.expectedResult}`
+                                            : ""}
+                                        </li>
+                                      ))}
+                                    </ol>
+                                  )}
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
                         );
                       })
                     )}
@@ -284,7 +352,6 @@ export default function TestRunDetail() {
             </div>
           )}
 
-          {/* Delete Confirm */}
           {showDeleteConfirm && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <div className="bg-white dark:bg-[#182232] rounded-lg p-6 w- max-w-">
@@ -315,7 +382,6 @@ export default function TestRunDetail() {
             </div>
           )}
 
-          {/* Complete Confirm */}
           {showComplete && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <div className="bg-white dark:bg-[#182232] rounded-lg p-6 w- max-w-">
