@@ -191,7 +191,7 @@ export default function NewTestRunPage() {
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
               <div className="px-6 py-4 dark:border-[#28374d]">
-                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Add Test Run</h1>
+                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Run</h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Execute a test plan — per-step results included</p>
               </div>
 

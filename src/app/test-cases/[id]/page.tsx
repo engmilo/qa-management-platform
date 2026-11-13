@@ -171,7 +171,7 @@ export default function TestCaseDetailPage() {
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700/50 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     {code && <span className="inline-block px-2 py-0.5 rounded text-xs font-normal bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{code}</span>}
-                    <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
+                    <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Change any field and click Save Changes. There is no separate Edit button.</p>
                   </div>
                   <button onClick={() => setShowDelete(true)} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline shrink-0">Delete</button>

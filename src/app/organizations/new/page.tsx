@@ -65,7 +65,7 @@ export default function NewOrganizationPage() {
 
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">
+                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">
                   <Building2 className="w-5 h-5 text-[#48a43f]" />
                   Create Organization
                 </h1>

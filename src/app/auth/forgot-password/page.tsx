@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
           TR
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">QA Management Platform</h1>
+          <h1 className="text-base font-bold text-white tracking-tight text-left m-0">QA Management Platform</h1>
           <p className="text-xs text-[#6e7d8c] font-normal">Enterprise Test Management</p>
         </div>
       </div>

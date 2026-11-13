@@ -121,7 +121,7 @@ export default function TestPlanDetailPage() {
                 <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden mb-6">
                   <div className="px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                     <div>
-                      <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">{plan.title}</h1>
+                      <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{plan.title}</h1>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">{plan.projects?.key} — {plan.projects?.name}{plan.releases ? ` · Milestone: ${plan.releases.version_name}` : ''}</p>
                     </div>
                     <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold">Delete</button>

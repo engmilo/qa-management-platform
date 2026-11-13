@@ -56,7 +56,7 @@ export default function NewMilestonePage() {
               <Link href="/milestones" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Milestones</Link>
               <span>/</span><span>New</span>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0 mb-1">New Milestone</h1>
+            <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mb-1">New Milestone</h1>
             <p className="text-xs text-slate-500 mb-5 font-normal">Create a milestone for a project.</p>
             {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
             <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6 space-y-5 max-w-3xl">

@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
         </div>
       </div>
       <div className="w-full max-w-sm dark:bg-[#182232] dark:border-[#28374d] p-6">
-        <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0">Choose a new password</h1>
+        <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Choose a new password</h1>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5 font-normal">Enter and confirm your new password below.</p>
         {!ready && <p className="text-xs text-slate-500 dark:text-slate-400">Checking your reset link...</p>}
         {ready && !validLink && !done && (

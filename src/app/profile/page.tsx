@@ -62,7 +62,7 @@ export default function ProfilePage() {
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl">
             <Link href="/dashboard" className="text-xs text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Dashboard</Link>
-            <h1 className="text-2xl font-bold text-white tracking-tight text-left m-0 mt-1">My Profile</h1>
+            <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-1">My Profile</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-6 font-normal">Your logged-in account details.</p>
 
             {loading ? (
