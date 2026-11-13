@@ -157,7 +157,7 @@ export default function TestRunDetailPage() {
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}
                 {/* FIX: In Progress, not in_progress */}
-                <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{formatStatus(run?.status ?? '')}</span>
+                <span className={`inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-semibold ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{formatStatus(run?.status ?? '')}</span>
                 {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
                 <button onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
