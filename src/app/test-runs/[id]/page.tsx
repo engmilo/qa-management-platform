@@ -146,7 +146,7 @@ export default function TestRunDetailPage() {
               <div className="flex justify-between text-xs font-semibold"><span>Progress</span><span>{passed + failed + blocked} / {execs.length} · {pct}%</span></div>
               <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded mt-2 overflow-hidden"><div className="h-full bg-green-500" style={{ width: `${pct}%` }} /></div>
               <p className="text-xs font-semibold mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run?.assignee_name ?? run?.assignee ?? '—'}</span></p>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Passed: {passed} · Failed: {failed} · Blocked: {blocked} · Not Run: {notRun}</p>
+              <p className="text-xs font-semibold mt-1"><span className="text-green-600 dark:text-green-400">Passed: {passed}</span><span className="text-slate-400 mx-1">·</span><span className="text-red-600 dark:text-red-400">Failed: {failed}</span><span className="text-slate-400 mx-1">·</span><span className="text-amber-600 dark:text-amber-400">Blocked: {blocked}</span><span className="text-slate-400 mx-1">·</span><span className="text-slate-500 dark:text-slate-400">Not Run: {notRun}</span></p>
               {run?.description && <p className="text-xs font-semibold mt-1">{run.description}</p>}
               {isCompleted && <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-2">Run is Completed — click Reopen Run to change results.</p>}
             </div>
@@ -166,7 +166,7 @@ export default function TestRunDetailPage() {
                       <React.Fragment key={ex.id}>
                         <tr className="border-t border-slate-200 dark:border-slate-700/50 align-top">
                           <td className="px-4 py-3"><Link href={`/test-cases/${ex.test_case_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{code ? `${code} — ${title || 'Untitled'}` : title}</Link></td>
-                          <td className="px-4 py-3"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${badge(ex.status)}`}>{ex.status}</span></td>
+                          <td className="px-4 py-3"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold capitalize ${badge(ex.status)}`}>{ex.status === 'not_run' ? 'Not Run' : ex.status === 'passed' ? 'Passed' : ex.status === 'failed' ? 'Failed' : ex.status === 'blocked' ? 'Blocked' : ex.status === 'retest' ? 'Retest' : ex.status}</span></td>
                           <td className="px-4 py-3"><button onClick={() => toggleSteps(ex.id)} className="text-blue-600 dark:text-blue-400 hover:underline">{open ? 'Hide steps ▲' : 'View steps ▼'}</button></td>
                         </tr>
                         {open && (
