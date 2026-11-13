@@ -103,7 +103,7 @@ export default function DefectDetailPage() {
                     <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{defect.summary}</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Created {defect.created_at ? new Date(defect.created_at).toLocaleString() : ''}</p>
                   </div>
-                  <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                  <button className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 </div>
                 <div className="p-6 space-y-5">
                   <div><label className="block text-xs font-normal mb-1.5">Summary *</label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white" /></div>
@@ -118,13 +118,13 @@ export default function DefectDetailPage() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="text-xs font-normal uppercase text-slate-500 dark:text-slate-400">Steps to Reproduce</h3>
-                      <button type="button" onClick={() => setReproSteps([...reproSteps, ''])} className="text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add Step</button>
+                      <button type="button" onClick={() => setReproSteps([...reproSteps, ''])} className="text-xs font-normal text-white dark:text-white inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add Step</button>
                     </div>
                     {reproSteps.map((step, i) => (
                       <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                         <span className="text-xs font-normal pt-2">{i + 1}.</span>
                         <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} />
-                        <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-red-500 text-xs pt-2">Remove</button>
+                        <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-white text-xs pt-2">Remove</button>
                       </div>
                     ))}
                   </div>
