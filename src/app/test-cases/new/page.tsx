@@ -48,6 +48,7 @@ export default function NewTestCasePage() {
   const [preconditions, setPreconditions] = useState('');
   const [steps, setSteps] = useState([{ action: '', expected_result: '' }]);
   const [confirmRemoveIdx, setConfirmRemoveIdx] = useState<number | null>(null);
+  const [category, setCategory] = useState('General');
   const [type, setType] = useState('functional');
   const [priority, setPriority] = useState('medium');
   const [status, setStatus] = useState('draft');
@@ -100,6 +101,7 @@ export default function NewTestCasePage() {
           description: description.trim(),
           preconditions: preconditions.trim(),
           steps: stepsPayload,
+          category: category.trim() || 'General',
           testType: type,
           priority,
           status,
@@ -195,6 +197,30 @@ export default function NewTestCasePage() {
                   </div>
                   <button type="button" onClick={addStep} className="mt-2 text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">+ Add Step</button>
                 </div>
+
+                <FormSelect
+                    label="CATEGORY"
+                    value={category}
+                    onChange={setCategory}
+                    options={[
+                      { value: 'General', label: 'General' },
+                      { value: 'Authentication', label: 'Authentication' },
+                      { value: 'Authorization', label: 'Authorization' },
+                      { value: 'Product', label: 'Product' },
+                      { value: 'Cart', label: 'Cart' },
+                      { value: 'Checkout', label: 'Checkout' },
+                      { value: 'Payment', label: 'Payment' },
+                      { value: 'Order', label: 'Order' },
+                      { value: 'Profile', label: 'Profile' },
+                      { value: 'User Management', label: 'User Management' },
+                      { value: 'Navigation', label: 'Navigation' },
+                      { value: 'Search', label: 'Search' },
+                      { value: 'UI', label: 'UI' },
+                      { value: 'API', label: 'API' },
+                      { value: 'Performance', label: 'Performance' },
+                      { value: 'Security', label: 'Security' },
+                    ]}
+                  />
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <FormSelect
