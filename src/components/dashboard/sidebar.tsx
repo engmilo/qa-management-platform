@@ -36,14 +36,14 @@ const groups = [
 export function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="w-64 bg-white dark:bg-[#141d28] border-r border-[#d8dee4] dark:border-[#222e3e] h-screen flex flex-col justify-between shrink-0 select-none">
+    <aside className="w-72 bg-white dark:bg-[#141d28] border-r border-[#d8dee4] dark:border-[#222e3e] h-screen flex flex-col justify-between shrink-0 select-none">
       <div className="overflow-y-auto">
         {/* Brand bar - MUST be h-14 + same bg as Header, so top bar looks like one line */}
         <div className="h-14 bg-white dark:bg-[#141d28] border-b border-[#d8dee4] dark:border-[#222e3e] px-4 flex items-center gap-2.5 shrink-0">
           <div className="w-7 h-7 rounded bg-[#48a43f] flex items-center justify-center text-white shrink-0">
             <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate">QA Management Platform</span>
+          <span className="text-base font-bold text-slate-900 dark:text-white tracking-tight  whitespace-nowrap">QA Management Platform</span>
         </div>
 
         {groups.map((group) => (
@@ -56,7 +56,7 @@ export function Sidebar() {
                 return (
                   <li key={item.name}>
                     <Link href={item.href}
-                      className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded transition-colors ${
+                      className={`flex items-center gap-2.5 px-3 py-2 text-base rounded transition-colors ${
                         isActive
                           ? 'bg-[#edf5fd] dark:bg-[#172739] text-[#276fbf] dark:text-[#4da3ff] font-semibold'
                           : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white font-medium'

@@ -110,7 +110,7 @@ export default function RequirementDetailPage() {
                     <option value="">Select project…</option>
                     {projects.map((p: any) => (<option key={p.id} value={p.id}>{p.name}</option>))}
                   </select>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Zamir Oy in the header is your organization. Project is the project below it — here it is “QA Management Platform”.</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">Zamir Oy in the header is your organization. Project is the project below it — here it is “QA Management Platform”.</p>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div><label className={labelCls}>Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className={inputCls}>{['low','medium','high','critical'].map((v) => <option key={v} value={v}>{v}</option>)}</select></div>

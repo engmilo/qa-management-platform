@@ -44,7 +44,7 @@ export default function RegisterPage() {
           TR
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#1d2d3e] tracking-tight">QA Management Platform</h1>
+          <h1 className="text-2xl font-bold text-[#1d2d3e] tracking-tight whitespace-nowrap">QA Management Platform</h1>
           <p className="text-xs text-[#6e7d8c]">Enterprise Test Management</p>
         </div>
       </div>

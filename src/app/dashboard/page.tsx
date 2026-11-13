@@ -119,7 +119,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-bold text-slate-500 text-center">TEST CASES</p>
+                <p className="text- font-bold text-slate-500 text-center">TEST CASES</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testCases}
                 </p>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-bold text-slate-500 text-center">TEST RUNS</p>
+                <p className="text- font-bold text-slate-500 text-center">TEST RUNS</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testRuns}
                 </p>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-bold text-slate-500 text-center">OPEN DEFECTS</p>
+                <p className="text- font-bold text-slate-500 text-center">OPEN DEFECTS</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.openDefects}
                 </p>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-bold text-slate-500 text-center">PASS RATE</p>
+                <p className="text- font-bold text-slate-500 text-center">PASS RATE</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.passRate === null ? '—' : `${d.passRate}%`}
                 </p>
