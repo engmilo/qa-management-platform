@@ -163,7 +163,6 @@ export default function TestCaseDetailPage() {
               <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
                 <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
                   <div>
-                    {/* TEST CASE ID - was missing */}
                     <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{caseId}</span>
                     <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{form.title || "Test Case"}</h1>
                     <p className="text-xs text-slate-500 mt-1 font-normal">Change any field and click Save Changes. There is no separate Edit button.</p>
@@ -228,8 +227,14 @@ export default function TestCaseDetailPage() {
                           <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
                           <input value={step.action} onChange={(e) => updateStep(index, "action", e.target.value)} placeholder="Action" className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" />
                           <input value={step.expected} onChange={(e) => updateStep(index, "expected", e.target.value)} placeholder="Expected result" className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" />
-                          <button type="button" onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">
-                            <Trash2 className="w-3.5 h-3.5" /> Remove
+                          {/* Remove - NO bin icon, text only, still red + confirmation */}
+                          <button
+                            type="button"
+                            onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }}
+                            style={{ fontWeight: 400 }}
+                            className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5"
+                          >
+                            Remove
                           </button>
                         </div>
                       ))}
