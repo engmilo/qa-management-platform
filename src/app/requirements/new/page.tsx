@@ -128,6 +128,11 @@ export default function NewRequirementPage() {
                       { value: 'business', label: 'business' },
                       { value: 'technical', label: 'technical' },
                       { value: 'user_story', label: 'user_story' },
+                      { value: 'performance', label: 'performance' },
+                      { value: 'security', label: 'security' },
+                      { value: 'automation', label: 'automation' },
+                      { value: 'regression', label: 'regression' },
+                      { value: 'e2e', label: 'e2e' },
                     ]}
                   />
                   <FormSelect
