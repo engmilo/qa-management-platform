@@ -7,7 +7,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { Building2, Plus, ChevronDown, User, LogOut, Moon, Sun } from 'lucide-react';
 
 function getTitle(pathname: string): string {
-  if (pathname === '/dashboard') return 'Dashboard Overview';
+  if (pathname === '/dashboard') return "";
   if (pathname.startsWith('/projects')) return 'Projects';
   if (pathname.startsWith('/milestones')) return 'Milestones';
   if (pathname.startsWith('/requirements')) return 'Requirements';
@@ -21,7 +21,7 @@ function getTitle(pathname: string): string {
   if (pathname.startsWith('/ai-assistant')) return 'AI Assistant';
   if (pathname.startsWith('/settings')) return 'Settings';
   if (pathname.startsWith('/profile')) return 'My Profile';
-  return 'Dashboard Overview';
+  return '';
 }
 
 export function Header() {
@@ -97,11 +97,8 @@ export function Header() {
     // FIX: theme-aware, like sidebar brand bar.
     // Light: white header + dark text. Dark: dark navy header + white text.
     // Before it was always bg-[#141d28], so it stayed black in light mode.
-    <header className="h-14 bg-white dark:bg-[#141d28] border-b border-[#d8dee4] dark:border-[#222e3e] flex items-center justify-between gap-3 px-4 shrink-0">
-      <div className="flex items-center gap-2.5 min-w-0">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#48a43f] shrink-0" />
-        <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">{getTitle(pathname)}</span>
-      </div>
+    <header className="h-14 bg-white dark:bg-[#141d28] border-b border-[#d8dee4] dark:border-[#222e3e] flex items-center justify-end gap-3 px-4 shrink-0">
+      
 
       <div className="flex items-center gap-2 shrink-0">
         <Link href="/settings"

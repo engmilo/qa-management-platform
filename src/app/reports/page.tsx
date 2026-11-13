@@ -94,7 +94,7 @@ export default function ReportsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <div>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white">Reports</h1>
+                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Reports</h1>
                 <p className="text-xs text-slate-500 mt-0.5">Summary of testing coverage and quality.</p>
               </div>
               <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-normal bg-white dark:bg-[#1f2c3f]">

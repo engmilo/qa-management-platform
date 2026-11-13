@@ -113,7 +113,7 @@ export default function TestSuiteDetailPage() {
           {suite && (
             <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
               <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
-                <div><h1 className="text-lg font-bold">{suite.name}</h1><p className="text-xs text-slate-500 mt-1">{cases.length} test case(s)</p></div>
+                <div><h1 className="text-base font-bold text-slate-900 tracking-tight">{suite.name}</h1><p className="text-xs text-slate-500 mt-1">{cases.length} test case(s)</p></div>
                 <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
               </div>
               <div className="p-6 space-y-5">

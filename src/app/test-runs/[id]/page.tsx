@@ -131,7 +131,7 @@ export default function TestRunDetailPage() {
             <Link href="/test-runs" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">← Test Runs &amp; Results</Link>
             <div className="flex flex-wrap gap-2 items-start justify-between mt-3">
               <div>
-                <h1 className="text-xs font-semibold text-slate-900 dark:text-white">{run?.name ?? 'Test Run'}</h1>
+                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">{run?.name ?? 'Test Run'}</h1>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}

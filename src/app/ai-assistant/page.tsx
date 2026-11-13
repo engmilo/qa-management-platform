@@ -66,7 +66,7 @@ export default function AIAssistantPage() {
           <div className="w-full max-w-none flex flex-col h-full">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <div>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#276fbf]" /> AI Assistant</h1>
+                <h1 className="dark:text-white flex items-center gap-2 text-base font-bold text-slate-900 tracking-tight"><Sparkles className="w-4 h-4 text-[#276fbf]" /> AI Assistant</h1>
                 <p className="text-xs text-slate-500 mt-0.5">Generate test cases, summaries, and defect drafts.</p>
               </div>
               <button onClick={clear} className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Clear Chat</button>

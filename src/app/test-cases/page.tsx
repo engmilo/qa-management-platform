@@ -58,7 +58,7 @@ export default function TestCasesPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="text-xs font-semibold text-slate-900 dark:text-white">Test Cases</h1>
+                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Test Cases</h1>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
               </div>
               <div className="flex gap-2">

@@ -49,7 +49,7 @@ export default function RequirementsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="text-xs font-semibold text-slate-900 dark:text-white">Requirements</h1>
+                <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Requirements</h1>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Define and track functional, security, and performance specifications.</p>
               </div>
               <Link href="/requirements/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ Add Requirement</Link>

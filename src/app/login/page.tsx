@@ -78,7 +78,7 @@ function LoginContent() {
       <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6">
         {!showReset ? (
           <>
-            <h1 className="text-base font-semibold text-slate-900 dark:text-white">Log In to Your Account</h1>
+            <h1 className="dark:text-white text-base font-bold text-slate-900 tracking-tight">Log In to Your Account</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5">Enter your email and password below to continue</p>
             {error && <div className="mb-4 p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>}
             <form onSubmit={handleLogin} className="space-y-4">
