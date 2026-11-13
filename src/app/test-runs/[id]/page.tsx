@@ -147,12 +147,12 @@ export default function TestRunDetailPage() {
             <Link href="/test-runs" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Runs &amp; Results</Link>
             <div className="flex flex-wrap gap-2 items-start justify-between mt-3">
               <div>
-                <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0">{run?.name ?? 'Test Run'}</h1><button type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
+                <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0">{run?.name ?? 'Test Run'}</h1></div>
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-normal text-red-600">{runMsg}</span>}
                 <span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status === 'in_progress' ? 'In Progress' : run?.status === 'completed' ? 'Completed' : run?.status ?? ''}</span>
-                {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
+                {!isCompleted && <button type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button> <button onClick={() => setShowComplete(true)} className="text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-normal bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
                 <Link href="/test-runs/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
               </div>

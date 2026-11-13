@@ -188,7 +188,7 @@ export default function TestCaseDetailPage() {
                     <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Change any field and click Save Changes. There is no separate Edit button.</p>
                   </div>
-              <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+              <button type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                   
                 </div>
 
@@ -253,7 +253,7 @@ export default function TestCaseDetailPage() {
                           <span className="text-xs font-normal pt-2 w-5 shrink-0">{i + 1}.</span>
                           <textarea data-step value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
                           <textarea data-step value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
-                          <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" onClick={() => setPendingRemoveStep(i)} className="text-xs font-normal text-white dark:text-white hover:underline pt-2 shrink-0">Remove</button>
+                          <button type="button" onClick={() => setPendingRemoveStep(i)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded">Remove</button>
                         </div>
                       ))}
                       {steps.length === 0 && <p className="text-xs font-normal text-slate-500">No steps yet. Click + Add Step.</p>}
@@ -318,8 +318,8 @@ export default function TestCaseDetailPage() {
             <h3 className="text-xs font-normal text-slate-900 dark:text-white">Remove this step?</h3>
             <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Step {pendingRemoveStep + 1}: {steps[pendingRemoveStep]?.action || ''} — this will remove it from the list. Click Save Changes to persist.</p>
             <div className="flex gap-2 mt-4">
-              <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
-              <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" onClick={() => { setSteps(steps.filter((_, j) => j !== pendingRemoveStep)); setPendingRemoveStep(null); }} className="flex-1 text-xs font-normal bg-red-600 text-white rounded px-3 py-2">Remove</button>
+              <button onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button style={{ fontWeight: 400 }} onClick={() => { setSteps(steps.filter((_, j) => j !== pendingRemoveStep)); setPendingRemoveStep(null); }} className="flex-1 text-xs font-normal bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded px-3 py-2">Remove</button>
             </div>
           </div>
         </div>
