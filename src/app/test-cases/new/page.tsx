@@ -45,7 +45,8 @@ export default function NewTestCasePage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [preconditions, setPreconditions] = useState('');
-  const [stepsText, setStepsText] = useState('');
+  const [steps, setSteps] = useState([{ action: '', expected_result: '' }]);
+  const [confirmRemoveIdx, setConfirmRemoveIdx] = useState<number | null>(null);
   const [type, setType] = useState('functional');
   const [priority, setPriority] = useState('medium');
   const [status, setStatus] = useState('draft');
@@ -65,6 +66,18 @@ export default function NewTestCasePage() {
     setSelectedReqs((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
+  const autoGrow = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const el = e.currentTarget;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  };
+
+  const updateStep = (idx: number, field: 'action' | 'expected_result', val: string) => {
+    setSteps((prev) => prev.map((s, i) => i === idx ? { ...s, [field]: val } : s));
+  };
+  const addStep = () => setSteps((prev) => [...prev, { action: '', expected_result: '' }]);
+  const removeStep = (idx: number) => setSteps((prev) => prev.length <= 1 ? [{ action: '', expected_result: '' }] : prev.filter((_, i) => i !== idx));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -72,9 +85,9 @@ export default function NewTestCasePage() {
     if (!title.trim()) { setError('Title is required.'); return; }
     setSaving(true);
     try {
-      const steps = stepsText.split('\n').map((s) => s.trim()).filter(Boolean).map((line, i) => ({
-        step_number: i + 1, action: line, expected_result: '',
-      }));
+      const stepsPayload = steps.map((s, i) => ({
+        step_number: i + 1, action: s.action.trim(), expected_result: s.expected_result.trim(),
+      })).filter((s) => s.action);
       const res = await fetch('/api/test-cases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,7 +97,7 @@ export default function NewTestCasePage() {
           title: title.trim(),
           description: description.trim(),
           preconditions: preconditions.trim(),
-          steps,
+          steps: stepsPayload,
           type, priority, status,
           requirement_ids: selectedReqs,
         }),
@@ -112,13 +125,13 @@ export default function NewTestCasePage() {
               <span className="text-slate-500 dark:text-slate-400">Add Test Case</span>
             </div>
 
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-visible">
               <div className="px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d]">
                 <h1 className="text-base font-semibold text-slate-900 dark:text-white">Add Test Case</h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Define steps to verify a requirement</p>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="p-6 pb-64 space-y-6">
                 {error && (
                   <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
                 )}
@@ -145,16 +158,27 @@ export default function NewTestCasePage() {
                 </FormField>
 
                 <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What does this test verify?" className={`${inputCls} resize-y`} />
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={autoGrow} rows={3} placeholder="What does this test verify?" className={`${inputCls} resize-none overflow-hidden min-h- block`} />
                 </FormField>
 
                 <FormField label="PRECONDITIONS">
-                  <textarea value={preconditions} onChange={(e) => setPreconditions(e.target.value)} rows={2} placeholder="e.g. User account exists, app is on login page" className={`${inputCls} resize-y`} />
+                  <textarea value={preconditions} onChange={(e) => setPreconditions(e.target.value)} onInput={autoGrow} rows={2} placeholder="e.g. User account exists, app is on login page" className={`${inputCls} resize-none overflow-hidden min-h- block`} />
                 </FormField>
 
-                <FormField label="STEPS (ONE PER LINE)">
-                  <textarea value={stepsText} onChange={(e) => setStepsText(e.target.value)} rows={4} placeholder={"1. Navigate to login page\n2. Enter valid email and password\n3. Click Login"} className={`${inputCls} resize-y`} />
-                </FormField>
+                <div>
+                  <span className={labelCls}>STEPS</span>
+                  <div className="space-y-2">
+                    {steps.map((s, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 pt-2.5 w-5 shrink-0">{idx + 1}.</span>
+                        <input value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} placeholder="Step - e.g. Navigate to login page" className={inputCls} />
+                        <input value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} placeholder="Expected Result - e.g. Login page is shown" className={inputCls} />
+                        <button type="button" onClick={() => setConfirmRemoveIdx(idx)} title="Remove step" className="shrink-0 mt-1 h-8 px-2 flex items-center justify-center gap-1 rounded text-sm font-normal whitespace-nowrap cursor-pointer" style={{ backgroundColor: '#dc2626', color: '#ffffff' }}>X Remove</button>
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" onClick={addStep} className="mt-2 text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">+ Add Step</button>
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <FormSelect
@@ -165,9 +189,14 @@ export default function NewTestCasePage() {
                       { value: 'functional', label: 'functional' },
                       { value: 'regression', label: 'regression' },
                       { value: 'smoke', label: 'smoke' },
+                      { value: 'security', label: 'security' },
+                      { value: 'performance', label: 'performance' },
                       { value: 'integration', label: 'integration' },
                       { value: 'ui', label: 'ui' },
                       { value: 'api', label: 'api' },
+                      { value: 'automation', label: 'automation' },
+                      { value: 'e2e', label: 'e2e' },
+                      { value: 'uat', label: 'uat' },
                     ]}
                   />
                   <FormSelect
@@ -213,6 +242,19 @@ export default function NewTestCasePage() {
                     <p className="text- text-slate-500 dark:text-slate-400 mt-1">{selectedReqs.length} requirement(s) selected</p>
                   )}
                 </div>
+
+                {confirmRemoveIdx !== null && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setConfirmRemoveIdx(null)}>
+                    <div className="bg-white dark:bg-[#182232] rounded-md shadow-lg max-w-sm w-full p-5" onClick={(e) => e.stopPropagation()}>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this step?</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Are you sure you want to remove Step {confirmRemoveIdx + 1}? This cannot be undone.</p>
+                      <div className="flex items-center justify-end gap-2 mt-4">
+                        <button type="button" onClick={() => setConfirmRemoveIdx(null)} className="text-sm font-normal px-4 py-2 rounded bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] text-slate-700 dark:text-slate-200">Cancel</button>
+                        <button type="button" onClick={() => { removeStep(confirmRemoveIdx); setConfirmRemoveIdx(null); }} className="text-sm font-normal px-4 py-2 rounded" style={{ backgroundColor: '#dc2626', color: '#ffffff' }}>Remove</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <FormActions submitLabel="Add Test Case" saving={saving} savingLabel="Adding..." cancelHref="/test-cases" />
               </form>
