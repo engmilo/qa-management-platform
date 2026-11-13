@@ -136,7 +136,6 @@ export default function DefectDetailPage() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label className="block text-xs font-normal">STEPS TO REPRODUCE</label>
-                      {/* + Add Step - BLUE now */}
                       <button type="button" onClick={addStep} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
                     </div>
                     <div className="space-y-2">
@@ -144,7 +143,15 @@ export default function DefectDetailPage() {
                         <div key={index} className="flex items-start gap-2">
                           <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
                           <input value={step} onChange={(e) => updateStep(index, e.target.value)} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" />
-                          <button type="button" onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5"><Trash2 className="w-3.5 h-3.5" /> Remove</button>
+                          {/* Remove - NO bin icon, text only, still red + confirmation */}
+                          <button
+                            type="button"
+                            onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }}
+                            style={{ fontWeight: 400 }}
+                            className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5"
+                          >
+                            Remove
+                          </button>
                         </div>
                       ))}
                     </div>
