@@ -1,7 +1,9 @@
 "use client";
+import { Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
@@ -10,6 +12,7 @@ type StepRow = { step_number: number; action: string; expected_result: string; s
 
 export default function TestRunDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = String(params?.id ?? '');
   const [loading, setLoading] = useState(true);
   const [run, setRun] = useState<any>(null);
@@ -19,6 +22,8 @@ export default function TestRunDetailPage() {
   const [stepsByExec, setStepsByExec] = useState<Record<string, StepRow[]>>({});
   const [loadingSteps, setLoadingSteps] = useState<Record<string, boolean>>({});
   const [savingSteps, setSavingSteps] = useState<Record<string, boolean>>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [stepMsg, setStepMsg] = useState<Record<string, string>>({});
   const [showComplete, setShowComplete] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -110,12 +115,23 @@ export default function TestRunDetailPage() {
     return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
   };
 
+  const remove = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/test-runs/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
+      router.push('/test-runs');
+    } finally { setDeleting(false); }
+  };
+
   if (loading) {
     return (
       <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
-          <main className="flex-1 overflow-y-auto p-6"><div className="w-full max-w-none"><div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-4 text-center text-xs font-normal text-slate-500">Loading test run...</div></div></main>
+          <main className="flex-1 overflow-y-auto p-6"><div className="w-full max-w-none"><div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-4 text-center text-xs font-normal text-slate-500">Loading test run...</div>
+        <ConfirmDialog open={showDeleteConfirm} title="Delete this test run?" message="This will permanently delete this test run. This cannot be undone." confirmLabel="Delete test run" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></div></main>
         </div>
       </div>
     );
@@ -131,7 +147,7 @@ export default function TestRunDetailPage() {
             <Link href="/test-runs" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Runs &amp; Results</Link>
             <div className="flex flex-wrap gap-2 items-start justify-between mt-3">
               <div>
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{run?.name ?? 'Test Run'}</h1>
+                <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0">{run?.name ?? 'Test Run'}</h1><button type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-normal text-red-600">{runMsg}</span>}

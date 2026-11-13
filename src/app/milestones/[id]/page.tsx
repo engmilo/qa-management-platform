@@ -1,4 +1,5 @@
 'use client';
+import { Trash2 } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -112,7 +113,7 @@ export default function MilestoneDetailPage() {
                     <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{rel.version_name}</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace('_', ' ')}</p>
                   </div>
-                  <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-normal">Delete</button>
+                  <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 </div>
                 <div className="p-6 space-y-5">
                   <FormField label="VERSION NAME *">

@@ -57,3 +57,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  await supabase.from('test_case_steps').delete().eq('test_case_id', params.id);
+  await supabase.from('test_case_requirements').delete().eq('test_case_id', params.id);
+  const { error } = await supabase.from('test_cases').delete().eq('id', params.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ ok: true });
+}

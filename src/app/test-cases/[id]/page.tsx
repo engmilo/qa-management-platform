@@ -1,7 +1,9 @@
 "use client";
+import { Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
@@ -10,14 +12,16 @@ type Req = { id: string; req_key: string; title: string; project_id?: string };
 
 export default function TestCaseDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = String(params?.id ?? '');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
   const [showDelete, setShowDelete] = useState(false);
   const [pendingRemoveStep, setPendingRemoveStep] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
+  
   const [code, setCode] = useState('');
   const [form, setForm] = useState({
     title: '',
@@ -142,6 +146,16 @@ export default function TestCaseDetailPage() {
     }
   };
 
+  const remove = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/test-cases/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
+      router.push('/test-cases');
+    } finally { setDeleting(false); }
+  };
+
   if (loading) {
     return (
       <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
@@ -171,7 +185,7 @@ export default function TestCaseDetailPage() {
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700/50 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     {code && <span className="inline-block px-2 py-0.5 rounded text-xs font-normal bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{code}</span>}
-                    <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
+                    <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1><button type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Change any field and click Save Changes. There is no separate Edit button.</p>
                   </div>
                   <button onClick={() => setShowDelete(true)} className="text-xs font-normal text-red-600 dark:text-red-400 hover:underline shrink-0">Delete</button>
@@ -293,7 +307,8 @@ export default function TestCaseDetailPage() {
               </div>
             </div>
           </div>
-        </main>
+        
+        <ConfirmDialog open={showDeleteConfirm} title="Delete this test case?" message="This will permanently delete this test case. This cannot be undone." confirmLabel="Delete test case" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></main>
       </div>
 
       {pendingRemoveStep !== null && (
