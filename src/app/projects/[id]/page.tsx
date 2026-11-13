@@ -149,7 +149,7 @@ export default function ProjectDetailsPage() {
                         <span>Created on {project ? new Date(project.created_at).toLocaleDateString() : ''}</span>
                         <span>·</span>
                         <span>Status:</span>
-                        <span className="inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize">{project?.status ?? 'Active'}</span>
+                        <span className="inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal text-xs">{project?.status ?? 'Active'}</span>
                       </div>
                   </div>
                 </form>

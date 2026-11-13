@@ -58,7 +58,7 @@ export default function ProjectsPage() {
                       </td>
                       <td className="px-4 py-3">{p.name}</td>
                       <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{p.description}</td>
-                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize">{p.status ?? 'Active'}</span></td>
+                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal text-xs">{p.status ?? 'Active'}</span></td>
                     </tr>
                   ))}
                   {filtered.length === 0 && !loading && <tr><td colSpan={4} className="px-4 py-6 text-center text-slate-500">No projects found.</td></tr>}
