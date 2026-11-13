@@ -96,7 +96,7 @@ export default function RequirementDetailPage() {
             <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md shadow-sm dark:shadow-none overflow-hidden">
               <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
                 <div>
-                  <span className="font-mono text-xs font-bold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-1 rounded">{req.req_key}</span>
+                  <span className="font-mono text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-1 rounded">{req.req_key}</span>
                   <h1 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{req.req_key} — {req.title}</h1>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">This page is already in edit mode — change any field and click Save Changes. There is no separate Edit button.</p>
                 </div>

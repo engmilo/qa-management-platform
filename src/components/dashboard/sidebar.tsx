@@ -75,7 +75,7 @@ export function Sidebar() {
       <div className="p-3 border-t border-[#edf2f7] dark:border-[#222e3e] bg-slate-50/60 dark:bg-[#111720]">
         <div className="flex items-center justify-between text- text-slate-500 dark:text-slate-400 font-medium px-1">
           <span>Test Management</span>
-          <span className="text- bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono">v2.4</span>
+          <span className="text- bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-normal font-mono">v2.4</span>
         </div>
       </div>
     </aside>

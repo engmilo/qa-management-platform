@@ -105,7 +105,7 @@ export function Header() {
 
       <div className="flex items-center gap-2 shrink-0">
         <Link href="/settings"
-          className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded bg-slate-100 dark:bg-[#1e2a3a] hover:bg-slate-200 dark:hover:bg-[#28374d] border border-[#e2e8f0] dark:border-[#28374d] text-xs font-medium text-slate-700 dark:text-slate-200">
+          className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded bg-slate-100 dark:bg-[#1e2a3a] hover:bg-slate-200 dark:hover:bg-[#28374d] border border-[#e2e8f0] dark:border-[#28374d] text-xs font-normal text-slate-700 dark:text-slate-200">
           <Building2 className="w-3.5 h-3.5" /> Zamir Oy
         </Link>
 
@@ -121,7 +121,7 @@ export function Header() {
 
         <div ref={menuRef} className="relative ml-1">
           <button type="button" onClick={() => setOpen((v) => !v)} className="flex items-center gap-1.5 hover:opacity-90">
-            <span className="w-8 h-8 rounded-full bg-[#276fbf] text-white text-xs font-bold flex items-center justify-center">{initials}</span>
+            <span className="w-8 h-8 rounded-full bg-[#276fbf] text-white text-xs font-normal flex items-center justify-center">{initials}</span>
             <ChevronDown className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
           </button>
           {open && (

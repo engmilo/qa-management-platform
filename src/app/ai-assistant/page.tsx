@@ -81,7 +81,7 @@ export default function AIAssistantPage() {
             <div className="flex-1 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 space-y-3 min-h-">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] px-3 py-2 rounded text-xs leading-relaxed break-words whitespace-pre-wrap ${m.role === 'user' ? 'bg-[#276fbf] text-white' : 'bg-slate-100 dark:bg-[#1f2c3f] text-slate-800 dark:text-slate-100 border border-[#e2e8f0] dark:border-[#28374d]'}`}>
+                  <div className={`max-w-[80%] px-3 py-2 rounded font-normal text-xs leading-relaxed break-words whitespace-pre-wrap ${m.role === 'user' ? 'bg-[#276fbf] text-white' : 'bg-slate-100 dark:bg-[#1f2c3f] text-slate-800 dark:text-slate-100 border border-[#e2e8f0] dark:border-[#28374d]'}`}>
                     {m.text}
                   </div>
                 </div>
@@ -98,7 +98,7 @@ export default function AIAssistantPage() {
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(); } }}
                 placeholder="Ask AI to write test cases, summarize runs, draft defects..."
                 rows={1}
-                className="flex-1 border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-sm overflow-hidden resize-none"
+                className="flex-1 border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded font-normal px-3 py-2 text-sm overflow-hidden resize-none"
                 style={{ scrollbarWidth: 'none' }}
               />
               <button disabled={sending || !input.trim()} className="bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-semibold px-3 py-2 rounded inline-flex items-center gap-1 shrink-0"><Send className="w-3.5 h-3.5" /> Send</button>

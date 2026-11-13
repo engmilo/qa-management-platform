@@ -174,7 +174,7 @@ export default function ImportTestCasesPage() {
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5 space-y-4 mb-5">
               <div>
                 <label className="block text-xs font-semibold uppercase mb-1.5">1. Target Project *</label>
-                <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white">
+                <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white">
                   <option value="">{loadingProjects ? 'Loading projects...' : 'Select a project'}</option>
                   {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
@@ -213,9 +213,9 @@ export default function ImportTestCasesPage() {
                           <td className="px-4 py-2 text-xs font-medium">{r.title || '—'}</td>
                           <td className="px-4 py-2 text-xs text-slate-500">{r.test_type} · {r.priority}</td>
                           <td className="px-4 py-2 text-xs">
-                            {r.status === 'new' && <span className="bg-[#dff0d8] text-[#3c763d] px-2 py-0.5 rounded-full text- font-semibold">New</span>}
-                            {r.status === 'duplicate' && <span className="bg-[#fcf8e3] text-[#8a6d3b] px-2 py-0.5 rounded-full text- font-semibold">Duplicate — will skip</span>}
-                            {r.status === 'invalid' && <span className="bg-[#f2dede] text-[#a94442] px-2 py-0.5 rounded-full text- font-semibold">Invalid — missing Key/Title</span>}
+                            {r.status === 'new' && <span className="bg-[#dff0d8] text-[#3c763d] px-2 py-0.5 rounded-full text- font-normal">New</span>}
+                            {r.status === 'duplicate' && <span className="bg-[#fcf8e3] text-[#8a6d3b] px-2 py-0.5 rounded-full text- font-normal">Duplicate — will skip</span>}
+                            {r.status === 'invalid' && <span className="bg-[#f2dede] text-[#a94442] px-2 py-0.5 rounded-full text- font-normal">Invalid — missing Key/Title</span>}
                           </td>
                         </tr>
                       ))}

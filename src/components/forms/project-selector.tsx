@@ -20,7 +20,7 @@ export function ProjectSelector({ value, onChange }: { value: string; onChange: 
         const p = projects.find((x) => x.id === e.target.value) ?? null;
         onChange(p);
       }}
-      className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]"
+      className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded font-normal px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]"
     >
       <option value="">Select a project</option>
       {projects.map((p) => (

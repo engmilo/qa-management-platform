@@ -198,13 +198,13 @@ export default function DashboardPage() {
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4">
                 <h2 className="text-xs font-semibold text-slate-900 dark:text-white mb-3">Quick Links</h2>
                 <div className="flex flex-wrap gap-2">
-                  <Link href="/test-cases/new" className="bg-[#276fbf] text-white text-xs font-semibold px-3 py-1.5 rounded">
+                  <Link href="/test-cases/new" className="bg-[#276fbf] text-white text-xs font-normal px-3 py-1.5 rounded">
                     New Test Case
                   </Link>
-                  <Link href="/test-runs/new" className="bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded">
+                  <Link href="/test-runs/new" className="bg-green-600 text-white text-xs font-normal px-3 py-1.5 rounded">
                     New Test Run
                   </Link>
-                  <Link href="/defects/new" className="bg-slate-700 text-white text-xs font-semibold px-3 py-1.5 rounded">
+                  <Link href="/defects/new" className="bg-slate-700 text-white text-xs font-normal px-3 py-1.5 rounded">
                     New Defect
                   </Link>
                 </div>

@@ -155,7 +155,7 @@ export function StepExecutionPanel({ executionId, onChanged }: { executionId: st
                         type="button"
                         disabled={savingStep === step.step_number}
                         onClick={() => void saveStep(step, btn.value, drafts[step.step_number] ?? '')}
-                        className={`px-2 py-0.5 rounded border text- font-medium transition-colors disabled:opacity-50 ${step.status === btn.value ? btn.activeClass : 'bg-white dark:bg-[#182232] text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                        className={`px-2 py-0.5 rounded border text- font-normal transition-colors disabled:opacity-50 ${step.status === btn.value ? btn.activeClass : 'bg-white dark:bg-[#182232] text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                       >
                         {btn.label}
                       </button>
@@ -168,7 +168,7 @@ export function StepExecutionPanel({ executionId, onChanged }: { executionId: st
                     onChange={(e) => setDrafts((d) => ({ ...d, [step.step_number]: e.target.value }))}
                     rows={2}
                     placeholder="What happened on this step…"
-                    className="w-full rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] px-2 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#48a43f]"
+                    className="w-full rounded font-normal border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] px-2 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#48a43f]"
                   />
                   <button
                     type="button"

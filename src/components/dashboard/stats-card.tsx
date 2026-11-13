@@ -14,7 +14,7 @@ export function StatsCard({ label, value, change, trend = 'up' }: StatsCardProps
           <p className="text-2xl font-bold text-[#1d2d3e] mt-1.5">{value}</p>
         </div>
         {change && (
-          <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${trend === 'up' ? 'bg-green-50 text-[#3d8c36]' : 'bg-red-50 text-red-600'}`}>
+          <span className={`text-xs font-normal px-1.5 py-0.5 rounded ${trend === 'up' ? 'bg-green-50 text-[#3d8c36]' : 'bg-red-50 text-red-600'}`}>
             {change}
           </span>
         )}

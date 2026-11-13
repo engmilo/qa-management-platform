@@ -143,7 +143,7 @@ export default function ProjectDetailsPage() {
                     </div>
                     <div className="flex items-center gap-2 pt-2 border-t border-[#e2e8f0] dark:border-[#28374d]">
                       <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-semibold px-4 py-2 rounded disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
-                      <Link href="/projects" className="bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] hover:bg-slate-50 dark:hover:bg-[#28374d] text-slate-700 dark:text-slate-200 text-sm font-medium px-4 py-2 rounded">Cancel</Link>
+                      <Link href="/projects" className="bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] hover:bg-slate-50 dark:hover:bg-[#28374d] text-slate-700 dark:text-slate-200 text-sm font-normal px-4 py-2 rounded">Cancel</Link>
                     </div>
                     <div className="flex items-center gap-2 text- text-slate-400">
                         <span>Created on {project ? new Date(project.created_at).toLocaleDateString() : ''}</span>

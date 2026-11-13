@@ -101,7 +101,7 @@ export default function NewDefectPage() {
                     {reproSteps.map((step, i) => (
                       <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                         <span className="text-xs font-bold pt-2">{i + 1}.</span>
-                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-2 py-1.5 text-xs text-slate-900 dark:text-white" />
+                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white" />
                         <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-red-500 text-xs pt-2">Remove</button>
                       </div>
                     ))}
@@ -113,7 +113,7 @@ export default function NewDefectPage() {
                   </div>
                   <div className="flex items-center gap-3 pt-2 border-t border-[#e2e8f0] dark:border-[#28374d]">
                     <button disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded shadow-sm">{saving ? 'Saving...' : 'Add Defect'}</button>
-                    <Link href="/defects" className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 text-xs font-semibold px-4 py-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
+                    <Link href="/defects" className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 text-xs font-normal px-4 py-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
                   </div>
                 </form>
               </div>

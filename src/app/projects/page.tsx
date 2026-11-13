@@ -38,11 +38,11 @@ export default function ProjectsPage() {
                 <h1 className="text-xs font-semibold text-slate-900 dark:text-white">Projects</h1>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Manage your test projects.</p>
               </div>
-              <Link href="/projects/new" className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Project</Link>
+              <Link href="/projects/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Project</Link>
             </div>
             <div className="flex flex-wrap gap-2 items-center bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mt-4">
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search projects..." className="text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search projects..." className="text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
                 <option value="">All Status</option><option value="active">Active</option><option value="archived">Archived</option>
               </select>
             </div>

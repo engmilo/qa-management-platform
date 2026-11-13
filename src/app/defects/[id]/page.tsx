@@ -99,7 +99,7 @@ export default function DefectDetailPage() {
               <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
                 <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
                   <div>
-                    <span className="font-mono text-xs font-bold text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#1a2a3a] border border-[#d8dee4] dark:border-[#28374d] px-2 py-1 rounded">{defect.defect_key}</span>
+                    <span className="font-mono text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#1a2a3a] border border-[#d8dee4] dark:border-[#28374d] px-2 py-1 rounded">{defect.defect_key}</span>
                     <h1 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{defect.summary}</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Created {defect.created_at ? new Date(defect.created_at).toLocaleString() : ''}</p>
                   </div>
@@ -123,7 +123,7 @@ export default function DefectDetailPage() {
                     {reproSteps.map((step, i) => (
                       <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                         <span className="text-xs font-bold pt-2">{i + 1}.</span>
-                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-2 py-1.5 text-xs text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} />
+                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} />
                         <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-red-500 text-xs pt-2">Remove</button>
                       </div>
                     ))}

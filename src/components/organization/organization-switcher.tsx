@@ -22,7 +22,7 @@ export function OrganizationSwitcher() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-secondary border border-border rounded-md text-foreground hover:bg-muted"
+        className="flex items-center gap-2 px-4 py-2 bg-secondary border border-border rounded font-normal-md text-foreground hover:bg-muted"
       >
         <span>Acme QA Labs</span>
         <span className="text-xs text-muted-foreground">▼</span>
@@ -35,7 +35,7 @@ export function OrganizationSwitcher() {
               <Link
                 key={org.id}
                 href={`/organizations/${org.id}`}
-                className="block px-4 py-2 rounded hover:bg-muted"
+                className="block px-4 py-2 rounded font-normal hover:bg-muted"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="text-sm font-medium text-foreground">{org.name}</div>
@@ -45,7 +45,7 @@ export function OrganizationSwitcher() {
             <hr className="my-2 border-border" />
             <Link
               href="/organizations/new"
-              className="block px-4 py-2 rounded hover:bg-muted text-sm text-primary"
+              className="block px-4 py-2 rounded font-normal hover:bg-muted text-sm text-primary"
               onClick={() => setIsOpen(false)}
             >
               + Create New Organization

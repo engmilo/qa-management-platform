@@ -135,10 +135,10 @@ export default function TestRunDetailPage() {
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}
-                <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status === 'in_progress' ? 'In Progress' : run?.status === 'completed' ? 'Completed' : run?.status ?? ''}</span>
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status === 'in_progress' ? 'In Progress' : run?.status === 'completed' ? 'Completed' : run?.status ?? ''}</span>
                 {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
-                <Link href="/test-runs/new" className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
+                <Link href="/test-runs/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
               </div>
             </div>
 
@@ -178,12 +178,12 @@ export default function TestRunDetailPage() {
                                     <div key={i} className="border border-[#b6c2cf] dark:border-[#28374d] rounded p-3 bg-white dark:bg-[#182232]">
                                       <div className="flex flex-col sm:flex-row sm:items-start gap-2 justify-between">
                                         <p><span className="text-slate-500">Step {s.step_number}:</span> {s.action}</p>
-                                        <select disabled={isCompleted} value={s.status} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], status: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1">
+                                        <select disabled={isCompleted} value={s.status} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], status: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1">
                                           <option value="not_run">Not Run</option><option value="passed">Passed</option><option value="failed">Failed</option><option value="blocked">Blocked</option><option value="retest">Retest</option>
                                         </select>
                                       </div>
                                       <p className="text-slate-500 mt-1">Expected: {s.expected_result}</p>
-                                      <textarea disabled={isCompleted} value={s.actual_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], actual_result: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} placeholder="Actual result..." rows={1} style={{ overflow: 'hidden', resize: 'none' }} className="w-full mt-2 text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5" />
+                                      <textarea disabled={isCompleted} value={s.actual_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], actual_result: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} placeholder="Actual result..." rows={1} style={{ overflow: 'hidden', resize: 'none' }} className="w-full mt-2 text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5" />
                                     </div>
                                   ))}
                                   {isCompleted ? <p className="text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p> : (

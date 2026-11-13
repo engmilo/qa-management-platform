@@ -51,7 +51,7 @@ export default function TraceabilityPage() {
             <h1 className="text-xs font-semibold text-slate-900 dark:text-white">Traceability</h1>
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Requirements to Test Cases to Defects coverage. Link is read from test_case_requirements join table.</p>
             <div className="flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mb-4">
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search requirements..." className="text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search requirements..." className="text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{loading ? '—' : `${covered} of ${total} covered · ${pct}%`}</p>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden">
@@ -92,7 +92,7 @@ export default function TraceabilityPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${r.coverage === 'Covered' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>{r.coverage}</span>
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${r.coverage === 'Covered' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>{r.coverage}</span>
                       </td>
                     </tr>
                   ))}

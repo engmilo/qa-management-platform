@@ -38,7 +38,7 @@ export function MemberInvitation({ organizationId }: MemberInvitationProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-4 py-2 bg-background border border-border rounded font-normal-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="colleague@company.com"
             required
           />
@@ -51,7 +51,7 @@ export function MemberInvitation({ organizationId }: MemberInvitationProps) {
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-4 py-2 bg-background border border-border rounded font-normal-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="qa_engineer">QA Engineer</option>
             <option value="qa_manager">QA Manager</option>

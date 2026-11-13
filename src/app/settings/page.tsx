@@ -99,7 +99,7 @@ export default function SettingsPage() {
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4 mb-4 flex items-center gap-6">
               <span className="text-xs font-semibold text-slate-900 dark:text-white whitespace-nowrap">ACTIVE ORGANIZATION:</span>
-              <select value={activeOrg} onChange={(e) => setActiveOrg(e.target.value)} className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-semibold w-full max-w-md">
+              <select value={activeOrg} onChange={(e) => setActiveOrg(e.target.value)} className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-normal w-full max-w-md">
                 <option value={activeOrg} className="text-xs font-semibold">{activeOrg}</option>
               </select>
             </div>
@@ -112,7 +112,7 @@ export default function SettingsPage() {
               <div className="p-4 space-y-4">
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-slate-900 dark:text-white">ORGANIZATION NAME *</label>
-                  <input value={orgName} onChange={(e) => setOrgName(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-semibold" />
+                  <input value={orgName} onChange={(e) => setOrgName(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-normal" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-slate-900 dark:text-white">SUBSCRIPTION PLAN</label>
@@ -121,7 +121,7 @@ export default function SettingsPage() {
                       <p className="text-xs font-semibold text-slate-900 dark:text-white">Enterprise QA Tier</p>
                       <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Unlimited test repositories, suites, executions, and AI assistant access</p>
                     </div>
-                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 whitespace-nowrap">Active License</span>
+                    <span className="px-2 py-1 rounded-full text-xs font-normal bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 whitespace-nowrap">Active License</span>
                   </div>
                 </div>
               </div>
@@ -137,11 +137,11 @@ export default function SettingsPage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
                     <label className="block text-xs font-semibold mb-1.5 text-slate-900 dark:text-white">ACCOUNT EMAIL</label>
-                    <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="teammate@company.com" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white placeholder:text-slate-400 rounded px-3 py-2 text-xs font-semibold" />
+                    <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="teammate@company.com" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white placeholder:text-slate-400 rounded px-3 py-2 text-xs font-normal" />
                   </div>
                   <div className="w-full sm:w-48">
                     <label className="block text-xs font-semibold mb-1.5 text-slate-900 dark:text-white">ROLE</label>
-                    <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-semibold">
+                    <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-normal">
                       <option value="qa_engineer" className="text-xs font-semibold">QA Engineer</option>
                       <option value="qa_manager" className="text-xs font-semibold">Qa Manager</option>
                       <option value="org_admin" className="text-xs font-semibold">Org Admin</option>
@@ -162,7 +162,7 @@ export default function SettingsPage() {
                       <div key={id || i} className="flex items-center justify-between border border-[#e2e8f0] dark:border-[#28374d] rounded p-3">
                         <div><p className="text-xs font-semibold text-slate-900 dark:text-white">{nameOf(m)}</p><p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{emailOf(m)}</p></div>
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200">{labelFor(m.role)}</span>
+                          <span className="px-2 py-1 rounded-full text-xs font-normal bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200">{labelFor(m.role)}</span>
                           {isYou ? <span className="text-xs font-semibold text-[#276fbf]">You</span> : (
                             <button onClick={() => setPendingDeactivate(m)} disabled={busy} className="text-xs font-semibold text-red-600 disabled:opacity-50">{busy ? 'Deactivating...' : 'Deactivate'}</button>
                           )}
@@ -183,7 +183,7 @@ export default function SettingsPage() {
           <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-red-600" /></span>
+                <span className="w-8 h-8 rounded-full font-normal bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-red-600" /></span>
                 <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Deactivate member?</h3>
               </div>
               <button onClick={() => setPendingDeactivate(null)} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>

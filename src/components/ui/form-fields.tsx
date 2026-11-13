@@ -1,11 +1,14 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
+
 import Link from 'next/link';
-import { Calendar } from 'lucide-react';
+import { Calendar, ChevronDown } from 'lucide-react';
 
 // EXACT same classes as your working forms — copied, not changed
 export const inputCls =
-  'w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#276fbf]';
+  'w-full border border-[#d8dee4] dark:border-[#28374d] bg-white  rounded px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#276fbf]';
 
 export const labelCls =
   'block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5';
@@ -34,14 +37,35 @@ export function FormSelect({
   options: Option[];
   placeholder?: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+  const selected = options.find((o) => o.value === value);
+  const display = selected ? selected.label : (placeholder ?? 'Select');
   return (
     <FormField label={label}>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
-        {placeholder !== undefined && <option value="">{placeholder}</option>}
-        {options.map((o) => (
-          <option key={`${o.value}-${o.label}`} value={o.value}>{o.label}</option>
-        ))}
-      </select>
+      <div ref={ref} className="relative">
+        <button type="button" onClick={() => setOpen((v) => !v)} className={`${inputCls} flex items-center justify-between text-left pr-10 cursor-pointer`}>
+          <span className="truncate">{display}</span>
+          <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-300 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </button>
+        {open && (
+          <ul className="absolute z-50 left-0 right-0 top-full mt-1 border border-[#d8dee4] rounded shadow-lg py-1" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>
+            {placeholder !== undefined && (
+              <li onClick={() => { onChange(''); setOpen(false); }} className="px-3 py-2 text-sm cursor-pointer" style={{ backgroundColor: '#ffffff', color: '#64748b' }}>{placeholder}</li>
+            )}
+            {options.map((o) => (
+              <li key={`${o.value}-${o.label}`} onClick={() => { onChange(o.value); setOpen(false); }} className="px-3 py-2 text-sm cursor-pointer" style={{ backgroundColor: o.value === value ? '#cfe6ff' : '#ffffff', color: '#0f172a' }}>{o.label}</li>
+            ))}
+          </ul>
+        )}
+      </div>
     </FormField>
   );
 }
@@ -81,7 +105,7 @@ export function FormActions({
       </button>
       <Link
         href={cancelHref}
-        className="bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] hover:bg-slate-50 dark:hover:bg-[#28374d] text-slate-700 dark:text-slate-200 text-sm font-medium px-4 py-2 rounded"
+        className="bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] hover:bg-slate-50 dark:hover:bg-[#28374d] text-slate-700 dark:text-slate-200 text-sm font-normal px-4 py-2 rounded"
       >
         Cancel
       </Link>

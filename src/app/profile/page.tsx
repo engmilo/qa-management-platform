@@ -70,7 +70,7 @@ export default function ProfilePage() {
             ) : (
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="w-12 h-12 rounded-full bg-[#276fbf] text-white text-sm font-bold flex items-center justify-center">{initials}</span>
+                  <span className="w-12 h-12 rounded-full bg-[#276fbf] text-white text-sm font-normal flex items-center justify-center">{initials}</span>
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">{fullName || 'No name set'}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{email}</p>
@@ -85,12 +85,12 @@ export default function ProfilePage() {
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">FULL NAME</label>
                     <input value={fullName} onChange={(e) => setFullName(e.target.value)}
-                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-[#276fbf]" />
+                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-[#276fbf]" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">EMAIL ADDRESS</label>
                     <input value={email} disabled
-                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-slate-50 dark:bg-slate-800/50 rounded px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed" />
+                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-slate-50 dark:bg-slate-800/50 rounded font-normal px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed" />
                     <p className="text- text-slate-400 mt-1">Email cannot be changed here.</p>
                   </div>
                   <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-semibold px-4 py-2 rounded disabled:opacity-50">

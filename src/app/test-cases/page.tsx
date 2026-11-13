@@ -64,23 +64,23 @@ export default function TestCasesPage() {
               <div className="flex gap-2">
                 <Link href="/api/test-cases/export" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</Link>
                 <Link href="/test-cases/import" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Import</Link>
-                <Link href="/test-cases/new" className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Test Case</Link>
+                <Link href="/test-cases/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Test Case</Link>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2 items-center bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mt-4">
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="text-xs font-semibold bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
-              <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
+              <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
                 <option value="">All Projects</option>
                 {projects.map((p: any) => (<option key={p.id} value={String(p.id)}>{p.name}</option>))}
               </select>
-              <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+              <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
                 <option value="">All Priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option>
               </select>
-              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
-                <option value="">All Types</option><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="security">Security</option><option value="performance">Performance</option>
+              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Types</option><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="security">Security</option><option value="performance">Performance</option><option value="integration">Integration</option><option value="ui">UI</option><option value="api">API</option><option value="automation">Automation</option><option value="e2e">E2E</option><option value="uat">UAT</option>
               </select>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-semibold bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
                 <option value="">All Status</option><option value="draft">Draft</option><option value="ready">Ready</option><option value="approved">Approved</option><option value="deprecated">Deprecated</option>
               </select>
               <span className="text-xs font-semibold text-slate-500">{filtered.length} of {cases.length}</span>
@@ -98,9 +98,9 @@ export default function TestCasesPage() {
                     <tr key={c.id} className="border-t border-slate-200 dark:border-slate-700/50">
                       <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{c.case_key ?? c.code ?? ''}</Link></td>
                       <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="hover:underline">{c.title}</Link></td>
-                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize">{c.priority}</span></td>
-                      <td className="px-4 py-3">{c.test_type ?? c.type ?? ''}</td>
-                      <td className="px-4 py-3">{c.category}</td>
+                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize font-normal">{c.priority}</span></td>
+                      <td className="px-4 py-3"><span className={(c.test_type ?? c.type ?? '')==='functional' ? 'inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='regression' ? 'inline-block px-2 py-0.5 rounded bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='smoke' ? 'inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='security' ? 'inline-block px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='performance' ? 'inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='integration' ? 'inline-block px-2 py-0.5 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='ui' ? 'inline-block px-2 py-0.5 rounded bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='api' ? 'inline-block px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='automation' ? 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='e2e' ? 'inline-block px-2 py-0.5 rounded bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='uat' ? 'inline-block px-2 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 capitalize font-normal' : ''}>{(c.test_type ?? c.type ?? '')==='e2e' ? 'E2E' : (c.test_type ?? c.type ?? '')==='uat' ? 'UAT' : (c.test_type ?? c.type ?? '')==='api' ? 'API' : (c.test_type ?? c.type ?? '')==='ui' ? 'UI' : (c.test_type ?? c.type ?? '')}</span></td>
+                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200 capitalize font-normal">{c.category}</span></td>
                       <td className="px-4 py-3">
                         {/* FIX: Status now comes from DB column (Step 1) + API (Step 2). Before it was undefined -> "—" */}
                         {c.status ? <span className={`inline-block px-2 py-0.5 rounded capitalize ${statusBadge(c.status)}`}>{c.status}</span> : <span>—</span>}
