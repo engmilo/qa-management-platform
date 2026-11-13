@@ -34,10 +34,10 @@ export function ConfirmDialog({ open, title, message, confirmLabel = 'Delete', c
           </div>
         </div>
         <div className="px-5 pb-5 flex justify-end gap-2">
-          <button type="button" onClick={onCancel} disabled={deleting} className="px-3.5 py-2 text-xs font-semibold rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 hover:bg-slate-50 disabled:opacity-50">
+          <button type="button" onClick={onCancel} disabled={deleting} className="px-3.5 py-2 text-xs font-normal rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 hover:bg-slate-50 disabled:opacity-50">
             {cancelLabel}
           </button>
-          <button type="button" onClick={onConfirm} disabled={deleting} className="px-3.5 py-2 text-xs font-semibold rounded bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white">
+          <button type="button" onClick={onConfirm} disabled={deleting} className="px-3.5 py-2 text-xs font-normal rounded bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white">
             {deleting ? 'Deleting...' : confirmLabel}
           </button>
         </div>
