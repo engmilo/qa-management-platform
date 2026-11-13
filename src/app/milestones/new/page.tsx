@@ -61,19 +61,19 @@ export default function NewMilestonePage() {
             {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
             <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6 space-y-5 max-w-3xl">
               <div>
-                <label className="block text-xs font-semibold mb-1.5">Project *</label>
+                <label className="block text-xs font-normal mb-1.5">Project *</label>
                 <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] rounded px-3 py-2 text-xs font-normal">
                   <option value="">Select project</option>
                   {projects.map((p) => <option key={p.id} value={p.id}>{p.key} — {p.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5">Name *</label>
+                <label className="block text-xs font-normal mb-1.5">Name *</label>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="e.g. Beta Release" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded font-normal px-3 py-2 text-sm" />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5">Status</label>
+                  <label className="block text-xs font-normal mb-1.5">Status</label>
                   <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] rounded px-3 py-2 text-xs font-normal">
                     <option value="planned">Planned</option>
                     <option value="in_progress">In Progress</option>
@@ -83,7 +83,7 @@ export default function NewMilestonePage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5">Due Date</label>
+                  <label className="block text-xs font-normal mb-1.5">Due Date</label>
                   <div className="relative">
                     <input
                       ref={dateRef}
@@ -106,10 +106,10 @@ export default function NewMilestonePage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5">Description</label>
+                <label className="block text-xs font-normal mb-1.5">Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded font-normal px-3 py-2 text-sm" />
               </div>
-              <button disabled={saving} className="w-full bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Creating...' : 'Create Milestone'}</button>
+              <button disabled={saving} className="w-full bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Creating...' : 'Create Milestone'}</button>
             </form>
           </div>
         </main>

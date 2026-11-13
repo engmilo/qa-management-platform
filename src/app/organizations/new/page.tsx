@@ -60,7 +60,7 @@ export default function NewOrganizationPage() {
             <div className="flex items-center gap-2 text-xs text-[#6e7d8c] mb-1">
               <Link href="/settings" className="hover:underline">Administration</Link>
               <span>/</span>
-              <span className="text-[#1d2d3e] font-medium">New Organization</span>
+              <span className="text-[#1d2d3e] font-normal">New Organization</span>
             </div>
 
             <div className="mb-5 flex items-center justify-between">
@@ -83,14 +83,14 @@ export default function NewOrganizationPage() {
             </div>
 
             {error && (
-              <div className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+              <div className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-normal">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-lg shadow-sm p-6 space-y-5">
               <div>
-                <label htmlFor="organization-name" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+                <label htmlFor="organization-name" className="block text-xs font-normal text-[#4f6174] uppercase tracking-wide mb-1.5">
                   Organization Name
                 </label>
                 <input
@@ -106,7 +106,7 @@ export default function NewOrganizationPage() {
               </div>
 
               <div>
-                <label htmlFor="organization-slug" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+                <label htmlFor="organization-slug" className="block text-xs font-normal text-[#4f6174] uppercase tracking-wide mb-1.5">
                   Organization Slug (Identifier)
                 </label>
                 <input
@@ -138,7 +138,7 @@ export default function NewOrganizationPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white text-xs font-semibold rounded shadow-sm transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white text-xs font-normal rounded shadow-sm transition disabled:opacity-50"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   {loading ? 'Creating...' : 'Create Organization'}

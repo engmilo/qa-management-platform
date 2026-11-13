@@ -69,12 +69,12 @@ export default function AIAssistantPage() {
                 <h1 className="flex items-center gap-2 text-base font-bold text-white tracking-tight text-left m-0"><Sparkles className="shrink-0 w-4 h-4 text-[#276fbf]" /> AI Assistant</h1>
                 <p className="text-xs text-slate-500 mt-0.5 font-normal">Generate test cases, summaries, and defect drafts.</p>
               </div>
-              <button onClick={clear} className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Clear Chat</button>
+              <button onClick={clear} className="bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 border border-[#d8dee4] dark:border-[#28374d] text-xs font-normal px-3 py-1.5 rounded inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Clear Chat</button>
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">
               {prompts.map((p) => (
-                <button key={p} onClick={() => { setInput(p); inputRef.current?.focus(); }} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] text-xs font-semibold px-3 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-[#1a2636]">{p}</button>
+                <button key={p} onClick={() => { setInput(p); inputRef.current?.focus(); }} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] text-xs font-normal px-3 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-[#1a2636]">{p}</button>
               ))}
             </div>
 
@@ -101,7 +101,7 @@ export default function AIAssistantPage() {
                 className="flex-1 border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded font-normal px-3 py-2 text-sm overflow-hidden resize-none"
                 style={{ scrollbarWidth: 'none' }}
               />
-              <button disabled={sending || !input.trim()} className="bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-semibold px-3 py-2 rounded inline-flex items-center gap-1 shrink-0"><Send className="w-3.5 h-3.5" /> Send</button>
+              <button disabled={sending || !input.trim()} className="bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-normal px-3 py-2 rounded inline-flex items-center gap-1 shrink-0"><Send className="w-3.5 h-3.5" /> Send</button>
             </form>
             <p className="text- text-slate-400 mt-2">Enter to send · Shift + Enter for new line</p>
           </div>

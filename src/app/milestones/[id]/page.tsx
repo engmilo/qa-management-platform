@@ -112,7 +112,7 @@ export default function MilestoneDetailPage() {
                     <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{rel.version_name}</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace('_', ' ')}</p>
                   </div>
-                  <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold">Delete</button>
+                  <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-normal">Delete</button>
                 </div>
                 <div className="p-6 space-y-5">
                   <FormField label="VERSION NAME *">
@@ -131,16 +131,16 @@ export default function MilestoneDetailPage() {
                     <DateField label="START DATE" value={form.startDate} onChange={(v) => setForm({ ...form, startDate: v })} />
                     <DateField label="RELEASE DATE" value={form.releaseDate} onChange={(v) => setForm({ ...form, releaseDate: v })} />
                   </div>
-                  <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
+                  <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
                 </div>
               </form>
             )}
 
             {rel && (
               <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
-                <h3 className="text-sm font-semibold mb-3">Linked Test Plans</h3>
+                <h3 className="text-sm font-normal mb-3">Linked Test Plans</h3>
                 {rel.test_plans && rel.test_plans.length > 0 ? (
-                  <div className="space-y-2">{rel.test_plans.map((p: any) => <div key={p.id} className="flex justify-between text-xs border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2"><Link href={`/test-plans/${p.id}`} className="font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">{p.title}</Link><span className="text-slate-500 dark:text-slate-400">{p.status}</span></div>)}</div>
+                  <div className="space-y-2">{rel.test_plans.map((p: any) => <div key={p.id} className="flex justify-between text-xs border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2"><Link href={`/test-plans/${p.id}`} className="font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">{p.title}</Link><span className="text-slate-500 dark:text-slate-400">{p.status}</span></div>)}</div>
                 ) : <p className="text-xs text-slate-400">No test plans linked to this milestone yet. Link one from its Test Plan detail page.</p>}
               </section>
             )}

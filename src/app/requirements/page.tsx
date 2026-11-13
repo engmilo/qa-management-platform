@@ -62,14 +62,14 @@ export default function RequirementsPage() {
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5"><option value="">All Types</option><option value="functional">Functional</option><option value="non_functional">Non-functional</option><option value="business">Business</option><option value="performance">Performance</option><option value="security">Security</option><option value="technical">Technical</option><option value="user_story">User Story</option><option value="automation">Automation</option><option value="regression">Regression</option><option value="e2e">E2E</option></select>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
-              <table className="w-full text-xs font-semibold">
+              <table className="w-full text-xs font-normal">
                 <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Title</th><th className="px-4 py-2.5">Project</th><th className="px-4 py-2.5">Type</th><th className="px-4 py-2.5">Priority</th><th className="px-4 py-2.5">Status</th></tr></thead>
                 <tbody>
                   {filtered.map((r) => (
                     <tr key={r.id} className="border-t border-slate-200 dark:border-slate-700/50">
                       <td className="px-4 py-3">
                         {/* FIX: Key now matches Test Cases — text-sm font-bold, was text-xs */}
-                        <Link href={`/requirements/${r.id}`} className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">{r.req_key}</Link>
+                        <Link href={`/requirements/${r.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline">{r.req_key}</Link>
                       </td>
                       <td className="px-4 py-3">{r.title}</td>
                       <td className="px-4 py-3">{projName(r.project_id)}</td>

@@ -157,7 +157,7 @@ export default function ImportTestCasesPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4">
               <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Test Cases</Link>
-              <span>/</span><span className="text-slate-800 dark:text-slate-200 font-medium">Import CSV</span>
+              <span>/</span><span className="text-slate-800 dark:text-slate-200 font-normal">Import CSV</span>
             </div>
             <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Import Test Cases</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 font-normal">Same format as Export. Preview first — duplicates are skipped, nothing is overwritten or deleted.</p>
@@ -167,13 +167,13 @@ export default function ImportTestCasesPage() {
               <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">
                 Import done — <b>{result.added} added</b>, {result.skipped.length} skipped (duplicate).
                 {result.errors.length > 0 && <div className="mt-1">{result.errors.map((e, i) => <div key={i}>{e.key}: {e.error}</div>)}</div>}
-                <Link href="/test-cases" className="underline font-semibold ml-1">Go to Test Cases →</Link>
+                <Link href="/test-cases" className="underline font-normal ml-1">Go to Test Cases →</Link>
               </div>
             )}
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5 space-y-4 mb-5">
               <div>
-                <label className="block text-xs font-semibold uppercase mb-1.5">1. Target Project *</label>
+                <label className="block text-xs font-normal uppercase mb-1.5">1. Target Project *</label>
                 <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white">
                   <option value="">{loadingProjects ? 'Loading projects...' : 'Select a project'}</option>
                   {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -181,7 +181,7 @@ export default function ImportTestCasesPage() {
                 <p className="text- text-slate-400 mt-1">Duplicates are checked only inside this project.</p>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase mb-1.5">2. CSV File *</label>
+                <label className="block text-xs font-normal uppercase mb-1.5">2. CSV File *</label>
                 <label className="flex items-center gap-2 border border-dashed border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-3 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1f2c3f]">
                   <Upload className="w-4 h-4 text-slate-400" />
                   <span>{fileName || 'Choose a CSV file — use Export to get the template'}</span>
@@ -194,9 +194,9 @@ export default function ImportTestCasesPage() {
             {rows.length > 0 && (
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
                 <div className="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-[#e2e8f0] dark:border-[#28374d]">
-                  <h3 className="text-sm font-bold">Preview</h3>
-                  <span className="text-xs text-slate-500">{counts.total} rows · <span className="text-[#48a43f] font-semibold">{counts.nNew} new</span> · <span className="text-amber-600">{counts.dup} duplicate (will skip)</span> · <span className="text-red-600">{counts.invalid} invalid</span></span>
-                  <button onClick={doImport} disabled={importing || !projectId || counts.nNew === 0} className="ml-auto bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold px-3.5 py-2 rounded">{importing ? 'Importing...' : `Import ${counts.nNew} new cases`}</button>
+                  <h3 className="text-sm font-normal">Preview</h3>
+                  <span className="text-xs text-slate-500">{counts.total} rows · <span className="text-[#48a43f] font-normal">{counts.nNew} new</span> · <span className="text-amber-600">{counts.dup} duplicate (will skip)</span> · <span className="text-red-600">{counts.invalid} invalid</span></span>
+                  <button onClick={doImport} disabled={importing || !projectId || counts.nNew === 0} className="ml-auto bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal px-3.5 py-2 rounded">{importing ? 'Importing...' : `Import ${counts.nNew} new cases`}</button>
                 </div>
                 <div className="overflow-x-auto max-h- overflow-y-auto">
                   <table className="w-full min-w- text-left">
@@ -209,8 +209,8 @@ export default function ImportTestCasesPage() {
                     <tbody className="divide-y divide-[#edf2f7] dark:divide-[#222e3e]">
                       {rows.map((r, i) => (
                         <tr key={i}>
-                          <td className="px-4 py-2 text-xs font-mono font-bold text-[#276fbf]">{r.case_key || '—'}</td>
-                          <td className="px-4 py-2 text-xs font-medium">{r.title || '—'}</td>
+                          <td className="px-4 py-2 text-xs font-mono font-normal text-[#276fbf]">{r.case_key || '—'}</td>
+                          <td className="px-4 py-2 text-xs font-normal">{r.title || '—'}</td>
                           <td className="px-4 py-2 text-xs text-slate-500">{r.test_type} · {r.priority}</td>
                           <td className="px-4 py-2 text-xs">
                             {r.status === 'new' && <span className="bg-[#dff0d8] text-[#3c763d] px-2 py-0.5 rounded-full text- font-normal">New</span>}

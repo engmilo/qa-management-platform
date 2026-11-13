@@ -52,10 +52,10 @@ export default function TraceabilityPage() {
             <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Requirements to Test Cases to Defects coverage. Link is read from test_case_requirements join table.</p>
             <div className="flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mb-4">
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search requirements..." className="text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{loading ? '—' : `${covered} of ${total} covered · ${pct}%`}</p>
+              <p className="text-xs font-normal text-slate-500 dark:text-slate-400">{loading ? '—' : `${covered} of ${total} covered · ${pct}%`}</p>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden">
-              <table className="w-full text-xs font-semibold">
+              <table className="w-full text-xs font-normal">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400">
                     <th className="px-4 py-2.5">Requirement</th>
@@ -69,12 +69,12 @@ export default function TraceabilityPage() {
                   {filtered.map((r) => (
                     <tr key={r.id} className="border-t border-slate-200 dark:border-slate-700/50 align-top">
                       <td className="px-4 py-3">
-                        <Link href={`/requirements/${r.id}`} className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                        <Link href={`/requirements/${r.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline">
                           {r.code} — {r.title}
                         </Link>
                         {r.testCaseList.length > 0 && (
                           <div className="mt-1 text-slate-500 dark:text-slate-400">
-                            {r.testCaseList.map((c, i) => (<div key={i}><span className="text-sm font-bold text-blue-600 dark:text-blue-400">{c.code}</span> — {c.title}</div>))}
+                            {r.testCaseList.map((c, i) => (<div key={i}><span className="text-sm font-normal text-blue-600 dark:text-blue-400">{c.code}</span> — {c.title}</div>))}
                           </div>
                         )}
                         {r.testCaseList.length === 0 && (
@@ -87,7 +87,7 @@ export default function TraceabilityPage() {
                         {r.defects}
                         {r.defectList.length > 0 && (
                           <div className="text-slate-500 dark:text-slate-400 mt-1">
-                            {r.defectList.map((d, i) => (<div key={i}><span className="text-sm font-bold text-blue-600 dark:text-blue-400">{d.key}</span> — {d.summary}</div>))}
+                            {r.defectList.map((d, i) => (<div key={i}><span className="text-sm font-normal text-blue-600 dark:text-blue-400">{d.key}</span> — {d.summary}</div>))}
                           </div>
                         )}
                       </td>
@@ -102,7 +102,7 @@ export default function TraceabilityPage() {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-3">Coverage = Covered if at least 1 test case is linked via test_case_requirements. Defects = defects linked to that requirement, or to any of its linked test cases.</p>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-3">Coverage = Covered if at least 1 test case is linked via test_case_requirements. Defects = defects linked to that requirement, or to any of its linked test cases.</p>
           </div>
         </main>
       </div>

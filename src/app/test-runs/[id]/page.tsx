@@ -115,7 +115,7 @@ export default function TestRunDetailPage() {
       <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
-          <main className="flex-1 overflow-y-auto p-6"><div className="w-full max-w-none"><div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-4 text-center text-xs font-semibold text-slate-500">Loading test run...</div></div></main>
+          <main className="flex-1 overflow-y-auto p-6"><div className="w-full max-w-none"><div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-4 text-center text-xs font-normal text-slate-500">Loading test run...</div></div></main>
         </div>
       </div>
     );
@@ -128,32 +128,32 @@ export default function TestRunDetailPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <Link href="/test-runs" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">← Test Runs &amp; Results</Link>
+            <Link href="/test-runs" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Runs &amp; Results</Link>
             <div className="flex flex-wrap gap-2 items-start justify-between mt-3">
               <div>
                 <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{run?.name ?? 'Test Run'}</h1>
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
-              <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-semibold text-red-600">{runMsg}</span>}
+              <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-normal text-red-600">{runMsg}</span>}
                 <span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status === 'in_progress' ? 'In Progress' : run?.status === 'completed' ? 'Completed' : run?.status ?? ''}</span>
-                {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
-                {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
+                {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
+                {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-normal bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
                 <Link href="/test-runs/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
               </div>
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-4 mt-4">
-              <div className="flex justify-between text-xs font-semibold"><span>Progress</span><span>{passed + failed + blocked} / {execs.length} · {pct}%</span></div>
+              <div className="flex justify-between text-xs font-normal"><span>Progress</span><span>{passed + failed + blocked} / {execs.length} · {pct}%</span></div>
               <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded mt-2 overflow-hidden"><div className="h-full bg-green-500" style={{ width: `${pct}%` }} /></div>
-              <p className="text-xs font-semibold mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run?.assignee_name ?? run?.assignee ?? '—'}</span></p>
-              <p className="text-xs font-semibold mt-1"><span className="text-green-600 dark:text-green-400">Passed: {passed}</span><span className="text-slate-400 mx-1">·</span><span className="text-red-600 dark:text-red-400">Failed: {failed}</span><span className="text-slate-400 mx-1">·</span><span className="text-amber-600 dark:text-amber-400">Blocked: {blocked}</span><span className="text-slate-400 mx-1">·</span><span className="text-slate-500 dark:text-slate-400">Not Run: {notRun}</span></p>
-              {run?.description && <p className="text-xs font-semibold mt-1">{run.description}</p>}
-              {isCompleted && <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-2">Run is Completed — click Reopen Run to change results.</p>}
+              <p className="text-xs font-normal mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run?.assignee_name ?? run?.assignee ?? '—'}</span></p>
+              <p className="text-xs font-normal mt-1"><span className="text-green-600 dark:text-green-400">Passed: {passed}</span><span className="text-slate-400 mx-1">·</span><span className="text-red-600 dark:text-red-400">Failed: {failed}</span><span className="text-slate-400 mx-1">·</span><span className="text-amber-600 dark:text-amber-400">Blocked: {blocked}</span><span className="text-slate-400 mx-1">·</span><span className="text-slate-500 dark:text-slate-400">Not Run: {notRun}</span></p>
+              {run?.description && <p className="text-xs font-normal mt-1">{run.description}</p>}
+              {isCompleted && <p className="text-xs font-normal text-amber-600 dark:text-amber-400 mt-2">Run is Completed — click Reopen Run to change results.</p>}
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
-              <h2 className="text-xs font-semibold px-4 py-3 border-b border-slate-200 dark:border-slate-700/50">Execution History — Test Cases</h2>
-              <table className="w-full text-xs font-semibold">
+              <h2 className="text-xs font-normal px-4 py-3 border-b border-slate-200 dark:border-slate-700/50">Execution History — Test Cases</h2>
+              <table className="w-full text-xs font-normal">
                 <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5">Test Case</th><th className="px-4 py-2.5">Result</th><th className="px-4 py-2.5">Actions</th></tr></thead>
                 <tbody>
                   {execs.map((ex) => {
@@ -166,7 +166,7 @@ export default function TestRunDetailPage() {
                       <React.Fragment key={ex.id}>
                         <tr className="border-t border-slate-200 dark:border-slate-700/50 align-top">
                           <td className="px-4 py-3"><Link href={`/test-cases/${ex.test_case_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{code ? `${code} — ${title || 'Untitled'}` : title}</Link></td>
-                          <td className="px-4 py-3"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold capitalize ${badge(ex.status)}`}>{ex.status === 'not_run' ? 'Not Run' : ex.status === 'passed' ? 'Passed' : ex.status === 'failed' ? 'Failed' : ex.status === 'blocked' ? 'Blocked' : ex.status === 'retest' ? 'Retest' : ex.status}</span></td>
+                          <td className="px-4 py-3"><span className={`inline-block px-2 py-0.5 rounded text-xs font-normal capitalize ${badge(ex.status)}`}>{ex.status === 'not_run' ? 'Not Run' : ex.status === 'passed' ? 'Passed' : ex.status === 'failed' ? 'Failed' : ex.status === 'blocked' ? 'Blocked' : ex.status === 'retest' ? 'Retest' : ex.status}</span></td>
                           <td className="px-4 py-3"><button onClick={() => toggleSteps(ex.id)} className="text-blue-600 dark:text-blue-400 hover:underline">{open ? 'Hide steps ▲' : 'View steps ▼'}</button></td>
                         </tr>
                         {open && (
@@ -188,7 +188,7 @@ export default function TestRunDetailPage() {
                                   ))}
                                   {isCompleted ? <p className="text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p> : (
                                     <div className="flex gap-2 items-center">
-                                      <button onClick={() => saveSteps(ex.id)} disabled={!!savingSteps[ex.id]} className="text-xs font-semibold bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-1.5">{savingSteps[ex.id] ? 'Saving...' : 'Save Steps'}</button>
+                                      <button onClick={() => saveSteps(ex.id)} disabled={!!savingSteps[ex.id]} className="text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-1.5">{savingSteps[ex.id] ? 'Saving...' : 'Save Steps'}</button>
                                       {stepMsg[ex.id] && <span className="text-slate-600 dark:text-slate-300">{stepMsg[ex.id]}</span>}
                                     </div>
                                   )}
@@ -211,11 +211,11 @@ export default function TestRunDetailPage() {
       {showComplete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-5 w-full max-w-sm">
-            <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Complete this run?</h3>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">You can reopen it later to change results.</p>
+            <h3 className="text-xs font-normal text-slate-900 dark:text-white">Complete this run?</h3>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">You can reopen it later to change results.</p>
             <div className="flex gap-2 mt-4">
-              <button onClick={() => setShowComplete(false)} className="flex-1 text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
-              <button onClick={() => setRunStatus('completed', true)} disabled={completing} className="flex-1 text-xs font-semibold bg-green-600 text-white rounded px-3 py-2 disabled:opacity-50">{completing ? 'Completing...' : 'Complete Run'}</button>
+              <button onClick={() => setShowComplete(false)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button onClick={() => setRunStatus('completed', true)} disabled={completing} className="flex-1 text-xs font-normal bg-green-600 text-white rounded px-3 py-2 disabled:opacity-50">{completing ? 'Completing...' : 'Complete Run'}</button>
             </div>
           </div>
         </div>

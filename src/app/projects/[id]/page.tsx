@@ -105,13 +105,13 @@ export default function ProjectDetailsPage() {
                   <ArrowLeft className="w-3.5 h-3.5" /> Projects
                 </Link>
                 <span>/</span>
-                <span className="text-slate-800 font-semibold">{project?.name || 'Project Details'}</span>
+                <span className="text-slate-800 font-normal">{project?.name || 'Project Details'}</span>
               </div>
             </div>
 
             {error ? (
               <section role="alert" className="bg-white border border-red-200 rounded-md p-6 shadow-sm">
-                <p className="text-sm font-semibold text-red-600">{error}</p>
+                <p className="text-sm font-normal text-red-600">{error}</p>
                 <p className="mt-1 text-xs text-slate-500">The project may have been removed or may belong to an organization you cannot access.</p>
               </section>
             ) : project ? (
@@ -142,7 +142,7 @@ export default function ProjectDetailsPage() {
                       <textarea ref={descRef} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief overview of project scope, test environment, and goals" rows={4} style={{ overflow: 'hidden' }} className={`${inputCls} resize-none overflow-hidden`} />
                     </div>
                     <div className="flex items-center gap-2 pt-2 border-t border-[#e2e8f0] dark:border-[#28374d]">
-                      <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-semibold px-4 py-2 rounded disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
+                      <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-normal px-4 py-2 rounded disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
                       <Link href="/projects" className="bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] hover:bg-slate-50 dark:hover:bg-[#28374d] text-slate-700 dark:text-slate-200 text-sm font-normal px-4 py-2 rounded">Cancel</Link>
                     </div>
                     <div className="flex items-center gap-2 text- text-slate-400">

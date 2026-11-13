@@ -124,7 +124,7 @@ export default function TestPlanDetailPage() {
                       <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{plan.title}</h1>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">{plan.projects?.key} — {plan.projects?.name}{plan.releases ? ` · Milestone: ${plan.releases.version_name}` : ''}</p>
                     </div>
-                    <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-semibold">Delete</button>
+                    <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 dark:text-red-400 font-normal">Delete</button>
                   </div>
                   <div className="p-6 space-y-4">
                     <FormField label="TITLE *">
@@ -151,20 +151,20 @@ export default function TestPlanDetailPage() {
                         {milestones.map((m: any) => <option key={m.id} value={m.id}>{m.version_name ?? m.name} — {m.status}</option>)}
                       </select>
                     </div>
-                    <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
+                    <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
                   </div>
                 </form>
 
                 <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5 mb-6">
                   <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-sm font-semibold">Test Runs in this Plan</h3>
-                    <Link href={`/test-runs/new?projectId=${plan.project_id}&testPlanId=${plan.id}`} className="bg-[#48a43f] text-white text-xs font-semibold px-3 py-1.5 rounded">Create Run from Plan</Link>
+                    <h3 className="text-sm font-normal">Test Runs in this Plan</h3>
+                    <Link href={`/test-runs/new?projectId=${plan.project_id}&testPlanId=${plan.id}`} className="bg-[#48a43f] text-white text-xs font-normal px-3 py-1.5 rounded">Create Run from Plan</Link>
                   </div>
                   {runs.length === 0 ? <p className="text-xs text-slate-400">No runs yet.</p> : runs.map((r: any) => <Link key={r.id} href={`/test-runs/${r.id}`} className="flex justify-between py-2 border-b last:border-0 text-xs hover:bg-slate-50 dark:hover:bg-[#1e2a3a] px-2 rounded"><span className="font-normal">{r.name}</span><span>{r.status}</span></Link>)}
                 </section>
 
                 <section className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
-                  <h3 className="text-sm font-semibold mb-2">Suites in this Plan</h3>
+                  <h3 className="text-sm font-normal mb-2">Suites in this Plan</h3>
                   {suites.length === 0 ? <p className="text-xs text-slate-400">No suites linked to this plan.</p> : suites.map((s: any) => <Link key={s.id} href={`/test-suites/${s.id}`} className="block py-1.5 text-xs border-b last:border-0 hover:bg-slate-50 dark:hover:bg-[#1e2a3a] px-2 rounded"><span className="font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">{s.name}</span></Link>)}
                 </section>
               </>

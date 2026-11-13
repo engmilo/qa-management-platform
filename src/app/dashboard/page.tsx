@@ -54,7 +54,7 @@ function Donut({ value }: { value: number | null }) {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs font-semibold text-white">
+        <span className="text-xs font-normal text-white">
           {value === null ? '—' : `${value}%`}
         </span>
       </div>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text- font-bold text-slate-500 text-center">TEST CASES</p>
+                <p className="text- font-normal text-slate-500 text-center">TEST CASES</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testCases}
                 </p>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text- font-bold text-slate-500 text-center">TEST RUNS</p>
+                <p className="text- font-normal text-slate-500 text-center">TEST RUNS</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testRuns}
                 </p>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text- font-bold text-slate-500 text-center">OPEN DEFECTS</p>
+                <p className="text- font-normal text-slate-500 text-center">OPEN DEFECTS</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.openDefects}
                 </p>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text- font-bold text-slate-500 text-center">PASS RATE</p>
+                <p className="text- font-normal text-slate-500 text-center">PASS RATE</p>
                 <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.passRate === null ? '—' : `${d.passRate}%`}
                 </p>
@@ -196,7 +196,7 @@ export default function DashboardPage() {
 
             <div className="grid lg:grid-cols-2 gap-4">
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4">
-                <h2 className="text-xs font-semibold text-slate-900 dark:text-white mb-3">Quick Links</h2>
+                <h2 className="text-xs font-normal text-slate-900 dark:text-white mb-3">Quick Links</h2>
                 <div className="flex flex-wrap gap-2">
                   <Link href="/test-cases/new" className="bg-[#276fbf] text-white text-xs font-normal px-3 py-1.5 rounded">
                     New Test Case
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4">
-                <h2 className="text-xs font-semibold text-slate-900 dark:text-white mb-3">Recent Activity</h2>
+                <h2 className="text-xs font-normal text-slate-900 dark:text-white mb-3">Recent Activity</h2>
                 {d?.recent?.length ? (
                   d.recent.map((a, i) => (
                     <div

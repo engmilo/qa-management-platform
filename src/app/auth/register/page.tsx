@@ -40,7 +40,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] px-4 py-12">
       {/* TestRail Brand Header */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="w-10 h-10 flex items-center justify-center text-white font-bold text-lg">
+        <div className="w-10 h-10 flex items-center justify-center text-white font-normal text-lg">
           TR
         </div>
         <div>
@@ -51,19 +51,19 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-md bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-lg shadow-sm p-8">
         <div className="mb-6 pb-4 border-b border-[#e5e9ec]">
-          <h2 className="text-lg font-semibold text-[#1d2d3e]">Create Your Account</h2>
+          <h2 className="text-lg font-normal text-[#1d2d3e]">Create Your Account</h2>
           <p className="text-xs text-[#6e7d8c] mt-0.5">Start managing your QA projects and tests</p>
         </div>
 
         {error && (
-          <div className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+          <div className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-normal">
             {error}
           </div>
         )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label htmlFor="fullName" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+            <label htmlFor="fullName" className="block text-xs font-normal text-[#4f6174] uppercase tracking-wide mb-1.5">
               Full Name
             </label>
             <input
@@ -78,7 +78,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+            <label htmlFor="email" className="block text-xs font-normal text-[#4f6174] uppercase tracking-wide mb-1.5">
               Email Address
             </label>
             <input
@@ -93,7 +93,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+            <label htmlFor="password" className="block text-xs font-normal text-[#4f6174] uppercase tracking-wide mb-1.5">
               Password
             </label>
             <input
@@ -113,7 +113,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-semibold rounded text-sm shadow-sm transition disabled:opacity-50"
+              className="w-full py-2.5 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-normal rounded text-sm shadow-sm transition disabled:opacity-50"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
@@ -122,7 +122,7 @@ export default function RegisterPage() {
 
         <div className="mt-6 pt-4 border-t border-[#e5e9ec] text-center text-xs text-[#6e7d8c]">
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-[#276fbf] hover:underline font-semibold">
+          <Link href="/auth/login" className="text-[#276fbf] hover:underline font-normal">
             Sign in
           </Link>
         </div>

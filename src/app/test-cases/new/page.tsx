@@ -188,14 +188,14 @@ export default function NewTestCasePage() {
                   <div className="space-y-2">
                     {steps.map((s, idx) => (
                       <div key={idx} className="flex items-start gap-2">
-                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 pt-2.5 w-5 shrink-0">{idx + 1}.</span>
+                        <span className="text-xs font-normal text-slate-500 dark:text-slate-400 pt-2.5 w-5 shrink-0">{idx + 1}.</span>
                         <input value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} placeholder="Step - e.g. Navigate to login page" className={inputCls} />
                         <input value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} placeholder="Expected Result - e.g. Login page is shown" className={inputCls} />
                         <button type="button" onClick={() => setConfirmRemoveIdx(idx)} title="Remove step" className="shrink-0 mt-1 h-8 px-2 flex items-center justify-center gap-1 rounded text-sm font-normal whitespace-nowrap cursor-pointer" style={{ backgroundColor: '#dc2626', color: '#ffffff' }}>X Remove</button>
                       </div>
                     ))}
                   </div>
-                  <button type="button" onClick={addStep} className="mt-2 text-xs font-semibold text-[#276fbf] dark:text-[#4da3ff] hover:underline">+ Add Step</button>
+                  <button type="button" onClick={addStep} className="mt-2 text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">+ Add Step</button>
                 </div>
 
                 <FormSelect
@@ -288,7 +288,7 @@ export default function NewTestCasePage() {
                 {confirmRemoveIdx !== null && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setConfirmRemoveIdx(null)}>
                     <div className="bg-white dark:bg-[#182232] rounded-md shadow-lg max-w-sm w-full p-5" onClick={(e) => e.stopPropagation()}>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this step?</h3>
+                      <h3 className="text-sm font-normal text-slate-900 dark:text-white">Remove this step?</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Are you sure you want to remove Step {confirmRemoveIdx + 1}? This cannot be undone.</p>
                       <div className="flex items-center justify-end gap-2 mt-4">
                         <button type="button" onClick={() => setConfirmRemoveIdx(null)} className="text-sm font-normal px-4 py-2 rounded bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] text-slate-700 dark:text-slate-200">Cancel</button>

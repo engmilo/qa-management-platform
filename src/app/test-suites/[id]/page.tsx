@@ -106,7 +106,7 @@ export default function TestSuiteDetailPage() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
             <Link href="/test-suites" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Test Suites</Link>
-            <span>/</span><span className="font-medium">{suite?.name}</span>
+            <span>/</span><span className="font-normal">{suite?.name}</span>
           </div>
           {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
           {saved && <div className="mb-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded text-xs">Saved.</div>}
@@ -114,23 +114,23 @@ export default function TestSuiteDetailPage() {
             <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
               <div className="dark:bg-[#141d28] px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                 <div><h1 className="text-base font-bold text-white tracking-tight text-left m-0">{suite.name}</h1><p className="text-xs text-slate-500 mt-1 font-normal">{cases.length} test case(s)</p></div>
-                <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 font-normal inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
               </div>
               <div className="p-6 space-y-5">
-                <div><label className="block text-xs font-semibold mb-1.5">Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                <div><label className="block text-xs font-semibold mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} /></div>
-                <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
+                <div><label className="block text-xs font-normal mb-1.5">Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
+                <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} /></div>
+                <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
               </div>
             </form>
           )}
           <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
-            <h3 className="text-sm font-bold mb-3">Test Cases in this Suite</h3>
+            <h3 className="text-sm font-normal mb-3">Test Cases in this Suite</h3>
             <div className="flex gap-2 mb-4">
               <select value={selectedCaseId} onChange={(e) => setSelectedCaseId(e.target.value)} className="flex-1 border rounded px-3 py-2 text-sm">
                 <option value="">Select a test case to add...</option>
                 {available.map((c) => <option key={c.id} value={c.id}>{c.case_key} - {c.title}</option>)}
               </select>
-              <button type="button" onClick={addCase} disabled={!selectedCaseId || adding} className="bg-[#276fbf] hover:bg-[#1f5a9a] disabled:opacity-50 text-white text-xs font-semibold px-3.5 py-2 rounded">{adding ? 'Adding...' : 'Add Case'}</button>
+              <button type="button" onClick={addCase} disabled={!selectedCaseId || adding} className="bg-[#276fbf] hover:bg-[#1f5a9a] disabled:opacity-50 text-white text-xs font-normal px-3.5 py-2 rounded">{adding ? 'Adding...' : 'Add Case'}</button>
             </div>
             {cases.length === 0 ? (
               <p className="text-xs text-slate-400">No cases in this suite yet. Add one above.</p>
@@ -138,8 +138,8 @@ export default function TestSuiteDetailPage() {
               <div className="space-y-2">
                 {cases.map((c) => (
                   <div key={c.id} className="flex items-center justify-between gap-3 border rounded px-3 py-2">
-                    <Link href={`/test-cases/${c.id}`} className="text-xs font-semibold text-[#276fbf] hover:underline">{c.case_key} - {c.title}</Link>
-                    <button type="button" onClick={() => { setCaseToRemove(c); setShowRemoveConfirm(true); }} className="text-xs text-red-600 font-semibold inline-flex items-center gap-1"><X className="w-3.5 h-3.5" /> Remove</button>
+                    <Link href={`/test-cases/${c.id}`} className="text-xs font-normal text-[#276fbf] hover:underline">{c.case_key} - {c.title}</Link>
+                    <button type="button" onClick={() => { setCaseToRemove(c); setShowRemoveConfirm(true); }} className="text-xs text-red-600 font-normal inline-flex items-center gap-1"><X className="w-3.5 h-3.5" /> Remove</button>
                   </div>
                 ))}
               </div>

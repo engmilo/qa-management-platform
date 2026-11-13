@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
       <div className="flex items-center gap-2 mb-8">
         <div className="w-8 h-8 rounded bg-[#48a43f] flex items-center justify-center text-white shrink-0"><ShieldCheck className="w-5 h-5 stroke-[2.5]" /></div>
         <div>
-          <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight whitespace-nowrap">QA Management Platform</p>
+          <p className="text-lg font-normal text-slate-900 dark:text-white leading-tight whitespace-nowrap">QA Management Platform</p>
           <p className="text- text-slate-500 dark:text-slate-400">Enterprise Test Management</p>
         </div>
       </div>
@@ -96,27 +96,27 @@ export default function ResetPasswordPage() {
         {ready && !validLink && !done && (
           <>
             <div className="p-3 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">This reset link is expired or already used. Please request a new one - only the newest email works, and each link works once.</div>
-            <div className="mt-5 text-center"><Link href="/auth/login" className="text-xs font-medium text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Log In</Link></div>
+            <div className="mt-5 text-center"><Link href="/auth/login" className="text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Log In</Link></div>
           </>
         )}
         {ready && validLink && !done && (
           <form onSubmit={handleUpdate} className="space-y-4">
             {error && <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">NEW PASSWORD</label>
+              <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">NEW PASSWORD</label>
               <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#276fbf]" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">CONFIRM NEW PASSWORD</label>
+              <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">CONFIRM NEW PASSWORD</label>
               <input type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#276fbf]" />
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-semibold py-2 rounded disabled:opacity-50">{loading ? 'Updating...' : 'Update password'}</button>
+            <button type="submit" disabled={loading} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-normal py-2 rounded disabled:opacity-50">{loading ? 'Updating...' : 'Update password'}</button>
           </form>
         )}
         {done && (
           <>
             <div className="p-3 text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded">Password updated. You can now log in with your new password.</div>
-            <button onClick={() => { window.location.href = '/auth/login'; }} className="mt-4 w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-semibold py-2 rounded">Go to Log In</button>
+            <button onClick={() => { window.location.href = '/auth/login'; }} className="mt-4 w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-normal py-2 rounded">Go to Log In</button>
           </>
         )}
       </div>

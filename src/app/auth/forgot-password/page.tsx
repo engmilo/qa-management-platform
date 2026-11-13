@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] px-4 py-12">
       {/* TestRail Brand Header */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="w-10 h-10 flex items-center justify-center text-white font-bold text-lg">
+        <div className="w-10 h-10 flex items-center justify-center text-white font-normal text-lg">
           TR
         </div>
         <div>
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
 
       <div className="w-full max-w-md bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-lg shadow-sm p-8">
         <div className="mb-6 pb-4 border-b border-[#e5e9ec]">
-          <h2 className="text-lg font-semibold text-[#1d2d3e]">Reset Password</h2>
+          <h2 className="text-lg font-normal text-[#1d2d3e]">Reset Password</h2>
           <p className="text-xs text-[#6e7d8c] mt-0.5">
             {sent ? 'Check your email inbox' : 'Enter your email to receive a password reset link'}
           </p>
@@ -57,16 +57,16 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <div className="text-center py-4" role="status">
-            <div className="w-12 h-12 bg-green-50 text-[#48a43f] border border-green-200 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+            <div className="w-12 h-12 bg-green-50 text-[#48a43f] border border-green-200 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-normal">
               ✓
             </div>
-            <p className="text-sm text-[#1d2d3e] font-medium mb-1">Reset instructions sent</p>
+            <p className="text-sm text-[#1d2d3e] font-normal mb-1">Reset instructions sent</p>
             <p className="text-xs text-[#6e7d8c] mb-6">
-              If an account exists for <span className="font-semibold text-[#1d2d3e]">{email.trim()}</span>, you will receive an email shortly with instructions.
+              If an account exists for <span className="font-normal text-[#1d2d3e]">{email.trim()}</span>, you will receive an email shortly with instructions.
             </p>
             <Link
               href="/auth/login"
-              className="inline-block px-4 py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-semibold rounded text-sm shadow-sm transition"
+              className="inline-block px-4 py-2 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-normal rounded text-sm shadow-sm transition"
             >
               Back to Sign In
             </Link>
@@ -74,13 +74,13 @@ export default function ForgotPasswordPage() {
         ) : (
           <form onSubmit={handleReset} className="space-y-4">
             {error && (
-              <div role="alert" className="p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+              <div role="alert" className="p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs font-normal">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-xs font-semibold text-[#4f6174] uppercase tracking-wide mb-1.5">
+              <label htmlFor="email" className="block text-xs font-normal text-[#4f6174] uppercase tracking-wide mb-1.5">
                 Email Address
               </label>
               <input
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-semibold rounded text-sm shadow-sm transition disabled:opacity-50"
+                className="w-full py-2.5 bg-[#48a43f] hover:bg-[#3d8c36] text-white font-normal rounded text-sm shadow-sm transition disabled:opacity-50"
               >
                 {loading ? 'Sending link...' : 'Send Reset Link'}
               </button>
@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
 
         <div className="mt-6 pt-4 border-t border-[#e5e9ec] text-center text-xs text-[#6e7d8c]">
           Remember your password?{' '}
-          <Link href="/auth/login" className="text-[#276fbf] hover:underline font-semibold">
+          <Link href="/auth/login" className="text-[#276fbf] hover:underline font-normal">
             Return to log in
           </Link>
         </div>

@@ -65,7 +65,7 @@ export default function SignupPage() {
           <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
         </div>
         <div>
-          <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight whitespace-nowrap">QA Management Platform</p>
+          <p className="text-lg font-normal text-slate-900 dark:text-white leading-tight whitespace-nowrap">QA Management Platform</p>
           <p className="text- text-slate-500 dark:text-slate-400">Enterprise Test Management</p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function SignupPage() {
         ) : (
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">FULL NAME</label>
+              <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">FULL NAME</label>
               <input
                 type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)}
                 placeholder="Milo Haireche"
@@ -94,7 +94,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">EMAIL ADDRESS</label>
+              <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">EMAIL ADDRESS</label>
               <input
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
@@ -103,7 +103,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">PASSWORD</label>
+              <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">PASSWORD</label>
               <input
                 type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -112,7 +112,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">CONFIRM PASSWORD</label>
+              <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">CONFIRM PASSWORD</label>
               <input
                 type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)}
                 placeholder="••••••••"
@@ -120,14 +120,14 @@ export default function SignupPage() {
               />
             </div>
 
-            <button type="submit" disabled={loading} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-semibold py-2 rounded disabled:opacity-50">
+            <button type="submit" disabled={loading} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-normal py-2 rounded disabled:opacity-50">
               {loading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
         )}
 
         <div className="mt-5 pt-4 border-t border-[#e2e8f0] dark:border-[#28374d] text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Already have an account? <Link href="/auth/login" className="text-[#276fbf] dark:text-[#4da3ff] font-medium hover:underline">Log In</Link></p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Already have an account? <Link href="/auth/login" className="text-[#276fbf] dark:text-[#4da3ff] font-normal hover:underline">Log In</Link></p>
         </div>
       </div>
 

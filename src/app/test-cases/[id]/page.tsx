@@ -150,7 +150,7 @@ export default function TestCaseDetailPage() {
           <Header />
           <main className="flex-1 overflow-y-auto p-6">
             <div className="w-full max-w-none">
-              <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-4 text-center text-xs font-semibold text-slate-500">Loading test case...</div>
+              <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-4 text-center text-xs font-normal text-slate-500">Loading test case...</div>
             </div>
           </main>
         </div>
@@ -166,7 +166,7 @@ export default function TestCaseDetailPage() {
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
             <div className="max-w-3xl mx-auto">
-              <Link href="/test-cases" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">← Test Cases</Link>
+              <Link href="/test-cases" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Cases</Link>
               <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700/50 flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -174,7 +174,7 @@ export default function TestCaseDetailPage() {
                     <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Change any field and click Save Changes. There is no separate Edit button.</p>
                   </div>
-                  <button onClick={() => setShowDelete(true)} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline shrink-0">Delete</button>
+                  <button onClick={() => setShowDelete(true)} className="text-xs font-normal text-red-600 dark:text-red-400 hover:underline shrink-0">Delete</button>
                 </div>
 
                 <div className="p-5 space-y-4">
@@ -230,18 +230,18 @@ export default function TestCaseDetailPage() {
                   <div>
                     <div className="flex items-center justify-between">
                       <label className={labelCls}>Steps (structured — replaces free-text steps)</label>
-                      <button onClick={() => setSteps([...steps, { action: '', expected_result: '' }])} className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">+ Add Step</button>
+                      <button onClick={() => setSteps([...steps, { action: '', expected_result: '' }])} className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">+ Add Step</button>
                     </div>
                     <div className="space-y-2">
                       {steps.map((s, i) => (
                         <div key={i} className="flex gap-2 items-start">
-                          <span className="text-xs font-semibold pt-2 w-5 shrink-0">{i + 1}.</span>
+                          <span className="text-xs font-normal pt-2 w-5 shrink-0">{i + 1}.</span>
                           <textarea data-step value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
                           <textarea data-step value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
-                          <button onClick={() => setPendingRemoveStep(i)} className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline pt-2 shrink-0">Remove</button>
+                          <button onClick={() => setPendingRemoveStep(i)} className="text-xs font-normal text-red-600 dark:text-red-400 hover:underline pt-2 shrink-0">Remove</button>
                         </div>
                       ))}
-                      {steps.length === 0 && <p className="text-xs font-semibold text-slate-500">No steps yet. Click + Add Step.</p>}
+                      {steps.length === 0 && <p className="text-xs font-normal text-slate-500">No steps yet. Click + Add Step.</p>}
                     </div>
                   </div>
 
@@ -249,10 +249,10 @@ export default function TestCaseDetailPage() {
                     <label className={labelCls}>Linked Requirements</label>
                     <div className="border border-[#b6c2cf] dark:border-[#28374d] rounded font-normal px-3 py-2 space-y-1.5 bg-white dark:bg-[#101622]">
                       {allRequirements.length === 0 && (
-                        <p className="text-xs font-semibold text-slate-500">No requirements found. Create one in Requirements first.</p>
+                        <p className="text-xs font-normal text-slate-500">No requirements found. Create one in Requirements first.</p>
                       )}
                       {allRequirements.map((r) => (
-                        <label key={r.id} className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <label key={r.id} className="flex items-center gap-2 text-xs font-normal cursor-pointer">
                           <input
                             type="checkbox"
                             checked={linkedIds.includes(String(r.id))}
@@ -265,7 +265,7 @@ export default function TestCaseDetailPage() {
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Ticked requirements are saved to test_case_requirements and show in Traceability.</p>
+                    <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Ticked requirements are saved to test_case_requirements and show in Traceability.</p>
                   </div>
 
                   <div>
@@ -273,19 +273,19 @@ export default function TestCaseDetailPage() {
                     <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="login, smoke" className={inputCls} />
                   </div>
 
-                  {savedMsg && <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">{savedMsg}</p>}
+                  {savedMsg && <p className="text-xs font-normal text-slate-600 dark:text-slate-300">{savedMsg}</p>}
 
-                  <button onClick={save} disabled={saving} className="w-full text-xs font-semibold bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-2.5">
+                  <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-2.5">
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>
 
               <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-5 mt-4">
-                <h2 className="text-xs font-semibold text-slate-900 dark:text-white mb-3">Recent Executions</h2>
-                {executions.length === 0 && <p className="text-xs font-semibold text-slate-500">No executions yet.</p>}
+                <h2 className="text-xs font-normal text-slate-900 dark:text-white mb-3">Recent Executions</h2>
+                {executions.length === 0 && <p className="text-xs font-normal text-slate-500">No executions yet.</p>}
                 {executions.map((ex: any, i: number) => (
-                  <div key={i} className="flex justify-between text-xs font-semibold py-2 border-t border-slate-100 dark:border-slate-700/50 first:border-t-0">
+                  <div key={i} className="flex justify-between text-xs font-normal py-2 border-t border-slate-100 dark:border-slate-700/50 first:border-t-0">
                     <span>{ex.run_name ?? ex.name ?? `Run ${i + 1}`}</span>
                     <span className="text-slate-500">{ex.status ?? ex.result ?? ''}</span>
                   </div>
@@ -299,11 +299,11 @@ export default function TestCaseDetailPage() {
       {pendingRemoveStep !== null && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-5 w-full max-w-sm">
-            <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Remove this step?</h3>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Step {pendingRemoveStep + 1}: {steps[pendingRemoveStep]?.action || ''} — this will remove it from the list. Click Save Changes to persist.</p>
+            <h3 className="text-xs font-normal text-slate-900 dark:text-white">Remove this step?</h3>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Step {pendingRemoveStep + 1}: {steps[pendingRemoveStep]?.action || ''} — this will remove it from the list. Click Save Changes to persist.</p>
             <div className="flex gap-2 mt-4">
-              <button onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
-              <button onClick={() => { setSteps(steps.filter((_, j) => j !== pendingRemoveStep)); setPendingRemoveStep(null); }} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2">Remove</button>
+              <button onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button onClick={() => { setSteps(steps.filter((_, j) => j !== pendingRemoveStep)); setPendingRemoveStep(null); }} className="flex-1 text-xs font-normal bg-red-600 text-white rounded px-3 py-2">Remove</button>
             </div>
           </div>
         </div>
@@ -311,11 +311,11 @@ export default function TestCaseDetailPage() {
       {showDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md p-5 w-full max-w-sm">
-            <h3 className="text-xs font-semibold text-slate-900 dark:text-white">Delete test case?</h3>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">This cannot be undone.</p>
+            <h3 className="text-xs font-normal text-slate-900 dark:text-white">Delete test case?</h3>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">This cannot be undone.</p>
             <div className="flex gap-2 mt-4">
-              <button onClick={() => setShowDelete(false)} className="flex-1 text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
-              <button onClick={doDelete} disabled={deleting} className="flex-1 text-xs font-semibold bg-red-600 text-white rounded px-3 py-2 disabled:opacity-50">{deleting ? 'Deleting...' : 'Delete'}</button>
+              <button onClick={() => setShowDelete(false)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button onClick={doDelete} disabled={deleting} className="flex-1 text-xs font-normal bg-red-600 text-white rounded px-3 py-2 disabled:opacity-50">{deleting ? 'Deleting...' : 'Delete'}</button>
             </div>
           </div>
         </div>

@@ -62,8 +62,8 @@ export default function TestCasesPage() {
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
               </div>
               <div className="flex gap-2">
-                <Link href="/api/test-cases/export" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</Link>
-                <Link href="/test-cases/import" className="text-xs font-semibold border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Import</Link>
+                <Link href="/api/test-cases/export" className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</Link>
+                <Link href="/test-cases/import" className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Import</Link>
                 <Link href="/test-cases/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Test Case</Link>
               </div>
             </div>
@@ -83,11 +83,11 @@ export default function TestCasesPage() {
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
                 <option value="">All Status</option><option value="draft">Draft</option><option value="ready">Ready</option><option value="approved">Approved</option><option value="deprecated">Deprecated</option>
               </select>
-              <span className="text-xs font-semibold text-slate-500">{filtered.length} of {cases.length}</span>
+              <span className="text-xs font-normal text-slate-500">{filtered.length} of {cases.length}</span>
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
-              <table className="w-full text-xs font-semibold">
+              <table className="w-full text-xs font-normal">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400">
                     <th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Title</th><th className="px-4 py-2.5">Priority</th><th className="px-4 py-2.5">Type</th><th className="px-4 py-2.5">Category</th><th className="px-4 py-2.5">Status</th>

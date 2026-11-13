@@ -47,14 +47,14 @@ export default function ProjectsPage() {
               </select>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
-              <table className="w-full text-xs font-semibold">
+              <table className="w-full text-xs font-normal">
                 <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Name</th><th className="px-4 py-2.5">Description</th><th className="px-4 py-2.5">Status</th></tr></thead>
                 <tbody>
                   {filtered.map((p) => (
                     <tr key={p.id} className="border-t border-slate-200 dark:border-slate-700/50 align-top">
                       <td className="px-4 py-3">
                         {/* FIX: Key now matches Test Cases — text-sm font-bold, was text-xs */}
-                        <Link href={`/projects/${p.id}`} className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">{p.key}</Link>
+                        <Link href={`/projects/${p.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline">{p.key}</Link>
                       </td>
                       <td className="px-4 py-3">{p.name}</td>
                       <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{p.description}</td>
