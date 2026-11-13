@@ -110,8 +110,8 @@ export default function DashboardPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <h1 className="text-xs font-semibold text-slate-900 dark:text-white">Dashboard</h1>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 mb-5">
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
+            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-5">
               Overview of your testing activity.
             </p>
 
@@ -119,78 +119,78 @@ export default function DashboardPage() {
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-semibold text-slate-500 text-center">TEST CASES</p>
-                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
+                <p className="text-xs font-bold text-slate-500 text-center">TEST CASES</p>
+                <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testCases}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
+                <p className="text-xs font-normal text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.manual} manual · ${d?.automated} automated`}
                 </p>
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-blue-500" style={{ width: `${caseAutoPct}%` }} />
                 </div>
-                <Link href="/test-cases" className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+                <Link href="/test-cases" className="text-xs font-normal text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
               </div>
 
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-semibold text-slate-500 text-center">TEST RUNS</p>
-                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
+                <p className="text-xs font-bold text-slate-500 text-center">TEST RUNS</p>
+                <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.testRuns}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
+                <p className="text-xs font-normal text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.completedRuns} completed · ${d?.inProgressRuns} in progress`}
                 </p>
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-green-500" style={{ width: `${runPct}%` }} />
                 </div>
-                <Link href="/test-runs" className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+                <Link href="/test-runs" className="text-xs font-normal text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
               </div>
 
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-semibold text-slate-500 text-center">OPEN DEFECTS</p>
-                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
+                <p className="text-xs font-bold text-slate-500 text-center">OPEN DEFECTS</p>
+                <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.openDefects}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
+                <p className="text-xs font-normal text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.openDefects} open of ${d?.totalDefects} total · ${d?.fixedDefects} fixed`}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-1">
+                <p className="text-xs font-normal text-slate-500 mt-1">
                   {loading ? '' : (<>{d?.criticalDefects} <span className="text-red-600 dark:text-red-400">Critical</span> · {d?.majorDefects} <span className="text-orange-600 dark:text-orange-400">Major</span> (total)</>)}
                 </p>
-                <p className="text-xs font-semibold text-slate-400 mt-2 truncate">
+                <p className="text-xs font-normal text-slate-400 mt-2 truncate">
                   {d?.latestDefect
                     ? `Latest: ${d.latestDefect.key ? `${d.latestDefect.key} — ` : ''}${d.latestDefect.title}`
                     : 'No open defects'}
                 </p>
-                <Link href="/defects" className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+                <Link href="/defects" className="text-xs font-normal text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
               </div>
 
               <div
                 className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-4 flex flex-col transition"
               >
-                <p className="text-xs font-semibold text-slate-500 text-center">PASS RATE</p>
-                <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2 leading-none text-center">
+                <p className="text-xs font-bold text-slate-500 text-center">PASS RATE</p>
+                <p className="text-4xl font-normal text-slate-900 dark:text-white mt-2 leading-none text-center">
                   {loading ? '—' : d?.passRate === null ? '—' : `${d.passRate}%`}
                 </p>
-                <p className="text-xs font-semibold text-slate-500 mt-2 text-center">
+                <p className="text-xs font-normal text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.passed} passed · ${d?.failed} failed`}
                 </p>
-                <p className="text-xs font-semibold text-slate-400 text-center">
+                <p className="text-xs font-normal text-slate-400 text-center">
                   {loading ? '' : `${d?.blocked} blocked · ${d?.notRun} not run`}
                 </p>
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-blue-500" style={{ width: `${d?.passRate ?? 0}%` }} />
                 </div>
-                <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-2 truncate">
+                <p className="text-xs font-normal text-green-600 dark:text-green-400 mt-2 truncate">
                   {d?.lastPassed
                     ? `Passed: ${d.lastPassed.testCaseCode} — ${d.lastPassed.testCaseTitle}`
                     : 'No passed cases yet'}
                 </p>
-                <Link href={d?.lastPassed?.runId ? `/test-runs/${d.lastPassed.runId}` : '/test-runs'} className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
+                <Link href={d?.lastPassed?.runId ? `/test-runs/${d.lastPassed.runId}` : '/test-runs'} className="text-xs font-normal text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
               </div>
             </div>
 
@@ -208,7 +208,7 @@ export default function DashboardPage() {
                     New Defect
                   </Link>
                 </div>
-                <p className="text-xs font-semibold text-slate-500 mt-3">
+                <p className="text-xs font-normal text-slate-500 mt-3">
                   {d ? `${d.completedRuns} of ${d.testRuns} runs completed.` : ''}
                 </p>
                 <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
@@ -223,17 +223,17 @@ export default function DashboardPage() {
                       key={i}
                       className="flex justify-between gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700/50 last:border-0"
                     >
-                      <span className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                      <span className="text-xs font-normal text-slate-900 dark:text-white truncate">
                         <span className="text-slate-400 mr-1">{a.type}</span>
                         {a.title}
                       </span>
-                      <span className="text-xs font-semibold text-slate-400 shrink-0">
+                      <span className="text-xs font-normal text-slate-400 shrink-0">
                         {a.date ? new Date(a.date).toLocaleDateString() : ''}
                       </span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs font-semibold text-slate-500">No recent activity yet.</p>
+                  <p className="text-xs font-normal text-slate-500">No recent activity yet.</p>
                 )}
               </div>
             </div>
