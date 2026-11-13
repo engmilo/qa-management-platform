@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -25,6 +28,16 @@ export default function ProjectsPage() {
     if (statusFilter && (p.status ?? '') !== statusFilter) return false;
     return true;
   });
+
+  const remove = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
+      router.push('/projects');
+    } finally { setDeleting(false); }
+  };
 
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
@@ -66,7 +79,8 @@ export default function ProjectsPage() {
               </table>
             </div>
           </div>
-        </main>
+        
+        <ConfirmDialog open={showDeleteConfirm} title="Delete this project?" message="This will permanently delete this project and all its requirements, test cases, test plans, test runs and defects. This cannot be undone." confirmLabel="Delete project" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></main>
       </div>
     </div>
   );

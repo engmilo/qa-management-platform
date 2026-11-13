@@ -1,8 +1,10 @@
 'use client';
+import { Trash2 } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
@@ -45,6 +47,8 @@ export default function NewProjectPage() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch('/api/organizations', { cache: 'no-store' })
@@ -86,6 +90,16 @@ export default function NewProjectPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const remove = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
+      router.push('/projects');
+    } finally { setDeleting(false); }
   };
 
   return (
@@ -136,7 +150,8 @@ export default function NewProjectPage() {
               </form>
             </div>
           </div>
-        </main>
+        
+        <ConfirmDialog open={showDeleteConfirm} title="Delete this project?" message="This will permanently delete this project and all its requirements, test cases, test plans, test runs and defects. This cannot be undone." confirmLabel="Delete project" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></main>
       </div>
     </div>
   );

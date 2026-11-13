@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls } from '@/components/ui/form-fields';
-import { FolderKanban, ArrowLeft, CheckSquare, PlayCircle, Plus } from 'lucide-react';
+import { FolderKanban, ArrowLeft, CheckSquare, PlayCircle, Plus, Trash2} from 'lucide-react';
 
 type Project = {
   id: string;
@@ -19,11 +20,14 @@ type Project = {
 
 export default function ProjectDetailsPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const projectId = params.id;
   const [project, setProject] = useState<Project | null>(null);
   const descRef = useRef<HTMLTextAreaElement | null>(null);
   const [form, setForm] = useState({ key: '', name: '', description: '', orgName: 'Zamir Oy' });
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -91,6 +95,16 @@ export default function ProjectDetailsPage() {
     return () => { active = false; };
   }, [projectId]);
 
+  const remove = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
+      router.push('/projects');
+    } finally { setDeleting(false); }
+  };
+
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100 transition-colors">
       <Sidebar />
@@ -119,7 +133,7 @@ export default function ProjectDetailsPage() {
                 {/* Main Project Overview Card */}
                 <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
                   <div className="px-6 py-4 dark:border-[#28374d]">
-                    <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Project Details</h1>
+                    <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0">Project Details</h1><button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-500 font-semibold inline-flex items-center gap-1 shrink-0"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Create a repository for your test suites, runs, and cases</p>
                   </div>
                   <div className="p-6 space-y-5">
@@ -156,7 +170,8 @@ export default function ProjectDetailsPage() {
               </div>
             ) : null}
           </div>
-        </main>
+        
+        <ConfirmDialog open={showDeleteConfirm} title="Delete this project?" message="This will permanently delete this project and all its requirements, test cases, test plans, test runs and defects. This cannot be undone." confirmLabel="Delete project" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></main>
       </div>
     </div>
   );
