@@ -103,7 +103,7 @@ export default function TestCasesPage() {
                       <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200 capitalize font-normal">{c.category}</span></td>
                       <td className="px-4 py-3">
                         {/* FIX: Status now comes from DB column (Step 1) + API (Step 2). Before it was undefined -> "—" */}
-                        {c.status ? <span className={`inline-block px-2 py-0.5 rounded capitalize ${statusBadge(c.status)}`}>{c.status}</span> : <span>—</span>}
+                        {c.status ? <span className={`inline-block px-2 py-0.5 rounded capitalize font-normal ${statusBadge(c.status)}`}>{c.status}</span> : <span>—</span>}
                       </td>
                     </tr>
                   ))}
