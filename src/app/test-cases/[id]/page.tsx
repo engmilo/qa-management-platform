@@ -185,10 +185,11 @@ export default function TestCaseDetailPage() {
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700/50 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     {code && <span className="inline-block px-2 py-0.5 rounded text-xs font-normal bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{code}</span>}
-                    <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1><button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
+                    <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{code ? `${code} — ` : ''}{form.title || 'Test Case'}</h1>
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Change any field and click Save Changes. There is no separate Edit button.</p>
                   </div>
-                  <button onClick={() => setShowDelete(true)} className="text-xs font-normal text-white dark:text-white hover:underline shrink-0">Delete</button>
+              <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" type="button" onClick={() => setShowDeleteConfirm(true)} style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                  
                 </div>
 
                 <div className="p-5 space-y-4">
@@ -252,7 +253,7 @@ export default function TestCaseDetailPage() {
                           <span className="text-xs font-normal pt-2 w-5 shrink-0">{i + 1}.</span>
                           <textarea data-step value={s.action} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], action: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Action" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
                           <textarea data-step value={s.expected_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], expected_result: e.target.value }; setSteps(n); growStep(e.target); }} onFocus={(e) => growStep(e.target)} placeholder="Expected result" rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} />
-                          <button onClick={() => setPendingRemoveStep(i)} className="text-xs font-normal text-white dark:text-white hover:underline pt-2 shrink-0">Remove</button>
+                          <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" onClick={() => setPendingRemoveStep(i)} className="text-xs font-normal text-white dark:text-white hover:underline pt-2 shrink-0">Remove</button>
                         </div>
                       ))}
                       {steps.length === 0 && <p className="text-xs font-normal text-slate-500">No steps yet. Click + Add Step.</p>}
@@ -289,7 +290,7 @@ export default function TestCaseDetailPage() {
 
                   {savedMsg && <p className="text-xs font-normal text-slate-600 dark:text-slate-300">{savedMsg}</p>}
 
-                  <button style={{ fontWeight: 400 }} onClick={save} disabled={saving} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded">
+                  <button style={{ fontWeight: 400 }} onClick={save} disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white font-normal text-xs py-2 rounded">
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
@@ -317,7 +318,7 @@ export default function TestCaseDetailPage() {
             <h3 className="text-xs font-normal text-slate-900 dark:text-white">Remove this step?</h3>
             <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">Step {pendingRemoveStep + 1}: {steps[pendingRemoveStep]?.action || ''} — this will remove it from the list. Click Save Changes to persist.</p>
             <div className="flex gap-2 mt-4">
-              <button onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
+              <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" onClick={() => setPendingRemoveStep(null)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
               <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" onClick={() => { setSteps(steps.filter((_, j) => j !== pendingRemoveStep)); setPendingRemoveStep(null); }} className="flex-1 text-xs font-normal bg-red-600 text-white rounded px-3 py-2">Remove</button>
             </div>
           </div>
@@ -330,7 +331,7 @@ export default function TestCaseDetailPage() {
             <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">This cannot be undone.</p>
             <div className="flex gap-2 mt-4">
               <button onClick={() => setShowDelete(false)} className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2">Cancel</button>
-              <button onClick={doDelete} disabled={deleting} className="flex-1 text-xs font-normal bg-red-600 text-white rounded px-3 py-2 disabled:opacity-50">{deleting ? 'Deleting...' : 'Delete'}</button>
+              
             </div>
           </div>
         </div>

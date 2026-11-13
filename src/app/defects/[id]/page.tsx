@@ -124,7 +124,7 @@ export default function DefectDetailPage() {
                       <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                         <span className="text-xs font-normal pt-2">{i + 1}.</span>
                         <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white"  style={{ overflow: 'hidden', resize: 'none' }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} />
-                        <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-white text-xs pt-2">Remove</button>
+                        <button style={{ fontWeight: 400 }} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded" type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-white text-xs pt-2">Remove</button>
                       </div>
                     ))}
                   </div>
