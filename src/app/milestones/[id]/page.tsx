@@ -99,7 +99,7 @@ export default function MilestoneDetailPage() {
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-2 text-xs mb-4">
               <Link href="/milestones" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Milestones</Link>
-              <span className="text-slate-400">/</span>
+              <span className="text-slate-500 dark:text-slate-400"></span>
               <span className="text-slate-500 dark:text-slate-400">{rel?.version_name}</span>
             </div>
 
@@ -110,7 +110,7 @@ export default function MilestoneDetailPage() {
               <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
                 <div className="px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                   <div>
-                    <h1 className="text-base font-bold text-white tracking-tight text-left m-0">{rel.version_name}</h1>
+                    <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">{rel.version_name}</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace('_', ' ')}</p>
                   </div>
                   <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
@@ -142,7 +142,7 @@ export default function MilestoneDetailPage() {
                 <h3 className="text-sm font-normal mb-3">Linked Test Plans</h3>
                 {rel.test_plans && rel.test_plans.length > 0 ? (
                   <div className="space-y-2">{rel.test_plans.map((p: any) => <div key={p.id} className="flex justify-between text-xs border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2"><Link href={`/test-plans/${p.id}`} className="font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">{p.title}</Link><span className="text-slate-500 dark:text-slate-400">{p.status}</span></div>)}</div>
-                ) : <p className="text-xs text-slate-400">No test plans linked to this milestone yet. Link one from its Test Plan detail page.</p>}
+                ) : <p className="text-xs text-slate-500 dark:text-slate-400">No test plans linked to this milestone yet. Link one from its Test Plan detail page.</p>}
               </section>
             )}
           </div>

@@ -133,7 +133,7 @@ export default function TestSuiteDetailPage() {
               <button type="button" onClick={addCase} disabled={!selectedCaseId || adding} className="bg-[#276fbf] hover:bg-[#1f5a9a] disabled:opacity-50 text-white text-xs font-normal px-3.5 py-2 rounded">{adding ? 'Adding...' : 'Add Case'}</button>
             </div>
             {cases.length === 0 ? (
-              <p className="text-xs text-slate-400">No cases in this suite yet. Add one above.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">No cases in this suite yet. Add one above.</p>
             ) : (
               <div className="space-y-2">
                 {cases.map((c) => (

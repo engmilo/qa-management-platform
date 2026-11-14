@@ -98,7 +98,7 @@ export default function ProjectDetailsPage() {
   const remove = async () => {
     setDeleting(true);
     try {
-      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
       router.push('/projects');
@@ -133,7 +133,7 @@ export default function ProjectDetailsPage() {
                 {/* Main Project Overview Card */}
                 <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
                   <div className="px-6 py-4 dark:border-[#28374d]">
-                    <div className="flex justify-between items-start"><h1 className="text-base font-bold text-white tracking-tight text-left m-0">Project Details</h1><button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
+                    <div className="flex justify-between items-start"><h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Project Details</h1><button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button></div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Create a repository for your test suites, runs, and cases</p>
                   </div>
                   <div className="p-6 space-y-5">
@@ -159,7 +159,7 @@ export default function ProjectDetailsPage() {
                       <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-sm font-normal px-4 py-2 rounded disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
                       <Link href="/projects" className="bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] hover:bg-slate-50 dark:hover:bg-[#28374d] text-slate-700 dark:text-slate-200 text-sm font-normal px-4 py-2 rounded">Cancel</Link>
                     </div>
-                    <div className="flex items-center gap-2 text- text-slate-400">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                         <span>Created on {project ? new Date(project.created_at).toLocaleDateString() : ''}</span>
                         <span>·</span>
                         <span>Status:</span>

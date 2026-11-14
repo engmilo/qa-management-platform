@@ -92,7 +92,7 @@ export default function SettingsPage() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Organization Settings</h1>
+            <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Organization Settings</h1>
             <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-5">Manage your team workspace profile, permissions, and members</p>
 
             {msg && <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 rounded text-xs font-normal">{msg}</div>}
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-2">
                           <span className="px-2 py-1 rounded-full text-xs font-normal bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200">{labelFor(m.role)}</span>
                           {isYou ? <span className="text-xs font-normal text-[#276fbf]">You</span> : (
-                            <button onClick={() => setPendingDeactivate(m)} disabled={busy} className="text-xs font-normal text-red-600 disabled:opacity-50">{busy ? 'Deactivating...' : 'Deactivate'}</button>
+                            <button onClick={() => setPendingDeactivate(m)} disabled={busy} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white font-normal text-xs px-3 py-1.5 rounded">{busy ? 'Deactivating...' : 'Deactivate'}</button>
                           )}
                         </div>
                       </div>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                 <span className="w-8 h-8 rounded-full font-normal bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-red-600" /></span>
                 <h3 className="text-xs font-normal text-slate-900 dark:text-white">Deactivate member?</h3>
               </div>
-              <button onClick={() => setPendingDeactivate(null)} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+              <button onClick={() => setPendingDeactivate(null)} className="text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-4 h-4" /></button>
             </div>
             <p className="text-xs font-normal text-slate-600 dark:text-slate-300 leading-relaxed">
               Deactivate <span className="text-slate-900 dark:text-white">{nameOf(pendingDeactivate)}</span> ({emailOf(pendingDeactivate)})? They will lose access to this organization.

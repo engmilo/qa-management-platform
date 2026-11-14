@@ -117,7 +117,7 @@ export default function DefectDetailPage() {
                 <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
                   <div>
                     <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
-                    <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-2">{form.summary || defect?.title || "Defect"}</h1>
+                    <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">{form.summary || defect?.title || "Defect"}</h1>
                     <p className="text-xs text-slate-500 mt-1 font-normal">Created {defect?.created_at ? new Date(defect.created_at).toLocaleString() : ""}</p>
                   </div>
                   <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
@@ -139,7 +139,7 @@ export default function DefectDetailPage() {
                       <button type="button" onClick={addStep} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
                     </div>
                     <div className="space-y-2">
-                      {steps.length === 0 ? <p className="text-xs text-slate-400">No steps yet. Click + Add Step.</p> : steps.map((step, index) => (
+                      {steps.length === 0 ? <p className="text-xs text-slate-500 dark:text-slate-400">No steps yet. Click + Add Step.</p> : steps.map((step, index) => (
                         <div key={index} className="flex items-start gap-2">
                           <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
                           <input value={step} onChange={(e) => updateStep(index, e.target.value)} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" />

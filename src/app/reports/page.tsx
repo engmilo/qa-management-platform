@@ -94,7 +94,7 @@ export default function ReportsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <div>
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Reports</h1>
+                <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Reports</h1>
                 <p className="text-xs text-slate-500 mt-0.5 font-normal">Summary of testing coverage and quality.</p>
               </div>
               <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="border rounded px-2 py-1.5 text-xs font-normal bg-white dark:bg-[#1f2c3f]">
@@ -113,7 +113,7 @@ export default function ReportsPage() {
                   {cards.map((c) => {
                     return (
                       <div key={c.label} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-4">
-                        <p className="text-xs font-normal uppercase text-slate-400">{c.label}</p>
+                        <p className="text-xs font-normal uppercase text-slate-500 dark:text-slate-400">{c.label}</p>
                         <p className="text-base font-normal text-slate-900 dark:text-white mt-2">{c.value}</p>
                       </div>
                     );
@@ -148,7 +148,7 @@ export default function ReportsPage() {
                         {filteredRuns.map((r: any) => (
                           <div key={r.id} className="flex items-center gap-2 border border-[#edf2f7] dark:border-[#222e3e] rounded p-2.5">
                             <span className="text-xs font-normal text-slate-900 dark:text-white flex-1 min-w-0 break-words">{r.name}</span>
-                            <span className={r.status==='completed' ? 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal text-xs' : r.status==='in_progress' ? 'inline-block px-2 py-0.5 rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 capitalize font-normal text-xs' : r.status==='failed' ? 'inline-block px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 capitalize font-normal text-xs' : r.status==='blocked' ? 'inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 capitalize font-normal text-xs' : 'inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 capitalize font-normal text-xs'}>{(r.status || '').replace('_', ' ')}</span>
+                            <span className={r.status==='completed' ? 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal text-xs' : r.status==='in_progress' ? 'inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 capitalize font-normal text-xs' : r.status==='failed' ? 'inline-block px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 capitalize font-normal text-xs' : r.status==='blocked' ? 'inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 capitalize font-normal text-xs' : 'inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 capitalize font-normal text-xs'}>{String(r.status ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
                           </div>
                         ))}
                       </div>

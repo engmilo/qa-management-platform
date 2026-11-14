@@ -1,15 +1,12 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -29,16 +26,6 @@ export default function ProjectsPage() {
     return true;
   });
 
-  const remove = async () => {
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
-      router.push('/projects');
-    } finally { setDeleting(false); }
-  };
-
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
@@ -48,7 +35,7 @@ export default function ProjectsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Projects</h1>
+                <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Projects</h1>
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Manage your test projects.</p>
               </div>
               <Link href="/projects/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Project</Link>
@@ -79,8 +66,7 @@ export default function ProjectsPage() {
               </table>
             </div>
           </div>
-        
-        <ConfirmDialog open={showDeleteConfirm} title="Delete this project?" message="This will permanently delete this project and all its requirements, test cases, test plans, test runs and defects. This cannot be undone." confirmLabel="Delete project" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></main>
+        </main>
       </div>
     </div>
   );

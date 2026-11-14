@@ -110,7 +110,7 @@ export default function DashboardPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full max-w-none">
-            <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Dashboard</h1>
+            <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Dashboard</h1>
             <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-5">
               Overview of your testing activity.
             </p>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-normal text-slate-500 mt-1">
                   {loading ? '' : (<>{d?.criticalDefects} <span className="text-red-600 dark:text-red-400">Critical</span> · {d?.majorDefects} <span className="text-orange-600 dark:text-orange-400">Major</span> (total)</>)}
                 </p>
-                <p className="text-xs font-normal text-slate-400 mt-2 truncate">
+                  <p className="text-xs font-normal text-slate-600 dark:text-slate-400 mt-2 truncate">
                   {d?.latestDefect
                     ? `Latest: ${d.latestDefect.key ? `${d.latestDefect.key} — ` : ''}${d.latestDefect.title}`
                     : 'No open defects'}
@@ -179,7 +179,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-normal text-slate-500 mt-2 text-center">
                   {loading ? '' : `${d?.passed} passed · ${d?.failed} failed`}
                 </p>
-                <p className="text-xs font-normal text-slate-400 text-center">
+                <p className="text-xs font-normal text-slate-600 dark:text-slate-400 text-center">
                   {loading ? '' : `${d?.blocked} blocked · ${d?.notRun} not run`}
                 </p>
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
@@ -224,10 +224,10 @@ export default function DashboardPage() {
                       className="flex justify-between gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700/50 last:border-0"
                     >
                       <span className="text-xs font-normal text-slate-900 dark:text-white truncate">
-                        <span className="text-slate-400 mr-1">{a.type}</span>
+                      <span className="text-slate-500 dark:text-slate-400 mr-1">{a.type}</span>
                         {a.title}
                       </span>
-                      <span className="text-xs font-normal text-slate-400 shrink-0">
+                      <span className="text-xs font-normal text-slate-500 dark:text-slate-400 shrink-0">
                         {a.date ? new Date(a.date).toLocaleDateString() : ''}
                       </span>
                     </div>
