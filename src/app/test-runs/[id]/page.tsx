@@ -76,7 +76,7 @@ export default function TestRunDetailPage() {
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
-      setStepMsg((p) => ({ ...p, [execId]: `Saved. Overall: ${j.overall}` }));
+      setStepMsg((p) => ({ ...p, [execId]: `Saved. Overall: ${String(j.overall ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}` }));
       await load();
     } catch (e: any) {
       setStepMsg((p) => ({ ...p, [execId]: e.message || 'Save failed' }));
