@@ -145,8 +145,7 @@ export default function TestRunDetailPage() {
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-normal text-red-600">{runMsg}</span>}
-                <span className={`inline-block px-3 py-1.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{run?.status ?? ''}</span>
-                {!isCompleted && <button onClick={() => setShowComplete(true)} className="text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-1.5">Complete Run</button>}
+                <span className={`inline-block px-3 py-1.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{(run?.status ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-normal bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
                 <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1 text-xs font-normal bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded px-3 py-1.5"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 <Link href="/test-runs/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
@@ -177,7 +176,7 @@ export default function TestRunDetailPage() {
                       <React.Fragment key={ex.id}>
                         <tr className="border-t border-slate-200 dark:border-slate-700/50 align-top">
                           <td className="px-4 py-3 font-normal"><Link href={`/test-cases/${ex.test_case_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{code ? `${code} — ${title || 'Untitled'}` : title}</Link></td>
-                          <td className="px-4 py-3 font-normal"><span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${badge(ex.status)}`}>{ex.status}</span></td>
+                          <td className="px-4 py-3 font-normal"><span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${badge(ex.status)}`}>{ex.status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span></td>
                           <td className="px-4 py-3 font-normal"><button onClick={() => toggleSteps(ex.id)} className="font-normal text-blue-600 dark:text-blue-400 hover:underline">{open ? 'Hide steps ▲' : 'View steps ▼'}</button></td>
                         </tr>
                         {open && (
