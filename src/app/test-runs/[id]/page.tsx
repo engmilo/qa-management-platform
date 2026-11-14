@@ -200,7 +200,7 @@ export default function TestRunDetailPage() {
                                   {isCompleted ? <p className="font-normal text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p> : (
                                     <div className="flex gap-2 items-center">
                                       <button onClick={() => saveSteps(ex.id)} disabled={!!savingSteps[ex.id]} className="text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-1.5">{savingSteps[ex.id] ? 'Saving...' : 'Save Steps'}</button>
-                                      {stepMsg[ex.id] && <span className={`inline-block p-2 border rounded text-xs font-normal ${stepMsg[ex.id].toLowerCase().includes('fail') || stepMsg[ex.id].toLowerCase().includes('error') ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'}`}>{stepMsg[ex.id]}</span>}
+                                      {stepMsg[ex.id] && <span className={`inline-block p-2 border rounded text-xs font-normal ${stepMsg[ex.id].toLowerCase().includes('fail') || stepMsg[ex.id].toLowerCase().includes('error') ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900' : 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900'}`}>{stepMsg[ex.id]}</span>}
                                     </div>
                                   )}
                                 </div>
