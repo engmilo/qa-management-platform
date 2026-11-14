@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -37,7 +37,14 @@ export default function TestCaseDetailPage() {
     comment: "",
   });
   const [steps, setSteps] = useState<{ action: string; expected: string; status: string }[]>([]);
-
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+  const autoGrowComment = () => {
+    const el = commentRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  };
+  useEffect(() => { autoGrowComment(); }, [form.comment, loading]);
   const load = async () => {
     const res = await fetch(`/api/test-cases/${id}`, { cache: "no-store" });
     const data = await res.json();
@@ -182,7 +189,16 @@ export default function TestCaseDetailPage() {
 
                   <div>
                     <label className="block text-xs font-normal mb-1.5">Comment</label>
-                    <textarea value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} rows={2} placeholder="Add a comment..." className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none" />
+                    <textarea
+                      ref={commentRef}
+                      value={form.comment}
+                      onChange={(e) => { setForm({ ...form, comment: e.target.value }); autoGrowComment(); }}
+                      onFocus={() => autoGrowComment()}
+                      rows={2}
+                      placeholder="Add a comment..."
+                      style={{ overflow: "hidden", resize: "none" }}
+                      className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]"
+                    />
                   </div>
 
                   <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? "Saving..." : "Save Changes"}</button>
