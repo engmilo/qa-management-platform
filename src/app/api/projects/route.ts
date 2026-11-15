@@ -81,10 +81,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { key, name, description, organizationId } = await request.json();
+  const body = await request.json();
+  const { key, name, description } = body;
+  const organizationId = body.organizationId ?? body.organization_id ?? body.orgId ?? '';
 
   if (!key || !name || !organizationId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const missing = [!key ? 'key' : null, !name ? 'name' : null, !organizationId ? 'organizationId' : null].filter(Boolean).join(', ');
+    return NextResponse.json({ error: `Missing required fields: ${missing}` }, { status: 400 });
   }
 
   const { data: project, error } = await supabase

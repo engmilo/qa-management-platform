@@ -35,12 +35,12 @@ function normalizeOrgs(data: any): Org[] {
         'Zamir Oy'
       ),
     }))
-    .filter((o) => o.name);
+    .filter((o) => o.id && o.name);
 }
 
 export default function NewProjectPage() {
   const router = useRouter();
-  const [orgs, setOrgs] = useState<Org[]>([{ id: '', name: 'Zamir Oy' }]);
+  const [orgs, setOrgs] = useState<Org[]>([]);
   const [orgId, setOrgId] = useState('');
   const [key, setKey] = useState('');
   const [name, setName] = useState('');
@@ -61,7 +61,9 @@ export default function NewProjectPage() {
         }
       })
       .catch(() => {
-        // Keep fallback "Zamir Oy"
+        // Fallback to real Zamir Oy if API fails
+        setOrgs([{ id: '4d42135d-da27-4f76-a587-184360b93648', name: 'Zamir Oy' }]);
+        setOrgId('4d42135d-da27-4f76-a587-184360b93648');
       });
   }, []);
 
@@ -70,13 +72,15 @@ export default function NewProjectPage() {
     setError('');
     if (!key.trim()) { setError('Project Identifier Key is required.'); return; }
     if (!name.trim()) { setError('Project Name is required.'); return; }
+    if (!orgId) { setError('Organization is required - please reload and pick Zamir Oy again.'); return; }
     setSaving(true);
     try {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...(orgId ? { organization_id: orgId } : {}),
+          organizationId: orgId,
+          organization_id: orgId,
           key: key.trim().toUpperCase(),
           name: name.trim(),
           description: description.trim(),
