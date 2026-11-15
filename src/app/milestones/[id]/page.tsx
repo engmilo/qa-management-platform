@@ -141,7 +141,7 @@ export default function MilestoneDetailPage() {
               <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
                 <h3 className="text-sm font-normal mb-3">Linked Test Plans</h3>
                 {rel.test_plans && rel.test_plans.length > 0 ? (
-                  <div className="space-y-2">{rel.test_plans.map((p: any) => <div key={p.id} className="flex justify-between text-xs border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2"><Link href={`/test-plans/${p.id}`} className="font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">{p.title}</Link><span className="text-slate-500 dark:text-slate-400">{p.status}</span></div>)}</div>
+                  <div className="space-y-2">{rel.test_plans.map((p: any) => <div key={p.id} className="flex justify-between text-xs border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2"><Link href={`/test-plans/${p.id}`} className="font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">{p.title}</Link><span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${p.status === 'completed' || p.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : p.status === 'in_progress' || p.status === 'planning' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>{String(p.status ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span></div>)}</div>
                 ) : <p className="text-xs text-slate-500 dark:text-slate-400">No test plans linked to this milestone yet. Link one from its Test Plan detail page.</p>}
               </section>
             )}
