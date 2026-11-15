@@ -26,6 +26,10 @@ const FALLBACK: Member[] = [
 export default function SettingsPage() {
   const [orgName, setOrgName] = useState('Zamir Oy');
   const [activeOrg, setActiveOrg] = useState('Zamir Oy');
+  const [orgId, setOrgId] = useState('');
+  const [savingOrg, setSavingOrg] = useState(false);
+  const [orgSaved, setOrgSaved] = useState(false);
+  const [orgError, setOrgError] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('qa_engineer');
   const [members, setMembers] = useState<Member[]>(FALLBACK);
@@ -43,12 +47,33 @@ export default function SettingsPage() {
         const name = data.organization?.name || data.org?.name || '';
         if (name) { setOrgName(name); setActiveOrg(name); }
       } catch {}
+      try {
+        const r = await fetch('/api/organizations', { cache: 'no-store' });
+        const d = await r.json().catch(() => ({}));
+        const list = d.organizations ?? [];
+        const first = list[0]?.organization ?? list[0];
+        if (first?.id) setOrgId(String(first.id));
+        if (first?.name) { setOrgName(first.name); setActiveOrg(first.name); }
+      } catch {}
     })();
   }, []);
 
   const nameOf = (m: Member) => m.full_name || m.profiles?.full_name || m.user?.full_name || '—';
   const emailOf = (m: Member) => m.email || m.profiles?.email || m.user?.email || '—';
   const idOf = (m: Member) => m.id || m.user_id || '';
+
+  const saveOrg = async () => {
+    if (!orgName.trim()) { setOrgError('Organization Name is required.'); return; }
+    if (!orgId) { setOrgError('Could not find organization. Refresh and try again.'); return; }
+    setSavingOrg(true); setOrgError(''); setOrgSaved(false);
+    try {
+      const res = await fetch(`/api/organizations/${encodeURIComponent(orgId)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: orgName.trim() }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not save.');
+      const savedName = data.organization?.name ?? orgName.trim();
+      setOrgName(savedName); setActiveOrg(savedName); setOrgSaved(true);
+    } catch (e) { setOrgError(e instanceof Error ? e.message : 'Could not save.'); } finally { setSavingOrg(false); }
+  };
 
   const invite = async () => {
     if (!inviteEmail.trim()) return;
@@ -112,7 +137,10 @@ export default function SettingsPage() {
               <div className="p-4 space-y-4">
                 <div>
                   <label className="block text-xs font-normal mb-1.5 text-slate-900 dark:text-white">ORGANIZATION NAME *</label>
-                  <input value={orgName} onChange={(e) => setOrgName(e.target.value)} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-normal" />
+                  <input value={orgName} onChange={(e) => { setOrgName(e.target.value); setOrgSaved(false); }} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-normal" />
+                  {orgError && <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs mt-2">{orgError}</div>}
+{orgSaved && <div className="p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs mt-2">Saved.</div>}
+                  <button type="button" onClick={saveOrg} disabled={savingOrg} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded mt-2">{savingOrg ? 'Saving...' : 'Save Changes'}</button>
                 </div>
                 <div>
                   <label className="block text-xs font-normal mb-1.5 text-slate-900 dark:text-white">SUBSCRIPTION PLAN</label>
