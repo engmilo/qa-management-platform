@@ -37,9 +37,16 @@ export default function TestCaseDetailPage() {
     comment: "",
   });
   const [steps, setSteps] = useState<{ action: string; expected: string; status: string }[]>([]);
+  const [linkedIds, setLinkedIds] = useState<string[]>([]);
+  const [allRequirements, setAllRequirements] = useState<any[]>([]);
 
   // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
   useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+  useEffect(() => {
+    const projId = (testCase as any)?.project_id ?? (testCase as any)?.project?.id ?? '';
+    if (!projId) return;
+    fetch(`/api/requirements?projectId=${projId}`, { cache: 'no-store' }).then((r) => r.json()).then((rd) => setAllRequirements(rd.requirements ?? [])).catch(() => {});
+  }, [testCase?.project_id, testCase?.project?.id]);
 
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const autoGrowComment = () => {
@@ -55,6 +62,7 @@ export default function TestCaseDetailPage() {
     if (!res.ok) throw new Error(data.error || "Could not load test case.");
     const d = data.testCase ?? data.test_case ?? data;
     setTestCase(d);
+    setLinkedIds(((data as any).linkedRequirementIds ?? (data as any).requirements?.map((r: any) => String(r.id)) ?? []).map((x: any) => String(x)));
     setForm({
       title: d.title ?? "",
       project: d.project?.name ?? d.project_name ?? d.project ?? "QA Studio",
@@ -95,7 +103,7 @@ export default function TestCaseDetailPage() {
       const res = await fetch(`/api/test-cases/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, steps }),
+        body: JSON.stringify({ ...form, steps, linkedRequirementIds: linkedIds, requirementIds: linkedIds }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not save.");
@@ -189,7 +197,7 @@ export default function TestCaseDetailPage() {
                     </div>
                   </div>
 
-                  <div><label className="block text-xs font-normal mb-1.5">Linked Requirements</label><div className="border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622]"><label className="flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked readOnly className="accent-[#276fbf]" /> REQ-101 — User Authentication via Two-Factor OTP</label></div></div>
+                  <div><label className="block text-xs font-normal mb-1.5">Linked Requirements</label><div className="border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] space-y-1">{allRequirements.length === 0 ? (<p className="text-xs text-slate-500">No requirements in this project.</p>) : (allRequirements.map((req: any) => (<label key={String(req.id)} className="flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked={linkedIds.includes(String(req.id))} onChange={(e) => { const rid = String(req.id); setLinkedIds((prev) => e.target.checked ? [...prev, rid] : prev.filter((x) => x !== rid)); }} className="accent-[#276fbf]" /> {req.req_key} — {req.title}</label>)))}</div></div>
 
                   <div>
                     <label className="block text-xs font-normal mb-1.5">Comment</label>
