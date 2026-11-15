@@ -114,7 +114,7 @@ export default function NewRequirementPage() {
                 </FormField>
 
                 <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Detailed description, acceptance criteria, edge cases..." className={`${inputCls} resize-y`} />
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} placeholder="Detailed description, acceptance criteria, edge cases..." className={`${inputCls} resize-none overflow-hidden`} />
                 </FormField>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

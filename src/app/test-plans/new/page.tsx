@@ -150,7 +150,7 @@ export default function NewTestPlanPage() {
                 </FormField>
 
                 <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What will this plan cover?" className={`${inputCls} resize-y`} />
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What will this plan cover?" className={`${inputCls} resize-none overflow-hidden`} />
                 </FormField>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

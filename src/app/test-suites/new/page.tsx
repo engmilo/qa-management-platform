@@ -117,7 +117,7 @@ export default function NewTestSuitePage() {
                 </FormField>
 
                 <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What does this suite cover?" className={`${inputCls} resize-y`} />
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What does this suite cover?" className={`${inputCls} resize-none overflow-hidden`} />
                 </FormField>
 
                 <FormActions submitLabel="Add Test Suite" saving={saving} savingLabel="Adding..." cancelHref="/test-suites" />

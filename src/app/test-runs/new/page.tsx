@@ -264,7 +264,7 @@ export default function NewTestRunPage() {
                 </div>
 
                 <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What is this run for?" className={`${inputCls} resize-y`} />
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What is this run for?" className={`${inputCls} resize-none overflow-hidden`} />
                 </FormField>
 
                 <FormActions submitLabel="Create Test Run" saving={saving} savingLabel="Creating..." cancelHref="/test-runs" />

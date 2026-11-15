@@ -193,8 +193,8 @@ export default function NewTestCasePage() {
                     {steps.map((s, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <span className="text-xs font-normal text-slate-500 dark:text-slate-400 pt-2.5 w-5 shrink-0">{idx + 1}.</span>
-                        <input value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} placeholder="Step - e.g. Navigate to login page" className={inputCls} />
-                        <input value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} placeholder="Expected Result - e.g. Login page is shown" className={inputCls} />
+                        <textarea value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} onInput={autoGrow} rows={1} placeholder="Step - e.g. Navigate to login page" className={`${inputCls} resize-none overflow-hidden`} />
+                        <textarea value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} onInput={autoGrow} rows={1} placeholder="e.g. Login page is shown" className={`${inputCls} resize-none overflow-hidden`} />
                         <button type="button" onClick={() => setConfirmRemoveIdx(idx)} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                       </div>
                     ))}

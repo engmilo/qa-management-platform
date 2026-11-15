@@ -120,7 +120,7 @@ export default function MilestoneDetailPage() {
                     <input value={form.versionName} onChange={(e) => setForm({ ...form, versionName: e.target.value })} required className={inputCls} />
                   </FormField>
                   <FormField label="DESCRIPTION">
-                    <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className={`${inputCls} resize-y`} />
+                    <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className={`${inputCls} resize-none overflow-hidden`} />
                   </FormField>
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div>
