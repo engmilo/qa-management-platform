@@ -75,6 +75,10 @@ export default function ProjectDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+
+
   useEffect(() => {
     let active = true;
     setLoading(true);

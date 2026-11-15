@@ -36,6 +36,10 @@ export default function DefectDetailPage() {
   });
   const [steps, setSteps] = useState<string[]>([]);
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+
+
   const load = async () => {
     const res = await fetch(`/api/defects/${id}`, { cache: "no-store" });
     const data = await res.json();

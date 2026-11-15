@@ -38,6 +38,11 @@ export default function SettingsPage() {
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
   const [pendingDeactivate, setPendingDeactivate] = useState<Member | null>(null);
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!orgSaved) return; const t = setTimeout(() => setOrgSaved(false), 4000); return () => clearTimeout(t); }, [orgSaved]);
+  useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(''), 4000); return () => clearTimeout(t); }, [msg]);
+
+
   useEffect(() => {
     (async () => {
       try {

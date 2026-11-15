@@ -20,6 +20,10 @@ export default function RequirementDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', priority: 'medium', status: 'draft', type: 'functional', project_id: '' });
+
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+
   const descRef = useRef<HTMLTextAreaElement>(null);
   const autoGrow = () => { const el = descRef.current; if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } };
   useEffect(() => { autoGrow(); }, [form.description, loading]);

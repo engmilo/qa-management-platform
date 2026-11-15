@@ -37,6 +37,10 @@ export default function TestCaseDetailPage() {
     comment: "",
   });
   const [steps, setSteps] = useState<{ action: string; expected: string; status: string }[]>([]);
+
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const autoGrowComment = () => {
     const el = commentRef.current;

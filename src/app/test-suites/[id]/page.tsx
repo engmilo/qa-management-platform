@@ -29,6 +29,10 @@ export default function TestSuiteDetailPage() {
   const [removingCase, setRemovingCase] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+
+
   const load = async () => {
     const res = await fetch(`/api/test-suites/${id}`, { cache: 'no-store' });
     const data = await res.json();

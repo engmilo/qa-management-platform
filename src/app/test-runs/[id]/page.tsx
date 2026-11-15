@@ -29,6 +29,10 @@ export default function TestRunDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [runMsg, setRunMsg] = useState('');
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!runMsg) return; const t = setTimeout(() => setRunMsg(''), 4000); return () => clearTimeout(t); }, [runMsg]);
+
+
   const load = async () => {
     try {
       const res = await fetch(`/api/test-runs/${id}`, { cache: 'no-store' });

@@ -15,6 +15,10 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [createdAt, setCreatedAt] = useState('');
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!message) return; const t = setTimeout(() => setMessage(''), 4000); return () => clearTimeout(t); }, [message]);
+
+
   useEffect(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

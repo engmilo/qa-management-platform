@@ -22,6 +22,10 @@ export default function MilestoneDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({ versionName: '', description: '', status: 'planning', startDate: '', releaseDate: '' });
 
+  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
+  useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
+
+
   useEffect(() => {
     (async () => {
       try {
