@@ -95,7 +95,7 @@ export default function NewRequirementPage() {
               <span className="text-slate-500 dark:text-slate-400">Add Requirement</span>
             </div>
 
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-visible">
               <div className="px-6 py-4 dark:border-[#28374d]">
                 <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Requirement</h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Define what the system must do</p>
@@ -132,16 +132,16 @@ export default function NewRequirementPage() {
                     value={type}
                     onChange={setType}
                     options={[
-                      { value: 'functional', label: 'functional' },
-                      { value: 'non_functional', label: 'non_functional' },
-                      { value: 'business', label: 'business' },
-                      { value: 'technical', label: 'technical' },
-                      { value: 'user_story', label: 'user_story' },
-                      { value: 'performance', label: 'performance' },
-                      { value: 'security', label: 'security' },
-                      { value: 'automation', label: 'automation' },
-                      { value: 'regression', label: 'regression' },
-                      { value: 'e2e', label: 'e2e' },
+                      { value: 'functional', label: 'Functional' },
+                      { value: 'non_functional', label: 'Non Functional' },
+                      { value: 'business', label: 'Business' },
+                      { value: 'technical', label: 'Technical' },
+                      { value: 'user_story', label: 'User Story' },
+                      { value: 'performance', label: 'Performance' },
+                      { value: 'security', label: 'Security' },
+                      { value: 'automation', label: 'Automation' },
+                      { value: 'regression', label: 'Regression' },
+                      { value: 'e2e', label: 'E2E' },
                     ]}
                   />
                   <FormSelect
@@ -149,10 +149,10 @@ export default function NewRequirementPage() {
                     value={priority}
                     onChange={setPriority}
                     options={[
-                      { value: 'low', label: 'low' },
-                      { value: 'medium', label: 'medium' },
-                      { value: 'high', label: 'high' },
-                      { value: 'critical', label: 'critical' },
+                      { value: 'low', label: 'Low' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'high', label: 'High' },
+                      { value: 'critical', label: 'Critical' },
                     ]}
                   />
                   <FormSelect
@@ -160,12 +160,12 @@ export default function NewRequirementPage() {
                     value={status}
                     onChange={setStatus}
                     options={[
-                      { value: 'draft', label: 'draft' },
-                      { value: 'in_review', label: 'in_review' },
-                      { value: 'approved', label: 'approved' },
-                      { value: 'implemented', label: 'implemented' },
-                      { value: 'verified', label: 'verified' },
-                      { value: 'rejected', label: 'rejected' },
+                      { value: 'draft', label: 'Draft' },
+                      { value: 'in_review', label: 'In Review' },
+                      { value: 'approved', label: 'Approved' },
+                      { value: 'implemented', label: 'Implemented' },
+                      { value: 'verified', label: 'Verified' },
+                      { value: 'rejected', label: 'Rejected' },
                     ]}
                   />
                 </div>
