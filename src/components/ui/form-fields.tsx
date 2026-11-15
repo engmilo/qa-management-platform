@@ -38,6 +38,7 @@ export function FormSelect({
   placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -51,12 +52,12 @@ export function FormSelect({
   return (
     <FormField label={label}>
       <div ref={ref} className="relative">
-        <button type="button" onClick={() => setOpen((v) => !v)} className={`${inputCls} flex items-center justify-between text-left pr-10 cursor-pointer`}>
+        <button type="button" onClick={() => { if (!open && ref.current) { const r = ref.current.getBoundingClientRect(); setDropUp(r.bottom + 340 > window.innerHeight); } setOpen((v) => !v); }} className={`${inputCls} flex items-center justify-between text-left pr-10 cursor-pointer`}>
           <span className="truncate">{display}</span>
           <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-300 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         </button>
         {open && (
-          <ul className="absolute z-50 left-0 right-0 top-full mt-1 border border-[#d8dee4] rounded shadow-lg py-1" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>
+          <ul className={dropUp ? "absolute z-50 left-0 right-0 bottom-full mb-1 border border-[#d8dee4] rounded shadow-lg py-1" : "absolute z-50 left-0 right-0 top-full mt-1 border border-[#d8dee4] rounded shadow-lg py-1"} style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>
             {placeholder !== undefined && (
               <li onClick={() => { onChange(''); setOpen(false); }} className="px-3 py-2 text-sm cursor-pointer" style={{ backgroundColor: '#ffffff', color: '#64748b' }}>{placeholder}</li>
             )}
