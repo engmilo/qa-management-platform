@@ -5,7 +5,7 @@ import { Header } from '@/components/dashboard/header';
 import { Building2, Users, X, AlertTriangle } from 'lucide-react';
 
 type Member = {
-  id?: string; user_id?: string; email?: string; full_name?: string; role?: string;
+  id?: string; user_id?: string; organization_id?: string; email?: string; full_name?: string; role?: string;
   profiles?: { full_name?: string | null; email?: string | null } | null;
   user?: { full_name?: string | null; email?: string | null } | null;
   is_active?: boolean; status?: string;
@@ -197,7 +197,25 @@ export default function SettingsPage() {
                       <div key={id || i} className="flex items-center justify-between border border-[#e2e8f0] dark:border-[#28374d] rounded p-3">
                         <div><p className="text-xs font-normal text-slate-900 dark:text-white">{nameOf(m)}</p><p className="text-xs font-normal text-slate-500 dark:text-slate-400">{emailOf(m)}</p></div>
                         <div className="flex items-center gap-2">
-                          <span className="px-3 py-1.5 rounded text-xs font-normal bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200">{labelFor(m.role)}</span>
+                          {isYou ? (
+                            <span className="px-3 py-1.5 rounded text-xs font-normal bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200">{labelFor(m.role)}</span>
+                          ) : (
+                            <select value={m.role} onChange={async (e) => {
+                              const newRole = e.target.value;
+                              const res = await fetch('/api/organizations/members', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: (m as any).user_id || id, organization_id: (m as any).organization_id || orgId, role: newRole }) });
+                              const d = await res.json().catch(() => ({}));
+                              if (!res.ok) { setMsg(d.error || 'Could not change role.'); setMsgIsError(true); return; }
+                              setMembers((cur) => cur.map((x) => (idOf(x) === id ? { ...x, role: newRole } : x)));
+                              setMsg('Role updated.'); setMsgIsError(false);
+                            }} className="px-2 py-1.5 rounded text-xs font-normal bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 border border-transparent">
+                              <option value="org_admin">Org Admin</option>
+                              <option value="qa_manager">Qa Manager</option>
+                              <option value="qa_engineer">QA Engineer</option>
+                              <option value="developer">Developer</option>
+                              <option value="viewer">Viewer</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                          )}
                           {isYou ? <span className="text-xs font-normal text-[#276fbf]">You</span> : (
                             <button onClick={() => setPendingDeactivate(m)} disabled={busy} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white font-normal text-xs px-3 py-1.5 rounded">{busy ? 'Deactivating...' : 'Deactivate'}</button>
                           )}

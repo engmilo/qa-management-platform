@@ -154,3 +154,31 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ member: { user_id: target.id, email: target.email, full_name: target.full_name, role, organization_id: organizationId } }, { status: 201 });
 }
+
+export async function PATCH(request: NextRequest) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await request.json().catch(() => ({}));
+  const userId = typeof body.user_id === 'string' ? body.user_id : '';
+  const role = typeof body.role === 'string' ? body.role : '';
+  const organizationId = typeof body.organization_id === 'string' ? body.organization_id : '';
+  const allowed = ['super_admin', 'org_admin', 'admin', 'qa_manager', 'qa_engineer', 'developer', 'viewer'];
+  if (!userId || !organizationId || !allowed.includes(role)) {
+    return NextResponse.json({ error: 'Invalid user, organization, or role.' }, { status: 400 });
+  }
+
+  const { data: myMemberships } = await supabase.from('organization_members').select('organization_id, role').eq('user_id', user.id);
+  const isAdmin = (myMemberships ?? []).some((m: any) => m.organization_id === organizationId && ['org_admin', 'super_admin'].includes(m.role));
+  if (!isAdmin) return NextResponse.json({ error: 'Only org admins can change roles.' }, { status: 403 });
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) return NextResponse.json({ error: 'Role change unavailable: configure SUPABASE_SECRET_KEY.' }, { status: 503 });
+  const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+
+  const { error } = await admin.from('organization_members').update({ role }).eq('organization_id', organizationId).eq('user_id', userId);
+  if (error) return NextResponse.json({ error: `Could not change role: ${error.message}` }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
