@@ -81,14 +81,15 @@ export default function SettingsPage() {
     setMsg('');
     try {
       const res = await fetch('/api/organizations/members', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole }) });
-      if (!res.ok) throw new Error();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not invite.');
       setMsg('Invite sent.');
       setMsgIsError(false)
       setInviteEmail('');
       const r2 = await fetch('/api/organizations/members', { cache: 'no-store' });
       const d2 = await r2.json().catch(() => ({}));
       if (d2.members?.length) setMembers(d2.members);
-    } catch { setMsg('Could not invite. User must be registered.');
+    } catch (e) { setMsg(e instanceof Error ? e.message : 'Could not invite. User must be registered.');
       setMsgIsError(true)
     }
   };

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createRouteSupabaseClient } from '@/lib/supabase/route-client';
 import { createClient } from '@supabase/supabase-js';
 
@@ -63,4 +63,94 @@ export async function GET() {
   });
 
   return NextResponse.json({ members: out });
+}
+
+export async function POST(request: NextRequest) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  let body: { email?: unknown; role?: unknown; organization_id?: unknown };
+  try { body = await request.json(); } catch {
+    return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 });
+  }
+
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const role = typeof body.role === 'string' ? body.role : 'qa_engineer';
+  const allowed = ['super_admin', 'org_admin', 'admin', 'qa_manager', 'qa_engineer', 'developer', 'viewer'];
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
+  }
+  if (!allowed.includes(role)) {
+    return NextResponse.json({ error: 'Invalid role.' }, { status: 400 });
+  }
+
+  // Which org? Use body organization_id if given, otherwise first org where you are admin, otherwise your first org.
+  // You have only Zamir Oy now, so this will be Zamir Oy.
+  const { data: myMemberships } = await supabase
+    .from('organization_members')
+    .select('organization_id, role')
+    .eq('user_id', user.id);
+  if (!myMemberships?.length) {
+    return NextResponse.json({ error: 'You do not belong to an organization.' }, { status: 403 });
+  }
+  const orgIdFromBody = typeof body.organization_id === 'string' ? body.organization_id : '';
+  const organizationId = orgIdFromBody
+    || (myMemberships as any[]).find((m) => ['org_admin', 'super_admin'].includes(m.role))?.organization_id
+    || (myMemberships as any[])[0].organization_id;
+
+  const isAdmin = (myMemberships as any[]).some((m) => m.organization_id === organizationId && ['org_admin', 'super_admin'].includes(m.role));
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'Only org admins can invite members.' }, { status: 403 });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return NextResponse.json({ error: 'Invite is unavailable: configure SUPABASE_SECRET_KEY on the server.' }, { status: 503 });
+  }
+  const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+
+  // Lookup target in profiles
+  let target: { id: string; email: string | null; full_name: string | null } | null = null;
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('id, email, full_name')
+    .ilike('email', email)
+    .maybeSingle();
+  if (profile) target = profile as any;
+
+  // Fallback: exists in Auth but no profiles row yet (like your first Mailo Add user) -> bootstrap profiles
+  if (!target) {
+    const { data: listed } = await admin.auth.admin.listUsers({ page: 1, perPage: 100 });
+    const authUser = (listed?.users ?? []).find((u: any) => (u.email || '').toLowerCase() === email);
+    if (authUser) {
+      const fullName = String(authUser.user_metadata?.full_name || authUser.user_metadata?.display_name || authUser.user_metadata?.name || email.split('@')[0] || 'Member').trim();
+      await admin.from('profiles').upsert({ id: authUser.id, email: authUser.email, full_name: fullName }, { onConflict: 'id' });
+      target = { id: authUser.id, email: authUser.email, full_name: fullName };
+    }
+  }
+
+  if (!target) {
+    return NextResponse.json({ error: 'User must be registered.' }, { status: 404 });
+  }
+
+  const { data: existing } = await admin
+    .from('organization_members')
+    .select('id')
+    .eq('organization_id', organizationId)
+    .eq('user_id', target.id)
+    .maybeSingle();
+  if (existing) {
+    return NextResponse.json({ error: 'User is already a member.' }, { status: 409 });
+  }
+
+  const { error: insertError } = await admin
+    .from('organization_members')
+    .insert({ organization_id: organizationId, user_id: target.id, role });
+  if (insertError) {
+    return NextResponse.json({ error: `Could not invite: ${insertError.message}` }, { status: 500 });
+  }
+
+  return NextResponse.json({ member: { user_id: target.id, email: target.email, full_name: target.full_name, role, organization_id: organizationId } }, { status: 201 });
 }
