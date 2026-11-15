@@ -78,9 +78,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 });
   }
 
-  const projectId = typeof body.projectId === 'string' ? body.projectId : '';
-  const reqKey = typeof body.reqKey === 'string' ? body.reqKey.trim().toUpperCase() : '';
+  const projectId = typeof body.projectId === 'string' ? body.projectId : typeof body.project_id === 'string' ? body.project_id : '';
+  let reqKey = typeof body.reqKey === 'string' ? body.reqKey.trim().toUpperCase() : typeof body.req_key === 'string' ? body.req_key.trim().toUpperCase() : typeof body.key === 'string' ? body.key.trim().toUpperCase() : '';
   const title = typeof body.title === 'string' ? body.title.trim() : '';
+  if (!projectId || !title) {
+    return NextResponse.json({ error: 'Project and title are required.' }, { status: 400 });
+  }
+  if (!reqKey) {
+    const { count } = await supabase.from('requirements').select('id', { count: 'exact', head: true }).eq('project_id', projectId);
+    reqKey = `REQ-${101 + (count ?? 0)}`;
+  }
   if (!projectId || !reqKey || !title) {
     return NextResponse.json({ error: 'Project, requirement key, and title are required.' }, { status: 400 });
   }

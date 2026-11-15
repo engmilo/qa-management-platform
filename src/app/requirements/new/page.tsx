@@ -29,6 +29,7 @@ export default function NewRequirementPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState('');
+  const [reqKey, setReqKey] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState('functional');
@@ -53,13 +54,17 @@ export default function NewRequirementPage() {
     setError('');
     if (!projectId) { setError('Select a project.'); return; }
     if (!title.trim()) { setError('Title is required.'); return; }
+    if (!reqKey.trim()) { setError('Requirement Key is required - e.g. REQ-101.'); return; }
     setSaving(true);
     try {
       const res = await fetch('/api/requirements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          projectId: projectId,
           project_id: projectId,
+          reqKey: reqKey.trim().toUpperCase(),
+          req_key: reqKey.trim().toUpperCase(),
           title: title.trim(),
           description: description.trim(),
           type,
@@ -108,6 +113,10 @@ export default function NewRequirementPage() {
                   options={projects.map((p) => ({ value: p.id, label: p.name }))}
                   placeholder="Select a project"
                 />
+
+                <FormField label="REQUIREMENT KEY *">
+                  <input value={reqKey} onChange={(e) => setReqKey(e.target.value)} placeholder="e.g. REQ-101" className={inputCls} />
+                </FormField>
 
                 <FormField label="TITLE *">
                   <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. User can log in with email and password" className={inputCls} />
