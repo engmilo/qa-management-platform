@@ -75,7 +75,7 @@ function LoginContent() {
           <p className="text- text-slate-500 dark:text-slate-400">Enterprise Test Management</p>
         </div>
       </div>
-      <div className="w-full max-w-sm dark:bg-[#182232] dark:border-[#28374d] p-6">
+      <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6">
         {!showReset ? (
           <>
             <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Log In to Your Account</h1>

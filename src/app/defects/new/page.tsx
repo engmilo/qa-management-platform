@@ -6,7 +6,7 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ProjectSelector, type ProjectOption } from '@/components/forms/project-selector';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { ArrowLeft, Bug, Plus } from 'lucide-react';
+import { ArrowLeft, Bug } from 'lucide-react';
 
 export default function NewDefectPage() {
   const router = useRouter();
@@ -86,7 +86,7 @@ export default function NewDefectPage() {
                     <div><label className={labelCls}>Defect Key</label><input value={form.defectKey} onChange={(e) => setForm({ ...form, defectKey: e.target.value })} placeholder="e.g. BUG-101 (leave empty to auto-generate)" className={inputCls} /></div>
                     <div><label className={labelCls}>Summary <span className="text-red-500">*</span></label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} placeholder="e.g. Session expires immediately when switching tabs" required className={inputCls} /></div>
                   </div>
-                  <div><label className={labelCls}>Description / Overview</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="High level overview of what broke and under what circumstances" className={inputCls} /></div>
+                  <div><label className={labelCls}>Description / Overview</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="High level overview of what broke and under what circumstances" className={`${inputCls} resize-none overflow-hidden`} /></div>
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div><label className={labelCls}>Severity</label><select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className={selectCls}>{['trivial', 'minor', 'major', 'critical', 'blocker'].map((v) => <option key={v} value={v}>{v}</option>)}</select></div>
                     <div><label className={labelCls}>Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className={selectCls}>{['low', 'medium', 'high', 'critical'].map((v) => <option key={v} value={v}>{v}</option>)}</select></div>
@@ -96,20 +96,20 @@ export default function NewDefectPage() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className={labelCls + ' mb-0'}>Steps to Reproduce</span>
-                      <button type="button" onClick={() => setReproSteps([...reproSteps, ''])} className="text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add Step</button>
+                      <button type="button" onClick={() => setReproSteps([...reproSteps, ''])} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
                     </div>
                     {reproSteps.map((step, i) => (
                       <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                         <span className="text-xs font-normal pt-2">{i + 1}.</span>
-                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white" />
-                        <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="text-red-500 text-xs pt-2">Remove</button>
+                        <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white resize-none overflow-hidden" />
+                        <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                       </div>
                     ))}
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div><label className={labelCls}>Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} rows={2} placeholder="What should have happened" className={inputCls} /></div>
-                    <div><label className={labelCls}>Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} rows={2} placeholder="What actually occurred" className={inputCls} /></div>
+                    <div><label className={labelCls}>Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="What should have happened" className={`${inputCls} resize-none overflow-hidden`} /></div>
+                    <div><label className={labelCls}>Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="What actually occurred" className={`${inputCls} resize-none overflow-hidden`} /></div>
                   </div>
                   <div className="flex items-center gap-3 pt-2 border-t border-[#e2e8f0] dark:border-[#28374d]">
                     <button disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal px-4 py-2 rounded shadow-sm">{saving ? 'Saving...' : 'Add Defect'}</button>
@@ -119,7 +119,7 @@ export default function NewDefectPage() {
               </div>
             </div>
           </div>
-          <ConfirmDialog open={showStepConfirm} title="Remove this step?" message={stepToRemove !== null ? `Remove Step ${stepToRemove + 1}?` : 'Remove this step?'} confirmLabel="Remove step" deleting={false} onConfirm={confirmRemoveStep} onCancel={() => { setShowStepConfirm(false); setStepToRemove(null); }} />
+          <ConfirmDialog open={showStepConfirm} title="Remove this step?" message="This will remove this step. This cannot be undone." confirmLabel="Remove step" deleting={false} onConfirm={confirmRemoveStep} onCancel={() => { setShowStepConfirm(false); setStepToRemove(null); }} />
         </main>
       </div>
     </div>

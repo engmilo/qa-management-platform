@@ -62,7 +62,7 @@ export default function ProfilePage() {
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl">
             <Link href="/dashboard" className="text-xs text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Dashboard</Link>
-            <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mt-1">My Profile</h1>
+            <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-1">My Profile</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-6 font-normal">Your logged-in account details.</p>
 
             {loading ? (
@@ -74,7 +74,7 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm font-normal text-slate-900 dark:text-white">{fullName || 'No name set'}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{email}</p>
-                    {createdAt && <p className="text- text-slate-400 mt-0.5">Member since {createdAt}</p>}
+                    {createdAt && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Member since {createdAt}</p>}
                   </div>
                 </div>
 
@@ -91,7 +91,7 @@ export default function ProfilePage() {
                     <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">EMAIL ADDRESS</label>
                     <input value={email} disabled
                       className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-slate-50 dark:bg-slate-800/50 rounded font-normal px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed" />
-                    <p className="text- text-slate-400 mt-1">Email cannot be changed here.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed here.</p>
                   </div>
                   <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-normal px-4 py-2 rounded disabled:opacity-50">
                     {saving ? 'Saving...' : 'Save changes'}

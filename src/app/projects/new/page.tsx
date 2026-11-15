@@ -143,7 +143,7 @@ export default function NewProjectPage() {
                 </FormField>
 
                 <FormField label="ANNOUNCEMENT / DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Brief overview of project scope, test environment, and goals" className={`${inputCls} resize-y`} />
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} placeholder="Brief overview of project scope, test environment, and goals" className={`${inputCls} resize-none overflow-hidden`} />
                 </FormField>
 
                 <FormActions submitLabel="Add Project" saving={saving} savingLabel="Adding..." cancelHref="/projects" />

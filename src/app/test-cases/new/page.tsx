@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
+import { AlertTriangle, X } from 'lucide-react';
 
 type Project = { id: string; name: string };
 type Plan = { id: string; name: string };
@@ -181,7 +182,10 @@ export default function NewTestCasePage() {
                 </FormField>
 
                 <div>
-                  <span className={labelCls}>STEPS</span>
+                  <div className="flex items-center justify-between">
+                    <span className={labelCls}>STEPS</span>
+                    <button type="button" onClick={addStep} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
+                  </div>
                   {steps.length === 0 && (
                     <p className="text-xs text-slate-500 dark:text-slate-400 py-1">No steps yet. Click + Add Step to add one.</p>
                   )}
@@ -191,11 +195,10 @@ export default function NewTestCasePage() {
                         <span className="text-xs font-normal text-slate-500 dark:text-slate-400 pt-2.5 w-5 shrink-0">{idx + 1}.</span>
                         <input value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} placeholder="Step - e.g. Navigate to login page" className={inputCls} />
                         <input value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} placeholder="Expected Result - e.g. Login page is shown" className={inputCls} />
-                        <button type="button" onClick={() => setConfirmRemoveIdx(idx)} title="Remove step" className="shrink-0 mt-1 h-8 px-2 flex items-center justify-center gap-1 rounded text-sm font-normal whitespace-nowrap cursor-pointer" style={{ backgroundColor: '#dc2626', color: '#ffffff' }}>X Remove</button>
+                        <button type="button" onClick={() => setConfirmRemoveIdx(idx)} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                       </div>
                     ))}
                   </div>
-                  <button type="button" onClick={addStep} className="mt-2 text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] hover:underline">+ Add Step</button>
                 </div>
 
                 <FormSelect
@@ -286,13 +289,18 @@ export default function NewTestCasePage() {
                 </div>
 
                 {confirmRemoveIdx !== null && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setConfirmRemoveIdx(null)}>
-                    <div className="bg-white dark:bg-[#182232] rounded-md shadow-lg max-w-sm w-full p-5" onClick={(e) => e.stopPropagation()}>
-                      <h3 className="text-sm font-normal text-slate-900 dark:text-white">Remove this step?</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Are you sure you want to remove Step {confirmRemoveIdx + 1}? This cannot be undone.</p>
-                      <div className="flex items-center justify-end gap-2 mt-4">
-                        <button type="button" onClick={() => setConfirmRemoveIdx(null)} className="text-sm font-normal px-4 py-2 rounded bg-white dark:bg-[#1e2a3a] border border-[#d8dee4] dark:border-[#28374d] text-slate-700 dark:text-slate-200">Cancel</button>
-                        <button type="button" onClick={() => { removeStep(confirmRemoveIdx); setConfirmRemoveIdx(null); }} className="text-sm font-normal px-4 py-2 rounded" style={{ backgroundColor: '#dc2626', color: '#ffffff' }}>Remove</button>
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setConfirmRemoveIdx(null)}>
+                    <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-8 h-8 rounded-full font-normal bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-red-600" /></span>
+                          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this step?</h3>
+                        </div>
+                        <button onClick={() => setConfirmRemoveIdx(null)} className="text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-4 h-4" /></button>
+                      </div><p className="text-xs font-normal text-slate-600 dark:text-slate-300 leading-relaxed">This will remove this step. This cannot be undone.</p>
+                      <div className="flex justify-end gap-2 mt-5">
+                        <button type="button" onClick={() => setConfirmRemoveIdx(null)} className="px-3 py-2 rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 text-xs font-normal">Cancel</button>
+                        <button type="button" onClick={() => { removeStep(confirmRemoveIdx); setConfirmRemoveIdx(null); }} className="px-3 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-normal">Remove step</button>
                       </div>
                     </div>
                   </div>
