@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   const role = typeof body.role === 'string' ? body.role : 'qa_engineer';
-  const allowed = ['super_admin', 'org_admin', 'admin', 'qa_manager', 'qa_engineer', 'developer', 'viewer'];
+  const allowed = ['super_admin', 'org_admin', 'qa_manager', 'qa_engineer', 'developer', 'viewer'];
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
   }
@@ -164,7 +164,7 @@ export async function PATCH(request: NextRequest) {
   const userId = typeof body.user_id === 'string' ? body.user_id : '';
   const role = typeof body.role === 'string' ? body.role : '';
   const organizationId = typeof body.organization_id === 'string' ? body.organization_id : '';
-  const allowed = ['super_admin', 'org_admin', 'admin', 'qa_manager', 'qa_engineer', 'developer', 'viewer'];
+  const allowed = ['super_admin', 'org_admin', 'qa_manager', 'qa_engineer', 'developer', 'viewer'];
   if (!userId || !organizationId || !allowed.includes(role)) {
     return NextResponse.json({ error: 'Invalid user, organization, or role.' }, { status: 400 });
   }

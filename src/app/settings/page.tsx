@@ -218,7 +218,6 @@ export default function SettingsPage() {
                               <option value="qa_engineer">QA Engineer</option>
                               <option value="developer">Developer</option>
                               <option value="viewer">Viewer</option>
-                              <option value="admin">Admin</option>
                             </select>
                           )}
                           {isYou ? <span className="text-xs font-normal text-[#276fbf]">You</span> : (
