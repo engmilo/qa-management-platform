@@ -143,7 +143,7 @@ export default function NewTestCasePage() {
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Define steps to verify a requirement</p>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 pb-64 space-y-6">
+              <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {error && (
                   <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
                 )}
