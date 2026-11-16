@@ -7,6 +7,45 @@ function getSupabase() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
+async function callClaude(userMessage: string, systemPrompt: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured on the server. Add it to .env.local and Vercel, then restart.');
+  const models = ['claude-sonnet-4-5-20250929', 'claude-haiku-4-5-20251001', 'claude-opus-4-1-20250805'];
+  let lastError = '';
+  for (const model of models) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 8000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      const text = data?.content?.[0]?.text || '';
+      if (!text) throw new Error('Claude returned no text.');
+      return text;
+    }
+    lastError = data?.error ? `${data.error.type || 'error'}: ${data.error.message || JSON.stringify(data.error)} (model ${model}, status ${res.status})` : `Claude API error: ${res.status} for model ${model}`;
+    // Only fallback on model-not-found / not-available errors
+    if (!/model|not found|not available|does not exist/i.test(lastError)) break;
+  }
+  throw new Error(lastError || 'Claude API error.');
+}
+
+const QA_SYSTEM = `You are a QA assistant inside a QA Management Platform (Zamir Oy).
+Help with test cases, test plans, test runs summaries, and defect drafts.
+Be concrete, structured, and testable. Use Title Case for statuses/priorities.
+For test cases always include: Title, Preconditions, Steps (numbered), Expected Result.
+Never invent defect IDs, test run names, or requirement keys that were not given to you.`;
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -16,53 +55,33 @@ export async function POST(req: NextRequest) {
     const q = message.toLowerCase();
     const supabase = getSupabase();
 
-    // Summarize defects
+    // Summarize defects — real DB data + Claude summarizes it
     if (q.includes('defect')) {
       const { data: defects } = await supabase.from('defects').select('defect_key, summary, status, severity, priority').order('created_at', { ascending: false }).limit(10);
       const list = defects ?? [];
-      const open = list.filter((d: any) => ['new', 'open', 'in_progress', 'reopened'].includes((d.status || '').toLowerCase()));
-      const lines = list.slice(0, 5).map((d: any) => `• ${d.defect_key} — ${d.summary} [${d.status} / ${d.severity}]`).join('\n');
-      return NextResponse.json({
-        reply: `Open defects summary:\n\nTotal fetched: ${list.length}\nOpen / In Progress: ${open.length}\n\nTop defects:\n${lines || 'No defects found.'}\n\nTip: Fix Critical + High first, then retest.`,
-      });
+      const context = list.map((d: any) => `- ${d.defect_key} — ${d.summary} [status=${d.status} severity=${d.severity} priority=${d.priority}]`).join('\n') || 'No defects found.';
+      const reply = await callClaude(
+        `Summarize these open defects for this week. Group by severity, call out Critical/High first, suggest what to fix/retest first.\n\nDefects (real data from DB):\n${context}\n\nUser request: ${message}`,
+        QA_SYSTEM
+      );
+      return NextResponse.json({ reply });
     }
 
-    // Summarize runs
+    // Summarize runs — real DB data + Claude summarizes it
     if (q.includes('run') || q.includes('result')) {
       const { data: runs } = await supabase.from('test_runs').select('name, status').order('created_at', { ascending: false }).limit(10);
       const list = runs ?? [];
-      const completed = list.filter((r: any) => (r.status || '').toLowerCase() === 'completed').length;
-      const lines = list.map((r: any) => `• ${r.name} — ${r.status}`).join('\n');
-      return NextResponse.json({
-        reply: `Test Runs summary:\n\nTotal fetched: ${list.length}\nCompleted: ${completed}\n\nRecent runs:\n${lines || 'No test runs found.'}`,
-      });
+      const context = list.map((r: any) => `- ${r.name} — ${r.status}`).join('\n') || 'No test runs found.';
+      const reply = await callClaude(
+        `Summarize these test runs. Total, how many Completed, recent trend, what to do next.\n\nTest Runs (real data from DB):\n${context}\n\nUser request: ${message}`,
+        QA_SYSTEM
+      );
+      return NextResponse.json({ reply });
     }
 
-    // Test cases for login / 2FA
-    if (q.includes('test case') && (q.includes('login') || q.includes('2fa') || q.includes('auth') || q.includes('otp'))) {
-      return NextResponse.json({
-        reply: `Test cases for Login with 2FA (OTP):\n\n1. Valid login + valid OTP — Enter valid email/password, enter correct 6-digit OTP within expiry. Expected: Login succeeds, dashboard loads.\n2. Valid login + wrong OTP — Enter wrong OTP. Expected: Error "Invalid code", retry allowed.\n3. Valid login + expired OTP — Wait for OTP expiry, then enter old code. Expected: Error "Code expired", Resend option shown.\n4. Valid login + empty OTP — Submit without code. Expected: Validation "OTP is required".\n5. Resend OTP — Click Resend. Expected: New OTP sent, old OTP invalidated.\n6. Too many attempts — Enter wrong OTP 5 times. Expected: Account temporarily locked / cooldown.\n7. OTP with spaces / letters — Enter "12 34ab". Expected: Only digits accepted, validation error.`,
-      });
-    }
-
-    // Test plan for checkout
-    if (q.includes('test plan') && q.includes('checkout')) {
-      return NextResponse.json({
-        reply: `Test Plan — Checkout:\n\nScope: Cart, checkout form, payment, order confirmation, email receipt.\nOut of scope: Admin refunds, inventory backend.\n\nTest types: Functional, regression, UI, API, performance (checkout under load).\n\nSuites:\n1. Cart & Promo codes\n2. Checkout form validation (address, email, phone)\n3. Payment (card, PayPal, failed payment, 3D Secure)\n4. Order confirmation & receipt\n5. Edge cases (empty cart, expired session, double submit)\n\nEntry criteria: Build deployed, test data ready.\nExit criteria: 95% cases passed, no Critical defects open.`,
-      });
-    }
-
-    // Generic test cases
-    if (q.includes('test case')) {
-      return NextResponse.json({
-        reply: `Here is a test case template you can copy:\n\nTitle: [Feature] — [Action] — [Expected]\nPreconditions: User logged in, test data ready.\nSteps:\n1. Go to [page]\n2. Enter [valid data]\n3. Click [Submit]\nExpected: [Success message / page loads]\n\nTell me the feature — e.g. "Write test cases for login with 2FA" or "for checkout payment" — and I will generate the full list.`,
-      });
-    }
-
-    // Fallback — still useful, no error
-    return NextResponse.json({
-      reply: `I can help with:\n\n• "Write test cases for login with 2FA"\n• "Summarize open defects for this week"\n• "Draft a test plan for checkout"\n• "Summarize test runs"\n\nTry one of those, or tell me the feature you are testing.`,
-    });
+    // Everything else — direct Claude call (test cases, test plans, generic)
+    const reply = await callClaude(message, QA_SYSTEM);
+    return NextResponse.json({ reply });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'Could not generate reply.' }, { status: 500 });
   }

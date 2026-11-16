@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const projectId = request.nextUrl.searchParams.get('projectId');
-  let query = supabase.from('test_cases').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('test_cases').select('*').order('case_key', { ascending: true });
   if (projectId) query = query.eq('project_id', projectId);
 
   const { data, error } = await query;
