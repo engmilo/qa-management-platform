@@ -115,7 +115,7 @@ export default function MilestoneDetailPage() {
                 <div className="px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                   <div>
                     <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">{rel.version_name}</h1>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace('_', ' ')}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</p>
                   </div>
                   <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 </div>
@@ -130,7 +130,7 @@ export default function MilestoneDetailPage() {
                     <div>
                       <span className={labelCls}>STATUS</span>
                       <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>
-                        {['planning', 'in_progress', 'released', 'archived'].map((v) => <option key={v} value={v}>{v.replace('_', ' ')}</option>)}
+                        {[{value:'planned',label:'Planned'},{value:'planning',label:'Planning'},{value:'in_progress',label:'In Progress'},{value:'completed',label:'Completed'},{value:'delayed',label:'Delayed'},{value:'cancelled',label:'Cancelled'},{value:'released',label:'Released'},{value:'archived',label:'Archived'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
                     </div>
                     <DateField label="START DATE" value={form.startDate} onChange={(v) => setForm({ ...form, startDate: v })} />

@@ -76,10 +76,13 @@ export default function NewMilestonePage() {
                   <label className="block text-xs font-normal mb-1.5">Status</label>
                   <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] rounded px-3 py-2 text-xs font-normal">
                     <option value="planned">Planned</option>
+                    <option value="planning">Planning</option>
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
                     <option value="delayed">Delayed</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="released">Released</option>
+                    <option value="archived">Archived</option>
                   </select>
                 </div>
                 <div>
