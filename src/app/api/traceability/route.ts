@@ -38,7 +38,8 @@ export async function GET() {
       .map((l: any) => String(l.test_case_id));
     const linkedCases = linkedCaseIds
       .map((id) => caseById.get(id))
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a: any, b: any) => String(a.case_key ?? a.key ?? a.code ?? a.id).localeCompare(String(b.case_key ?? b.key ?? b.code ?? b.id), undefined, { numeric: true, sensitivity: 'base' }));
     const linkedSet = new Set(linkedCaseIds);
 
     // Defects: directly on requirement OR via a linked test case
