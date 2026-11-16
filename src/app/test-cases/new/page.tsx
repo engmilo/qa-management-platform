@@ -242,6 +242,8 @@ export default function NewTestCasePage() {
                       { value: 'automation', label: 'Automation' },
                       { value: 'e2e', label: 'E2E' },
                       { value: 'uat', label: 'UAT' },
+                      { value: 'system', label: 'System' },
+                      { value: 'exploratory', label: 'Exploratory' },
                     ]}
                   />
                   <FormSelect
