@@ -22,15 +22,16 @@ export async function POST(request: NextRequest) {
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 }); }
-  const projectId = typeof body.projectId === 'string' ? body.projectId : '';
+  const projectId = typeof body.projectId === 'string' && body.projectId ? body.projectId : typeof body.project_id === 'string' ? body.project_id : '';
   const name = typeof body.name === 'string' ? body.name.trim() : '';
   if (!projectId || !name) return NextResponse.json({ error: 'Project and suite name are required.' }, { status: 400 });
   const { data: project } = await supabase.from('projects').select('id, organization_id').eq('id', projectId).maybeSingle();
   if (!project) return NextResponse.json({ error: 'Select a project you can access.' }, { status: 400 });
   try { await requireOrgPermission(supabase, user.id, (project as any).organization_id, 'canCreateTestCase'); } catch (e) { const pe = permissionError(e); return NextResponse.json({ error: pe.message }, { status: pe.status }); }
   let testPlanId: string | null = null;
-  if (typeof body.testPlanId === 'string' && body.testPlanId) {
-    const { data: plan } = await supabase.from('test_plans').select('id').eq('id', body.testPlanId).eq('project_id', project.id).maybeSingle();
+  const rawTestPlanId = typeof body.testPlanId === 'string' && body.testPlanId ? body.testPlanId : typeof body.test_plan_id === 'string' ? body.test_plan_id : '';
+  if (rawTestPlanId) {
+    const { data: plan } = await supabase.from('test_plans').select('id').eq('id', rawTestPlanId).eq('project_id', project.id).maybeSingle();
     if (!plan) return NextResponse.json({ error: 'Select a test plan from this project.' }, { status: 400 });
     testPlanId = plan.id;
   }
