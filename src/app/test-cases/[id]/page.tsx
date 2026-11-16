@@ -186,11 +186,6 @@ export default function TestCaseDetailPage() {
                           <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
                           <textarea value={step.action} onChange={(e) => updateStep(index, "action", e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} placeholder="Action" rows={1} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
                           <textarea value={step.expected} onChange={(e) => updateStep(index, "expected", e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} placeholder="Expected result" rows={1} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
-                          <select value={step.status} onChange={(e) => updateStep(index, "status", e.target.value)} className="w-24 shrink-0 border border-[#d8dee4] dark:border-[#28374d] rounded px-2 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">
-                            <option value="not_run">Not Run</option>
-                            <option value="passed">Pass</option>
-                            <option value="failed">Fail</option>
-                          </select>
                           <button type="button" onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                         </div>
                       ))}
