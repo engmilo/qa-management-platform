@@ -153,7 +153,7 @@ export default function TestPlanDetailPage() {
                       <span className={labelCls}>MILESTONE (RELEASE)</span>
                       <select value={form.releaseId} onChange={(e) => setForm({ ...form, releaseId: e.target.value })} className={inputCls}>
                         <option value="">No milestone</option>
-                        {milestones.map((m: any) => <option key={m.id} value={m.id}>{m.version_name ?? m.name} — {m.status}</option>)}
+                        {milestones.map((m: any) => <option key={m.id} value={m.id}>{m.version_name ?? m.name} — {String(m.status ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</option>)}
                       </select>
                     </div>
                     <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>

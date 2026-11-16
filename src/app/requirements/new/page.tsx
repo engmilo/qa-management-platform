@@ -161,6 +161,7 @@ export default function NewRequirementPage() {
                     onChange={setStatus}
                     options={[
                       { value: 'draft', label: 'Draft' },
+                      { value: 'under_review', label: 'Under Review' },
                       { value: 'in_review', label: 'In Review' },
                       { value: 'approved', label: 'Approved' },
                       { value: 'implemented', label: 'Implemented' },
