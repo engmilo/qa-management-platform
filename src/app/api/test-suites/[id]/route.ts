@@ -26,11 +26,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const patch: Record<string, unknown> = {};
   if (typeof body.name === 'string' && body.name.trim()) patch.name = body.name.trim();
   if (typeof body.description === 'string') patch.description = body.description.trim() || null;
-  if ('testPlanId' in body) {
-    if (body.testPlanId === '' || body.testPlanId === null) {
+  const rawPlanId = ('testPlanId' in body) ? body.testPlanId : ('test_plan_id' in body ? (body as any).test_plan_id : undefined);
+  if (rawPlanId !== undefined) {
+    if (rawPlanId === '' || rawPlanId === null) {
       patch.test_plan_id = null;
-    } else if (typeof body.testPlanId === 'string') {
-      const { data: plan } = await supabase.from('test_plans').select('id').eq('id', body.testPlanId).eq('project_id', (s as any).project_id).maybeSingle();
+    } else if (typeof rawPlanId === 'string') {
+      const { data: plan } = await supabase.from('test_plans').select('id').eq('id', rawPlanId).eq('project_id', (s as any).project_id).maybeSingle();
       if (!plan) return NextResponse.json({ error: 'Select a test plan from this project.' }, { status: 400 });
       patch.test_plan_id = plan.id;
     }

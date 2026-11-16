@@ -27,7 +27,8 @@ export default function TestSuiteDetailPage() {
   const [caseToRemove, setCaseToRemove] = useState<CaseItem | null>(null);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [removingCase, setRemovingCase] = useState(false);
-  const [form, setForm] = useState({ name: '', description: '' });
+  const [form, setForm] = useState({ name: '', description: '', testPlanId: '' });
+  const [testPlans, setTestPlans] = useState<any[]>([]);
 
   // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
   useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
@@ -39,10 +40,18 @@ export default function TestSuiteDetailPage() {
     if (!res.ok) throw new Error(data.error || 'Could not load suite.');
     setSuite(data.testSuite);
     setCases(data.cases ?? []);
-    setForm({ name: data.testSuite.name ?? '', description: data.testSuite.description ?? '' });
+    setForm({ name: data.testSuite.name ?? '', description: data.testSuite.description ?? '', testPlanId: (data.testSuite as any).test_plan_id ?? (data.testSuite as any).testPlanId ?? '' });
     const cr = await fetch('/api/test-cases', { cache: 'no-store' });
     const cd = await cr.json();
     if (cr.ok) setAllCases(((cd.testCases ?? []) as CaseItem[]).filter((c) => (c as any).project_id === data.testSuite.project_id));
+    try {
+      const pr = await fetch('/api/test-plans', { cache: 'no-store' });
+      const pd = await pr.json();
+      if (pr.ok) {
+        const allPlans = (pd.testPlans ?? pd.test_plans ?? pd.plans ?? pd.data ?? []) as any[];
+        setTestPlans(allPlans.filter((p) => (p as any).project_id === data.testSuite.project_id || (p as any).projectId === data.testSuite.project_id));
+      }
+    } catch { /* keep plans empty, do not break suite load */ }
   };
 
   useEffect(() => {
@@ -123,6 +132,7 @@ export default function TestSuiteDetailPage() {
               <div className="p-6 space-y-5">
                 <div><label className="block text-xs font-normal mb-1.5">Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
                 <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} /></div>
+                <div><label className="block text-xs font-normal mb-1.5">Test Plan (Optional)</label><select value={form.testPlanId} onChange={(e) => setForm({ ...form, testPlanId: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]"><option value="">No Test Plan</option>{testPlans.map((p: any) => <option key={p.id} value={p.id}>{p.name ?? p.title ?? p.id}</option>)}</select></div>
                 <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
               </div>
             </form>
