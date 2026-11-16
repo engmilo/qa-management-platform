@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+const formatTestCaseStatus = (s?: string | null) => { const m: Record<string, string> = { draft: 'Draft', in_review: 'In Review', ready: 'Ready', approved: 'Approved', archived: 'Archived' }; return m[s ?? ''] ?? (s ?? ''); };
 
 type TC = { id: string; case_key?: string; code?: string; title: string; priority: string; test_type?: string; type?: string; category: string; status?: string; project_id?: string };
 
@@ -35,7 +36,8 @@ export default function TestCasesPage() {
     const v = (s ?? '').toLowerCase();
     if (v === 'approved') return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
     if (v === 'ready') return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
-    if (v === 'deprecated') return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+    if (v === 'in_review' || v === 'review') return 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300';
+    if (v === 'archived' || v === 'deprecated') return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
     if (v === 'draft') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
     return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
   };
@@ -81,7 +83,7 @@ export default function TestCasesPage() {
                 <option value="">All Types</option><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="security">Security</option><option value="performance">Performance</option><option value="integration">Integration</option><option value="ui">UI</option><option value="api">API</option><option value="automation">Automation</option><option value="e2e">E2E</option><option value="uat">UAT</option>
               </select>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
-                <option value="">All Status</option><option value="draft">Draft</option><option value="ready">Ready</option><option value="approved">Approved</option><option value="deprecated">Deprecated</option>
+                <option value="">All Status</option><option value="draft">Draft</option><option value="in_review">In Review</option><option value="ready">Ready</option><option value="approved">Approved</option><option value="archived">Archived</option>
               </select>
               <span className="text-xs font-normal text-slate-500">{filtered.length} of {cases.length}</span>
             </div>
@@ -103,7 +105,7 @@ export default function TestCasesPage() {
                       <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200 capitalize font-normal">{c.category}</span></td>
                       <td className="px-4 py-3">
                         {/* FIX: Status now comes from DB column (Step 1) + API (Step 2). Before it was undefined -> "—" */}
-                        {c.status ? <span className={`inline-block px-2 py-0.5 rounded capitalize font-normal ${statusBadge(c.status)}`}>{c.status}</span> : <span>—</span>}
+                        {c.status ? <span className={`inline-block px-2 py-0.5 rounded capitalize font-normal ${statusBadge(c.status)}`}>{formatTestCaseStatus(c.status)}</span> : <span>—</span>}
                       </td>
                     </tr>
                   ))}

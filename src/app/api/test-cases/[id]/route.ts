@@ -41,7 +41,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof incomingType === 'string') patch.test_type = incomingType;
   const incomingAutomation = body.automation_status ?? body.automationStatus ?? null;
   if (typeof incomingAutomation === 'string') patch.automation_status = incomingAutomation;
-  if (typeof body.status === 'string' && ['draft', 'ready', 'approved', 'review', 'deprecated'].includes(body.status)) patch.status = body.status;
+  if (typeof body.status === 'string') {
+    const _raw = body.status;
+    const _mapped = _raw === 'review' ? 'in_review' : _raw === 'deprecated' ? 'archived' : _raw;
+    if (['draft', 'in_review', 'ready', 'approved', 'archived'].includes(_mapped)) patch.status = _mapped;
+  }
   if (typeof body.estimateMinutes === 'number') patch.estimate_minutes = body.estimateMinutes;
   if (typeof body.estimate_minutes === 'number') patch.estimate_minutes = body.estimate_minutes;
   if (typeof body.tags === 'string') patch.tags = body.tags.split(',').map((s: string) => s.trim()).filter(Boolean);
@@ -54,8 +58,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { error: updErr } = await supabase.from('test_cases').update(patch).eq('id', params.id);
     if (updErr) {
       const msg = updErr.message || '';
-      if (msg.includes('comment') || msg.includes('status')) {
-        delete patch.comment; delete patch.status;
+      if (msg.includes('comment')) {
+        delete patch.comment;
         const retry = await supabase.from('test_cases').update(patch).eq('id', params.id);
         if (retry.error) return NextResponse.json({ error: retry.error.message }, { status: 400 });
       } else return NextResponse.json({ error: updErr.message }, { status: 400 });
