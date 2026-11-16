@@ -142,7 +142,7 @@ export default function TestPlanDetailPage() {
                       <div>
                         <span className={labelCls}>STATUS</span>
                         <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>
-                          {['active', 'draft', 'planning', 'in_progress', 'completed', 'archived'].map((v) => <option key={v} value={v}>{v}</option>)}
+                          {[{value:'active',label:'Active'},{value:'draft',label:'Draft'},{value:'planning',label:'Planning'},{value:'in_progress',label:'In Progress'},{value:'completed',label:'Completed'},{value:'archived',label:'Archived'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                       </div>
                       {/* FIXED: use DateField so calendar icon shows and picker opens */}

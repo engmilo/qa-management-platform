@@ -159,12 +159,12 @@ export default function NewTestPlanPage() {
                     value={status}
                     onChange={setStatus}
                     options={[
-                      { value: 'active', label: 'active' },
-                      { value: 'draft', label: 'draft' },
-                      { value: 'planning', label: 'planning' },
-                      { value: 'in_progress', label: 'in_progress' },
-                      { value: 'completed', label: 'completed' },
-                      { value: 'archived', label: 'archived' },
+                      { value: 'active', label: 'Active' },
+                      { value: 'draft', label: 'Draft' },
+                      { value: 'planning', label: 'Planning' },
+                      { value: 'in_progress', label: 'In Progress' },
+                      { value: 'completed', label: 'Completed' },
+                      { value: 'archived', label: 'Archived' },
                     ]}
                   />
                   <DateField label="START DATE" value={startDate} onChange={setStartDate} />

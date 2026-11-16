@@ -231,17 +231,17 @@ export default function NewTestCasePage() {
                     value={type}
                     onChange={setType}
                     options={[
-                      { value: 'functional', label: 'functional' },
-                      { value: 'regression', label: 'regression' },
-                      { value: 'smoke', label: 'smoke' },
-                      { value: 'security', label: 'security' },
-                      { value: 'performance', label: 'performance' },
-                      { value: 'integration', label: 'integration' },
-                      { value: 'ui', label: 'ui' },
-                      { value: 'api', label: 'api' },
-                      { value: 'automation', label: 'automation' },
-                      { value: 'e2e', label: 'e2e' },
-                      { value: 'uat', label: 'uat' },
+                      { value: 'functional', label: 'Functional' },
+                      { value: 'regression', label: 'Regression' },
+                      { value: 'smoke', label: 'Smoke' },
+                      { value: 'security', label: 'Security' },
+                      { value: 'performance', label: 'Performance' },
+                      { value: 'integration', label: 'Integration' },
+                      { value: 'ui', label: 'UI' },
+                      { value: 'api', label: 'API' },
+                      { value: 'automation', label: 'Automation' },
+                      { value: 'e2e', label: 'E2E' },
+                      { value: 'uat', label: 'UAT' },
                     ]}
                   />
                   <FormSelect
@@ -249,10 +249,10 @@ export default function NewTestCasePage() {
                     value={priority}
                     onChange={setPriority}
                     options={[
-                      { value: 'low', label: 'low' },
-                      { value: 'medium', label: 'medium' },
-                      { value: 'high', label: 'high' },
-                      { value: 'critical', label: 'critical' },
+                      { value: 'low', label: 'Low' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'high', label: 'High' },
+                      { value: 'critical', label: 'Critical' },
                     ]}
                   />
                   <FormSelect
@@ -260,11 +260,11 @@ export default function NewTestCasePage() {
                     value={status}
                     onChange={setStatus}
                     options={[
-                      { value: 'draft', label: 'draft' },
-                      { value: 'ready', label: 'ready' },
-                      { value: 'in_review', label: 'in_review' },
-                      { value: 'approved', label: 'approved' },
-                      { value: 'archived', label: 'archived' },
+                      { value: 'draft', label: 'Draft' },
+                      { value: 'ready', label: 'Ready' },
+                      { value: 'in_review', label: 'In Review' },
+                      { value: 'approved', label: 'Approved' },
+                      { value: 'archived', label: 'Archived' },
                     ]}
                   />
                 </div>
