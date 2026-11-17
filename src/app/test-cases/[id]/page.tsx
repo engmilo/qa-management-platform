@@ -182,10 +182,7 @@ export default function TestCaseDetailPage() {
                   <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
 
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="block text-xs font-normal">Steps (structured — replaces free-text steps)</label>
-                      <button type="button" onClick={addStep} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
-                    </div>
+                    <div className="flex items-start gap-2 mb-1"><span className="text-xs text-slate-500 pt-2 w-4 shrink-0"></span><label className="flex-1 block text-xs font-normal px-3">Steps</label><span className="flex-1 text-xs font-normal px-3 whitespace-nowrap">Expected result</span><button type="button" onClick={addStep} className="inline-flex items-center shrink-0 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button></div>
                     <div className="space-y-2">
                       {steps.map((step, index) => (
                         <div key={index} className="flex items-start gap-2">

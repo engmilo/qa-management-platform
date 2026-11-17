@@ -7,7 +7,7 @@ function stats(executions: any[]) {
   const by = (s: string) => executions.filter((e) => e.status === s).length;
   const passed = by('passed'), failed = by('failed'), blocked = by('blocked'), retest = by('retest'), notRun = by('not_run'), na = by('not_applicable');
   const done = total - notRun;
-  return { total, passed, failed, blocked, retest, notRun, notApplicable: na, completed: done, progress: total ? Math.round((done / total) * 100) : 0, passRate: passed + failed ? Math.round((passed / (passed + failed)) * 100) : null };
+  return { total, passed, failed, blocked, retest, notRun, notApplicable: na, completed: done, progress: total ? Math.round((done / total) * 100) : 0, passRate: total ? Math.round((passed / total) * 100) : null };
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {

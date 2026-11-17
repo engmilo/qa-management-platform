@@ -81,6 +81,7 @@ export default function TestRunDetailPage() {
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
       setStepMsg((p) => ({ ...p, [execId]: `Saved. Overall: ${String(j.overall ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}` }));
+      setTimeout(() => { setStepMsg((p) => { const n = { ...p }; delete n[execId]; return n; }); }, 4000); // AUTO_DISMISS_BANNERS - Saved banner disappears after 4s
       await load();
     } catch (e: any) {
       setStepMsg((p) => ({ ...p, [execId]: e.message || 'Save failed' }));
@@ -161,6 +162,7 @@ export default function TestRunDetailPage() {
               <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded mt-2 overflow-hidden"><div className="h-full bg-green-500" style={{ width: `${pct}%` }} /></div>
               <p className="text-xs font-normal mt-2">Assignee: <span className="text-slate-900 dark:text-white">{run?.assignee_name ?? run?.assignee ?? '—'}</span></p>
               <p className="text-xs font-normal text-slate-500 dark:text-slate-400">Passed: {passed} · Failed: {failed} · Blocked: {blocked} · Not Run: {notRun}</p>
+              <p className="text-xs font-normal text-slate-500 dark:text-slate-400">Pass Rate: {execs.length ? Math.round((passed / execs.length) * 100) : 0}% · {passed} passed / {execs.length} total</p>
               {run?.description && <p className="text-xs font-normal mt-1">{run.description}</p>}
               {isCompleted && <p className="text-xs font-normal text-amber-600 dark:text-amber-400 mt-2">Run is Completed — click Reopen Run to change results.</p>}
             </div>
@@ -192,7 +194,7 @@ export default function TestRunDetailPage() {
                                     <div key={i} className="border border-[#b6c2cf] dark:border-[#28374d] rounded p-3 bg-white dark:bg-[#182232]">
                                       <div className="flex flex-col sm:flex-row sm:items-start gap-2 justify-between">
                                         <p className="font-normal"><span className="text-slate-500">Step {s.step_number}:</span> {s.action}</p>
-                                        <select disabled={isCompleted} value={s.status} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], status: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1">
+                                        <select disabled={isCompleted} value={s.status === 'not_run' || s.status === 'Not Run' ? (execStatus ?? s.status) : s.status} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], status: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1">
                                           <option value="not_run">Not Run</option><option value="passed">Passed</option><option value="failed">Failed</option><option value="blocked">Blocked</option><option value="retest">Retest</option>
                                         </select>
                                       </div>

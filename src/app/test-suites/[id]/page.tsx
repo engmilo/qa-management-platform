@@ -29,6 +29,7 @@ export default function TestSuiteDetailPage() {
   const [removingCase, setRemovingCase] = useState(false);
   const [form, setForm] = useState({ name: '', description: '', testPlanId: '' });
   const [testPlans, setTestPlans] = useState<any[]>([]);
+  const [lastRun, setLastRun] = useState<any>(null);
 
   // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
   useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
@@ -52,6 +53,26 @@ export default function TestSuiteDetailPage() {
         setTestPlans(allPlans.filter((p) => (p as any).project_id === data.testSuite.project_id || (p as any).projectId === data.testSuite.project_id));
       }
     } catch { /* keep plans empty, do not break suite load */ }
+    // LAST RUN - latest Run for this suite, matched by reporter naming '<Suite Name> - <timestamp>'
+    try {
+      const rr = await fetch(`/api/test-runs?projectId=${data.testSuite.project_id}`, { cache: 'no-store' });
+      const rd = await rr.json();
+      if (rr.ok) {
+        const runs = (rd.testRuns ?? []) as any[];
+        const mine = runs.find((r: any) => {
+          const n = String(r.name ?? '');
+          return n === data.testSuite.name || n.startsWith(data.testSuite.name + ' - ');
+        });
+        if (mine) {
+          try {
+            const dr = await fetch(`/api/test-runs/${mine.id}`, { cache: 'no-store' });
+            const dd = await dr.json();
+            if (dr.ok) setLastRun({ ...mine, stats: dd.stats ?? null, executions: dd.executions ?? [] });
+            else setLastRun(mine);
+          } catch { setLastRun(mine); }
+        } else setLastRun(null);
+      }
+    } catch { /* keep lastRun empty, do not break suite load */ }
   };
 
   useEffect(() => {
@@ -137,6 +158,31 @@ export default function TestSuiteDetailPage() {
               </div>
             </form>
           )}
+          <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
+            <h3 className="text-sm font-normal mb-3">Automation Status - Last Run</h3>
+            {!lastRun ? (
+              <p className="text-xs text-slate-500 dark:text-slate-400">No automation run yet for this suite. Run Playwright + reporter to create one.</p>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <Link href={`/test-runs/${lastRun.id}`} className="text-xs font-normal text-[#276fbf] hover:underline">{lastRun.name}</Link>
+                  <span className="text-xs text-slate-500">{lastRun.started_at ? new Date(lastRun.started_at).toLocaleString() : lastRun.created_at ? new Date(lastRun.created_at).toLocaleString() : ''} - {lastRun.status}</span>
+                </div>
+                {lastRun.stats ? (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <span className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 border border-green-200">Passed: {lastRun.stats.passed ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-red-50 text-red-700 border border-red-200">Failed: {lastRun.stats.failed ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200">Blocked: {lastRun.stats.blocked ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-slate-50 text-slate-600 border border-slate-200">Not Run: {lastRun.stats.notRun ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200">Pass Rate: {(() => { const s = lastRun.stats; const total = (s.passed ?? 0) + (s.failed ?? 0) + (s.blocked ?? 0) + (s.notRun ?? 0) + (s.retest ?? 0) + (s.notApplicable ?? 0); return total ? Math.round(((s.passed ?? 0) / total) * 100) : 0; })()}%</span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500 mt-2">Run created, stats not loaded.</p>
+                )}
+                <Link href={`/test-runs/${lastRun.id}`} className="inline-block mt-3 text-xs text-[#276fbf] hover:underline">View Test Run →</Link>
+              </div>
+            )}
+          </section>
           <section className="mt-6 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-5">
             <h3 className="text-sm font-normal mb-3">Test Cases in this Suite</h3>
             <div className="flex gap-2 mb-4">
