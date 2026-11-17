@@ -169,12 +169,14 @@ export default function TestSuiteDetailPage() {
                   <span className="text-xs text-slate-500">{lastRun.started_at ? new Date(lastRun.started_at).toLocaleString() : lastRun.created_at ? new Date(lastRun.created_at).toLocaleString() : ''} - {lastRun.status}</span>
                 </div>
                 {lastRun.stats ? (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    <span className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 border border-green-200">Passed: {lastRun.stats.passed ?? 0}</span>
-                    <span className="text-xs px-2 py-1 rounded bg-red-50 text-red-700 border border-red-200">Failed: {lastRun.stats.failed ?? 0}</span>
-                    <span className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200">Blocked: {lastRun.stats.blocked ?? 0}</span>
-                    <span className="text-xs px-2 py-1 rounded bg-slate-50 text-slate-600 border border-slate-200">Not Run: {lastRun.stats.notRun ?? 0}</span>
-                    <span className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200">Pass Rate: {(() => { const s = lastRun.stats; const total = (s.passed ?? 0) + (s.failed ?? 0) + (s.blocked ?? 0) + (s.notRun ?? 0) + (s.retest ?? 0) + (s.notApplicable ?? 0); return total ? Math.round(((s.passed ?? 0) / total) * 100) : 0; })()}%</span>
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                    <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border border-green-200 dark:border-green-800">Passed: {lastRun.stats.passed ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800">Failed: {lastRun.stats.failed ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Blocked: {lastRun.stats.blocked ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800">Retest: {lastRun.stats.retest ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">Not Run: {lastRun.stats.notRun ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">N/A: {lastRun.stats.notApplicable ?? 0}</span>
+                    <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Pass Rate: {lastRun.stats.passRate ?? 0}%</span>
                   </div>
                 ) : (
                   <p className="text-xs text-slate-500 mt-2">Run created, stats not loaded.</p>
