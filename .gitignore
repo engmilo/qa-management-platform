@@ -4,3 +4,4 @@ node_modules
 next-env.d.ts
 *.tsbuildinfo
 backup_fix_scripts/
+.env
