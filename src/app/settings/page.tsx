@@ -1,4 +1,5 @@
 'use client';
+import TwoFactorSetup from '@/components/settings/two-factor-setup';
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
@@ -165,7 +166,10 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-
+            {/* 2FA — REQ-PROD-001 */}
+            <div className="mt-4">
+            <TwoFactorSetup />
+            </div>
             {msg && <div className={msgIsError ? "mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs" : "mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs"}>{msg}</div>}
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
               <div className="p-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2">
