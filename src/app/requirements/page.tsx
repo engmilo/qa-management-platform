@@ -20,7 +20,12 @@ export default function RequirementsPage() {
         const [rRes, pRes] = await Promise.all([fetch('/api/requirements', { cache: 'no-store' }), fetch('/api/projects', { cache: 'no-store' })]);
         const rJ = await rRes.json().catch(() => ({}));
         const pJ = await pRes.json().catch(() => ({}));
-        setReqs(rJ.requirements ?? rJ ?? []);
+        const list = rJ.requirements ?? rJ ?? [];
+        const arr = Array.isArray(list) ? list : [];
+        const sorted = [...arr].sort((a, b) =>
+          String((a as any).req_key ?? '').localeCompare(String((b as any).req_key ?? ''), undefined, { numeric: true })
+        );
+        setReqs(sorted);
         setProjects(pJ.projects ?? pJ ?? []);
       } catch { setReqs([]); } finally { setLoading(false); }
     })();
