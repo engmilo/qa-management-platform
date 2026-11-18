@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get('projectId');
 
-  let query = supabase.from('requirements').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('requirements').select('*').order('req_key', { ascending: true });
 
   if (projectId) {
     query = query.eq('project_id', projectId);
