@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 const formatTestCaseStatus = (s?: string | null) => { const m: Record<string, string> = { draft: 'Draft', in_review: 'In Review', ready: 'Ready', approved: 'Approved', archived: 'Archived' }; return m[s ?? ''] ?? (s ?? ''); };
+const formatAutomation = (s?: string | null) => { const m: Record<string, string> = { manual: 'Manual', automated: 'Automated', to_automate: 'To Automate', not_automatable: 'Not Automatable' }; return m[s ?? ''] ?? (s ?? ''); };
 
-type TC = { id: string; case_key?: string; code?: string; title: string; priority: string; test_type?: string; type?: string; category: string; status?: string; project_id?: string };
+type TC = { id: string; case_key?: string; code?: string; title: string; priority: string; test_type?: string; type?: string; category: string; status?: string; automation_status?: string; automationStatus?: string; project_id?: string };
 
 export default function TestCasesPage() {
   const [cases, setCases] = useState<TC[]>([]);
@@ -44,13 +45,20 @@ export default function TestCasesPage() {
     return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
   };
 
+  const automationBadge = (s?: string) => {
+    const v = (s ?? 'manual').toLowerCase();
+    if (v === 'automated') return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+    if (v === 'to_automate') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+    if (v === 'not_automatable') return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+    return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+  };
+
   // Change status straight from the list - no need to open the case
   const updateStatus = async (id: string, newStatus: string) => {
     const old = cases.find((c) => c.id === id)?.status;
     if (old === newStatus) return;
     setSaveError('');
     setSavingId(id);
-    // Update UI instantly
     setCases((prev) => prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c)));
     try {
       const res = await fetch(`/api/test-cases/${id}`, {
@@ -61,9 +69,31 @@ export default function TestCasesPage() {
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
     } catch (e: any) {
-      // Revert on failure
       setCases((prev) => prev.map((c) => (c.id === id ? { ...c, status: old } : c)));
       setSaveError(e.message || 'Could not save status');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  // Change automation straight from the list - this is what the Dashboard counts
+  const updateAutomation = async (id: string, newAutomation: string) => {
+    const old = cases.find((c) => c.id === id)?.automation_status ?? cases.find((c) => c.id === id)?.automationStatus;
+    if (old === newAutomation) return;
+    setSaveError('');
+    setSavingId(id);
+    setCases((prev) => prev.map((c) => (c.id === id ? { ...c, automation_status: newAutomation, automationStatus: newAutomation } : c)));
+    try {
+      const res = await fetch(`/api/test-cases/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ automation_status: newAutomation, automationStatus: newAutomation }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || 'Save failed');
+    } catch (e: any) {
+      setCases((prev) => prev.map((c) => (c.id === id ? { ...c, automation_status: old, automationStatus: old } : c)));
+      setSaveError(e.message || 'Could not save automation');
     } finally {
       setSavingId(null);
     }
@@ -121,11 +151,13 @@ export default function TestCasesPage() {
               <table className="w-full text-xs font-normal">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400">
-                    <th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Title</th><th className="px-4 py-2.5">Priority</th><th className="px-4 py-2.5">Type</th><th className="px-4 py-2.5">Category</th><th className="px-4 py-2.5">Status</th>
+                    <th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Title</th><th className="px-4 py-2.5">Priority</th><th className="px-4 py-2.5">Type</th><th className="px-4 py-2.5">Category</th><th className="px-4 py-2.5">Status</th><th className="px-4 py-2.5">Automation</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c) => (
+                  {filtered.map((c) => {
+                    const autoVal = c.automation_status ?? c.automationStatus ?? 'manual';
+                    return (
                     <tr key={c.id} className="border-t border-slate-200 dark:border-slate-700/50">
                       <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{c.case_key ?? c.code ?? ''}</Link></td>
                       <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="hover:underline">{c.title}</Link></td>
@@ -147,10 +179,25 @@ export default function TestCasesPage() {
                           <option value="archived">Archived</option>
                         </select>
                       </td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={autoVal}
+                          disabled={savingId === c.id}
+                          onChange={(e) => updateAutomation(c.id, e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`text-xs font-normal rounded px-2 py-1 border border-transparent cursor-pointer ${automationBadge(autoVal)} disabled:opacity-50`}
+                        >
+                          <option value="manual">Manual</option>
+                          <option value="automated">Automated</option>
+                          <option value="to_automate">To Automate</option>
+                          <option value="not_automatable">Not Automatable</option>
+                        </select>
+                      </td>
                     </tr>
-                  ))}
-                  {filtered.length === 0 && !loading && <tr><td colSpan={6} className="px-4 py-6 text-center text-slate-500">No test cases found.</td></tr>}
-                  {loading && <tr><td colSpan={6} className="px-4 py-6 text-center text-slate-500">Loading test cases...</td></tr>}
+                    );
+                  })}
+                  {filtered.length === 0 && !loading && <tr><td colSpan={7} className="px-4 py-6 text-center text-slate-500">No test cases found.</td></tr>}
+                  {loading && <tr><td colSpan={7} className="px-4 py-6 text-center text-slate-500">Loading test cases...</td></tr>}
                 </tbody>
               </table>
             </div>
