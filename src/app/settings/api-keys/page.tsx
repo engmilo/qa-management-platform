@@ -80,6 +80,8 @@ export default function ApiKeysPage() {
 
   const confirmRevoke = async () => {
     const k = pendingRevoke; if (!k) return;
+    // FIX: clear the "show once" banner — revoked key should not stay copyable on screen
+    setNewFullKey('');
     if (!isOrgAdmin) { setPendingRevoke(null); setMsg('Only Org Admin can revoke API keys.'); setMsgIsError(true); return; }
     setPendingRevoke(null); setRevokingId(k.id); setMsg('');
     try {
@@ -107,8 +109,9 @@ export default function ApiKeysPage() {
             {msg && <div className={msgIsError ? "mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs" : "mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs"}>{msg}</div>}
 
             {newFullKey && (
-              <div className="bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-900 rounded-md p-4 mb-4">
-                <p className="text-xs font-normal text-green-700 dark:text-green-300">Your new API key — copy it now. You will not see it again.</p>
+              <div className="bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-900 rounded-md p-4 mb-4 relative">
+                <button onClick={() => setNewFullKey('')} className="absolute top-2 right-2 text-green-700 dark:text-green-300 hover:text-green-900 dark:hover:text-green-100"><X className="w-4 h-4" /></button>
+                <p className="text-xs font-normal text-green-700 dark:text-green-300 pr-6">Your new API key — copy it now. You will not see it again.</p>
                 <div className="flex items-center gap-2 mt-2">
                   <code className="flex-1 bg-white dark:bg-[#1f2c3f] border border-green-200 dark:border-green-900 rounded px-3 py-2 text-xs font-normal text-slate-900 dark:text-white break-all">{newFullKey}</code>
                   <button onClick={copyKey} className="inline-flex items-center gap-1 bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-normal px-3 py-2 rounded shrink-0">{copied ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}</button>
