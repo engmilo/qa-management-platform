@@ -29,9 +29,7 @@ export default function TestRunDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [runMsg, setRunMsg] = useState('');
 
-  // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
   useEffect(() => { if (!runMsg) return; const t = setTimeout(() => setRunMsg(''), 4000); return () => clearTimeout(t); }, [runMsg]);
-
 
   const load = async () => {
     try {
@@ -81,7 +79,7 @@ export default function TestRunDetailPage() {
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
       setStepMsg((p) => ({ ...p, [execId]: `Saved. Overall: ${String(j.overall ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}` }));
-      setTimeout(() => { setStepMsg((p) => { const n = { ...p }; delete n[execId]; return n; }); }, 4000); // AUTO_DISMISS_BANNERS - Saved banner disappears after 4s
+      setTimeout(() => { setStepMsg((p) => { const n = { ...p }; delete n[execId]; return n; }); }, 4000);
       await load();
     } catch (e: any) {
       setStepMsg((p) => ({ ...p, [execId]: e.message || 'Save failed' }));
@@ -116,6 +114,16 @@ export default function TestRunDetailPage() {
   const blocked = execs.filter((e) => e.status === 'blocked').length;
   const notRun = execs.filter((e) => e.status === 'not_run').length;
   const pct = execs.length ? Math.round(((passed + failed + blocked) / execs.length) * 100) : 0;
+
+  // FIX: Sort executions by test case code ascending: TC-PROD-001, 002, ... 023
+  // numeric: true makes 002 come before 010
+  const sortedExecs = [...execs].sort((a, b) => {
+    const getCode = (e: Exec) => {
+      const tc = caseById[String(e.test_case_id)] ?? (e as any).test_case ?? {};
+      return String(tc.case_key ?? tc.code ?? tc.title ?? '');
+    };
+    return getCode(a).localeCompare(getCode(b), undefined, { numeric: true, sensitivity: 'base' });
+  });
 
   const badge = (s: string) => {
     const v = s.toLowerCase();
@@ -172,7 +180,7 @@ export default function TestRunDetailPage() {
               <table className="w-full text-xs font-normal">
                 <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5 font-bold">Test Case</th><th className="px-4 py-2.5 font-bold">Result</th><th className="px-4 py-2.5 font-bold">Actions</th></tr></thead>
                 <tbody>
-                  {execs.map((ex) => {
+                  {sortedExecs.map((ex) => {
                     const tc = caseById[String(ex.test_case_id)] ?? ex.test_case ?? {};
                     const code = tc.case_key ?? tc.code ?? '';
                     const title = tc.title ?? (code ? '' : ex.test_case_id);
