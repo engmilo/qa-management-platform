@@ -103,6 +103,16 @@ export default function DashboardPage() {
   const runPct = d && d.testRuns ? Math.round((d.completedRuns / d.testRuns) * 100) : 0;
   const caseAutoPct = d && d.testCases ? Math.round((d.automated / d.testCases) * 100) : 0;
 
+  // Format: "TC-PROD-005 Login with recovery code" - code + SPACE + title, no dash
+  // If title already starts with the code, don't add it twice
+  const lastPassedText = (() => {
+    if (!d?.lastPassed) return 'No passed cases yet';
+    const code = (d.lastPassed.testCaseCode ?? '').trim();
+    let title = (d.lastPassed.testCaseTitle ?? '').trim();
+    if (code && title.startsWith(code)) title = title.slice(code.length).trim();
+    return `Passed: ${code ? `${code} ` : ''}${title}`;
+  })();
+
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
@@ -161,7 +171,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-normal text-slate-500 mt-1">
                   {loading ? '' : (<>{d?.criticalDefects} <span className="text-red-600 dark:text-red-400">Critical</span> · {d?.majorDefects} <span className="text-orange-600 dark:text-orange-400">Major</span> (total)</>)}
                 </p>
-                  <p className="text-xs font-normal text-slate-600 dark:text-slate-400 mt-2 truncate">
+                  <p className="text-xs font-normal text-slate-600 dark:text-slate-400 mt-2 whitespace-normal break-words leading-relaxed">
                   {d?.latestDefect
                     ? `Latest: ${d.latestDefect.key ? `${d.latestDefect.key} — ` : ''}${d.latestDefect.title}`
                     : 'No open defects'}
@@ -185,10 +195,11 @@ export default function DashboardPage() {
                 <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
                   <div className="h-full bg-blue-500" style={{ width: `${d?.passRate ?? 0}%` }} />
                 </div>
-                <p className="text-xs font-normal text-green-600 dark:text-green-400 mt-2 truncate">
-                  {d?.lastPassed
-                    ? `Passed: ${d.lastPassed.testCaseCode} — ${d.lastPassed.testCaseTitle}`
-                    : 'No passed cases yet'}
+                <p
+                  title={lastPassedText}
+                  className="text-xs font-normal text-green-600 dark:text-green-400 mt-2 whitespace-normal break-words leading-relaxed"
+                >
+                  {lastPassedText}
                 </p>
                 <Link href={d?.lastPassed?.runId ? `/test-runs/${d.lastPassed.runId}` : '/test-runs'} className="text-xs font-normal text-blue-600 dark:text-blue-400 mt-auto pt-3 inline-block hover:underline">Click to view →</Link>
               </div>
