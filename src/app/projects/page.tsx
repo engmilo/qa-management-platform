@@ -35,7 +35,7 @@ export default function ProjectsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Projects</h1>
+                <h1 className="text-xs font-normal text-slate-900 dark:text-white">Projects</h1>
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Manage your test projects.</p>
               </div>
               <Link href="/projects/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Project</Link>
@@ -48,7 +48,7 @@ export default function ProjectsPage() {
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
               <table className="w-full text-xs font-normal">
-                <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Name</th><th className="px-4 py-2.5">Description</th><th className="px-4 py-2.5">Status</th></tr></thead>
+                <thead><tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400"><th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5 whitespace-nowrap">Name</th><th className="px-4 py-2.5">Description</th><th className="px-4 py-2.5">Status</th></tr></thead>
                 <tbody>
                   {filtered.map((p) => (
                     <tr key={p.id} className="border-t border-slate-200 dark:border-slate-700/50 align-top">
@@ -56,9 +56,9 @@ export default function ProjectsPage() {
                         {/* FIX: Key now matches Test Cases — text-sm font-bold, was text-xs */}
                         <Link href={`/projects/${p.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline">{p.key}</Link>
                       </td>
-                      <td className="px-4 py-3">{p.name}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{p.name}</td>
                       <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{p.description}</td>
-                      <td className="px-4 py-3"><span className={String(p.status ?? 'Active').toLowerCase()==='active' ? 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal text-xs' : String(p.status ?? '').toLowerCase()==='completed' ? 'inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 capitalize font-normal text-xs' : String(p.status ?? '').toLowerCase()==='on_hold' ? 'inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize font-normal text-xs' : String(p.status ?? '').toLowerCase()==='archived' ? 'inline-block px-2 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 capitalize font-normal text-xs' : String(p.status ?? '').toLowerCase()==='cancelled' ? 'inline-block px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 capitalize font-normal text-xs' : String(p.status ?? '').toLowerCase()==='planning' ? 'inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 capitalize font-normal text-xs' : 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal text-xs'}>{String(p.status ?? 'Active').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span></td>
+                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize">{p.status ?? 'Active'}</span></td>
                     </tr>
                   ))}
                   {filtered.length === 0 && !loading && <tr><td colSpan={4} className="px-4 py-6 text-center text-slate-500">No projects found.</td></tr>}
