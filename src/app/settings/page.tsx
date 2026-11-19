@@ -3,7 +3,8 @@ import TwoFactorSetup from '@/components/settings/two-factor-setup';
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { Building2, Users, X, AlertTriangle } from 'lucide-react';
+import { Building2, Users, X, AlertTriangle, Key } from 'lucide-react';
+import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
 
 type Member = {
@@ -208,6 +209,19 @@ export default function SettingsPage() {
             {/* 2FA — REQ-PROD-001 */}
             <div className="mt-4">
             <TwoFactorSetup />
+            </div>
+            {/* API Keys — REQ-PROD-002 — link to /settings/api-keys */}
+            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm mb-4 overflow-hidden mt-4">
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Key className="w-4 h-4 text-[#276fbf]" />
+                  <h2 className="text-xs font-normal tracking-wide text-slate-900 dark:text-white">API KEYS</h2>
+                </div>
+                <Link href="/settings/api-keys" className="bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-normal px-4 py-2 rounded whitespace-nowrap">Manage API Keys</Link>
+              </div>
+              <div className="px-4 pb-4">
+                <p className="text-xs font-normal text-slate-500 dark:text-slate-400">Create and revoke API keys for this organization. Only Org Admin can manage keys.</p>
+              </div>
             </div>
             {msg && <div className={msgIsError ? "mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs" : "mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs"}>{msg}</div>}
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
