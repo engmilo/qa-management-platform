@@ -21,9 +21,21 @@ export async function GET() {
   let manual = 0;
   let automated = 0;
   allCases.forEach((c: any) => {
-    const v = String(c.automation_type ?? c.type ?? c.automation_status ?? '').toLowerCase();
-    if (v.includes('auto') || c.is_automated === true) automated += 1;
-    else manual += 1;
+    // FIX: Count ONLY the Automation dropdown (automation_status).
+    // Do NOT use Type — Type = 'Automation' for TC-001..TC-004, and
+    // 'To Automate' contains 'auto', both wrongly counted before.
+    // Only exact 'automated' counts. 'to_automate', 'manual',
+    // 'not_automatable' all count as manual.
+    const raw = c.automation_status ?? c.automationStatus ?? null;
+    if (raw !== null && raw !== undefined && String(raw).trim() !== '') {
+      const v = String(raw).toLowerCase().trim().replace(/-/g, '_');
+      if (v === 'automated') automated += 1;
+      else manual += 1;
+    } else if (c.is_automated === true) {
+      automated += 1;
+    } else {
+      manual += 1;
+    }
   });
 
   const runStatus = (r: any) => String(r.status ?? r.state ?? r.run_status ?? '').toLowerCase().trim();
