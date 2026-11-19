@@ -255,9 +255,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="text-[11px] text-center text-slate-400 dark:text-slate-500 mt-4">
-          If you just created an account, check Supabase Auth &gt; Users to confirm it exists.
-        </p>
+
       </div>
     </div>
   );
