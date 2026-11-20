@@ -24,7 +24,7 @@ export default function ApiKeysPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6 w-full">
-            <div><h1 className="text-xl font-normal">API Keys</h1><p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage API keys for this organization. Keys are stored hashed — full key is shown once on create.</p></div>
+            <div><h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">API Keys</h1><p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage API keys for this organization. Keys are stored hashed — full key is shown once on create.</p></div>
             {newKey && (<div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4"><div className="flex items-start justify-between gap-2"><p className="font-normal text-emerald-300">Key created — copy it now. It will not be shown again.</p><button onClick={() => setNewKey(null)} className="text-slate-400 text-sm px-2">✕</button></div><div className="mt-3 flex flex-col sm:flex-row gap-2"><code className="flex-1 break-all rounded bg-slate-950 px-3 py-2 text-sm">{newKey.value}</code><button onClick={handleCopy} className="rounded bg-white px-4 py-2 text-sm font-normal text-slate-900">{copied ? "Copied ✓" : "Copy"}</button></div><p className="text-xs text-slate-400 mt-2">Saved for: {newKey.name} — refresh the page and this banner disappears. This is the only time the full key is shown.</p></div>)}
             {error && <p className="rounded bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-300">{error}</p>}
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
