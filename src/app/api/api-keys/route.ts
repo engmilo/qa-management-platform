@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash, randomBytes } from "crypto";
 import { createRouteSupabaseClient } from "@/lib/supabase/route-client";
-import { requireOrgPermission, permissionError } from "@/lib/auth/require-org-permission";
+import { permissionError } from "@/lib/auth/require-org-permission";
 
 function hashKey(v: string) {
   return createHash("sha256").update(v).digest("hex");
 }
 
 async function getOrgAndCheck(supabase: any, userId: string) {
-  // Org Admin only for API keys. Find org via membership.
   const { data: membership } = await supabase
     .from("organization_members")
     .select("organization_id, role")
     .eq("user_id", userId)
     .maybeSingle();
   if (!membership) throw new Error("No organization");
-  await requireOrgPermission(supabase, userId, membership.organization_id, "canManageApiKeys");
+  const role = String(membership.role || "").toLowerCase();
+  if (role !== "org admin" && role !== "org_admin" && role !== "admin") {
+    throw new Error("Forbidden: Org Admin only");
+  }
   return membership.organization_id as string;
 }
 
