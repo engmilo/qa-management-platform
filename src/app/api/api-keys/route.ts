@@ -1,49 +1,78 @@
-// src/app/api/api-keys/route.ts — v2 with scopes
-// REQ-PROD-002 — TC-PROD-010 needs scopes
-import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import { createHash, randomBytes } from 'crypto';
+import { NextRequest, NextResponse } from "next/server";
+import { createHash, randomBytes } from "crypto";
+import { createRouteSupabaseClient } from "@/lib/supabase/route-client";
+import { requireOrgPermission, permissionError } from "@/lib/auth/require-org-permission";
 
-async function getSupabase() {
-  const cookieStore = await cookies();
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: { getAll() { return cookieStore.getAll(); }, setAll(c) { try { c.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch {} } },
-  });
-}
-async function getCallerOrg(supabase: any) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { user: null, orgId: null, role: null };
-  const { data: member } = await supabase.from('organization_members').select('organization_id, role').eq('user_id', user.id).limit(1).single();
-  return { user, orgId: member?.organization_id || null, role: (member?.role || '').toLowerCase() };
+function hashKey(v: string) {
+  return createHash("sha256").update(v).digest("hex");
 }
 
-export async function GET() {
-  const supabase = await getSupabase();
-  const { user, orgId } = await getCallerOrg(supabase);
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  if (!orgId) return NextResponse.json({ api_keys: [] });
-  const { data, error } = await supabase.from('api_keys').select('id, name, key_prefix, scopes, created_by_email, is_active, revoked_at, last_used_at, created_at').eq('organization_id', orgId).order('created_at', { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ api_keys: data || [] });
+async function getOrgAndCheck(supabase: any, userId: string) {
+  // Org Admin only for API keys. Find org via membership.
+  const { data: membership } = await supabase
+    .from("organization_members")
+    .select("organization_id, role")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!membership) throw new Error("No organization");
+  await requireOrgPermission(supabase, userId, membership.organization_id, "canManageApiKeys");
+  return membership.organization_id as string;
 }
 
-export async function POST(req: Request) {
-  const supabase = await getSupabase();
-  const { user, orgId, role } = await getCallerOrg(supabase);
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  const isOrgAdmin = ['org_admin', 'super_admin'].includes(role || '');
-  if (!isOrgAdmin) return NextResponse.json({ error: 'Only Org Admin can create API keys.' }, { status: 403 });
-  if (!orgId) return NextResponse.json({ error: 'No organization found.' }, { status: 400 });
-  const body = await req.json().catch(() => ({}));
-  const name = String(body.name || '').trim();
-  if (!name) return NextResponse.json({ error: 'Key name is required.' }, { status: 400 });
-  // Scopes from picker — default to runs:write if none sent (for old clients)
-  const scopes = Array.isArray(body.scopes) && body.scopes.length ? body.scopes.map(String) : ['runs:write'];
-  const fullKey = `qa_${randomBytes(24).toString('base64url')}`;
-  const keyHash = createHash('sha256').update(fullKey).digest('hex');
-  const keyPrefix = fullKey.slice(0, 10) + '...';
-  const { data, error } = await supabase.from('api_keys').insert({ organization_id: orgId, name, key_hash: keyHash, key_prefix: keyPrefix, scopes, created_by: user.id, created_by_email: user.email || '', is_active: true }).select('id, name, key_prefix, scopes, created_by_email, is_active, created_at').single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ api_key: data, full_key: fullKey });
+export async function GET(_req: NextRequest) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let organization_id: string;
+  try {
+    organization_id = await getOrgAndCheck(supabase, user.id);
+  } catch (e) {
+    const pe = permissionError(e);
+    return NextResponse.json({ error: pe.message }, { status: pe.status });
+  }
+  const { data, error } = await supabase
+    .from("api_keys")
+    .select("id, name, key_prefix, key_last4, scopes, created_at, expires_at, revoked_at, created_by")
+    .eq("organization_id", organization_id)
+    .order("created_at", { ascending: false });
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  // Never return full key or hash. Only prefix / last4 + expiry.
+  return NextResponse.json({ apiKeys: data ?? [] });
+}
+
+export async function POST(req: NextRequest) {
+  const supabase = createRouteSupabaseClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let organization_id: string;
+  try {
+    organization_id = await getOrgAndCheck(supabase, user.id);
+  } catch (e) {
+    const pe = permissionError(e);
+    return NextResponse.json({ error: pe.message }, { status: pe.status });
+  }
+  let body: any = {};
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Request body must be valid JSON." }, { status: 400 }); }
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  if (!name) return NextResponse.json({ error: "Key name is required." }, { status: 400 });
+  const scopes = Array.isArray(body.scopes) ? body.scopes.filter((s: any) => typeof s === "string") : [];
+  if (!scopes.length) return NextResponse.json({ error: "Pick at least one scope." }, { status: 400 });
+  let expires_at: string | null = null;
+  if (body.expires_at) {
+    const d = new Date(body.expires_at);
+    if (Number.isNaN(d.getTime())) return NextResponse.json({ error: "Invalid expiry date." }, { status: 400 });
+    expires_at = d.toISOString();
+  }
+  const value = "qa_" + randomBytes(24).toString("base64url");
+  const key_hash = hashKey(value);
+  const key_prefix = value.slice(0, 12);
+  const key_last4 = value.slice(-4);
+  const { data, error } = await supabase
+    .from("api_keys")
+    .insert({ organization_id, name, key_hash, key_prefix, key_last4, scopes, expires_at, created_by: user.id })
+    .select("id, name, key_prefix, key_last4, scopes, created_at, expires_at")
+    .single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  // Full value shown ONLY here, once. Never stored in plain text.
+  return NextResponse.json({ apiKey: { ...data, value }, value });
 }

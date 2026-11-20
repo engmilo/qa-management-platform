@@ -1,199 +1,222 @@
-'use client';
-// src/app/settings/api-keys/page.tsx — v3 with Scope picker
-// REQ-PROD-002 — TC-PROD-010: pick runs:write only, then Delete Suite must return 403
-import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/dashboard/sidebar';
-import { Header } from '@/components/dashboard/header';
-import { Key, X, AlertTriangle, Copy, Check } from 'lucide-react';
-import { createBrowserClient } from '@supabase/ssr';
+"use client";
 
-type ApiKey = { id: string; name: string; key_prefix: string; scopes?: string[]; created_by_email?: string; is_active: boolean; revoked_at?: string | null; last_used_at?: string | null; created_at: string; };
-const ROLE_LABEL: Record<string, string> = { super_admin: 'Super Admin', org_admin: 'Org Admin', admin: 'Admin', qa_manager: 'Qa Manager', qa_engineer: 'QA Engineer', developer: 'Developer', viewer: 'Viewer' };
-const labelFor = (r?: string) => ROLE_LABEL[(r || '').toLowerCase()] || (r ? r.replace('_', ' ') : 'Member');
+import { useEffect, useState } from "react";
 
-const ALL_SCOPES = [
-  { value: 'runs:read', label: 'Runs — Read' },
-  { value: 'runs:write', label: 'Runs — Write' },
-  { value: 'suites:read', label: 'Suites — Read' },
-  { value: 'suites:write', label: 'Suites — Write' },
-  { value: 'test-cases:read', label: 'Test Cases — Read' },
-  { value: 'test-cases:write', label: 'Test Cases — Write' },
+type ApiKeyRow = {
+  id: string;
+  name: string;
+  key_prefix?: string | null;
+  key_last4?: string | null;
+  last4?: string | null;
+  scopes?: string[] | string | null;
+  created_at?: string | null;
+  expires_at?: string | null;
+  revoked_at?: string | null;
+  created_by_email?: string | null;
+  created_by?: string | null;
+};
+
+const SCOPE_OPTIONS = [
+  { value: "runs:read", label: "Runs — Read" },
+  { value: "runs:write", label: "Runs — Write" },
+  { value: "suites:read", label: "Suites — Read" },
+  { value: "suites:write", label: "Suites — Write" },
+  { value: "cases:read", label: "Test Cases — Read" },
+  { value: "cases:write", label: "Test Cases — Write" },
 ];
 
-export default function ApiKeysPage() {
-  const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [keyName, setKeyName] = useState('');
-  const [selectedScopes, setSelectedScopes] = useState<string[]>(['runs:write']);
-  const [msg, setMsg] = useState('');
-  const [msgIsError, setMsgIsError] = useState(false);
-  const [currentUserEmail, setCurrentUserEmail] = useState('');
-  const [currentUserRole, setCurrentUserRole] = useState('');
-  const [creating, setCreating] = useState(false);
-  const [newFullKey, setNewFullKey] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [pendingRevoke, setPendingRevoke] = useState<ApiKey | null>(null);
-  const [revokingId, setRevokingId] = useState<string | null>(null);
+function scopesToArray(s: ApiKeyRow["scopes"]): string[] {
+  if (!s) return [];
+  if (Array.isArray(s)) return s;
+  try {
+    const parsed = JSON.parse(s as string);
+    return Array.isArray(parsed) ? parsed : [s as string];
+  } catch {
+    return (s as string).split(",").map((x) => x.trim()).filter(Boolean);
+  }
+}
 
-  const effectiveRole = currentUserRole.toLowerCase();
-  const isOrgAdmin = effectiveRole === 'org_admin' || effectiveRole === 'super_admin' || effectiveRole === 'admin';
-  useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(''), 4000); return () => clearTimeout(t); }, [msg]);
+function fmtDate(v?: string | null) {
+  if (!v) return "Never";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "Never";
+  return d.toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" });
+}
+
+function isExpired(v?: string | null) {
+  if (!v) return false;
+  return new Date(v).getTime() < Date.now();
+}
+
+export default function ApiKeysPage() {
+  const [name, setName] = useState("");
+  const [selected, setSelected] = useState<string[]>(["runs:write"]);
+  const [expiry, setExpiry] = useState<string>("30");
+  const [customDate, setCustomDate] = useState("");
+  const [keys, setKeys] = useState<ApiKeyRow[]>([]);
+  const [newKey, setNewKey] = useState<{ value: string; name: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const load = async () => {
     try {
-      const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email) setCurrentUserEmail(String(user.email));
-      try {
-        const r = await fetch('/api/organizations/members', { cache: 'no-store' });
-        const d = await r.json().catch(() => ({}));
-        const list = d.members ?? d.users ?? [];
-        const me = list.find((m: any) => { const email = m.email || m.profiles?.email || m.user?.email || ''; return user?.email && email.toLowerCase() === String(user.email).toLowerCase(); });
-        if (me?.role) setCurrentUserRole(String(me.role));
-      } catch {}
-      const res = await fetch('/api/api-keys', { cache: 'no-store' });
-      const data = await res.json().catch(() => ({}));
-      if (data.api_keys) setKeys(data.api_keys);
-    } catch {}
+      const res = await fetch("/api/api-keys");
+      const j = await res.json().catch(() => ({}));
+      const list = j.apiKeys ?? j.keys ?? j.data ?? [];
+      setKeys(Array.isArray(list) ? list : []);
+    } catch {
+      setKeys([]);
+    }
   };
+
   useEffect(() => { load(); }, []);
 
   const toggleScope = (v: string) => {
-    setSelectedScopes((cur) => cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]);
+    setSelected((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
   };
 
-  const createKey = async () => {
-    if (!isOrgAdmin) { setMsg('Only Org Admin can create API keys.'); setMsgIsError(true); return; }
-    if (!keyName.trim()) { setMsg('Key name is required.'); setMsgIsError(true); return; }
-    if (!selectedScopes.length) { setMsg('Pick at least one scope.'); setMsgIsError(true); return; }
-    setCreating(true); setMsg(''); setNewFullKey(''); setCopied(false);
+  const handleCreate = async () => {
+    setError("");
+    setCopied(false);
+    if (!name.trim()) { setError("Enter a key name."); return; }
+    if (!selected.length) { setError("Pick at least one scope."); return; }
+    let expires_at: string | null = null;
+    if (expiry === "custom") {
+      if (!customDate) { setError("Pick an expiry date."); return; }
+      expires_at = new Date(customDate + "T23:59:59").toISOString();
+    } else if (expiry !== "never") {
+      const days = parseInt(expiry, 10);
+      expires_at = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+    }
+    setLoading(true);
     try {
-      const res = await fetch('/api/api-keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: keyName.trim(), scopes: selectedScopes }) });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Could not create key.');
-      setNewFullKey(data.full_key || '');
-      setKeyName(''); setSelectedScopes(['runs:write']);
-      setMsg('API key created. Copy it now — you will not see it again.'); setMsgIsError(false);
+      const res = await fetch("/api/api-keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), scopes: selected, expires_at }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(j.error || "Could not create key."); return; }
+      const value = j.apiKey?.value ?? j.value ?? j.key ?? "";
+      if (value) setNewKey({ value, name: name.trim() });
+      setName("");
       await load();
-    } catch (e) { setMsg(e instanceof Error ? e.message : 'Could not create key.'); setMsgIsError(true); } finally { setCreating(false); }
+    } catch {
+      setError("Could not create key.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const confirmRevoke = async () => {
-    const k = pendingRevoke; if (!k) return;
-    setNewFullKey('');
-    if (!isOrgAdmin) { setPendingRevoke(null); setMsg('Only Org Admin can revoke API keys.'); setMsgIsError(true); return; }
-    setPendingRevoke(null); setRevokingId(k.id); setMsg('');
-    try {
-      const res = await fetch(`/api/api-keys/${k.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Could not revoke.');
-      setKeys((cur) => cur.map((x) => x.id === k.id ? { ...x, is_active: false, revoked_at: new Date().toISOString() } : x));
-      setMsg(`${k.name} revoked.`); setMsgIsError(false);
-    } catch (e) { setMsg(e instanceof Error ? e.message : 'Could not revoke.'); setMsgIsError(true); } finally { setRevokingId(null); }
+  const handleCopy = async () => {
+    if (!newKey) return;
+    try { await navigator.clipboard.writeText(newKey.value); setCopied(true); } catch {}
   };
 
-  const copyKey = async () => {
-    try { await navigator.clipboard.writeText(newFullKey); setCopied(true); setTimeout(() => { setNewFullKey(''); setCopied(false); }, 800); } catch {}
+  const handleRevoke = async (id: string) => {
+    if (!confirm("Revoke this key? It will stop working immediately.")) return;
+    const res = await fetch(`/api/api-keys/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      if (newKey) setNewKey(null);
+      await load();
+    }
   };
 
   return (
-    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="w-full max-w-none">
-            <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">API Keys</h1>
-            <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5 mb-5">Manage API keys for this organization. Keys are stored hashed — full key is shown once on create.</p>
-            {msg && <div className={msgIsError ? "mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs" : "mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs"}>{msg}</div>}
-            {newFullKey && (
-              <div className="bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-900 rounded-md p-4 mb-4 relative">
-                <button onClick={() => setNewFullKey('')} className="absolute top-2 right-2 text-green-700 dark:text-green-300 hover:text-green-900 dark:hover:text-green-100"><X className="w-4 h-4" /></button>
-                <p className="text-xs font-normal text-green-700 dark:text-green-300 pr-6">Your new API key — copy it now. It will disappear after you copy it.</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <code className="flex-1 bg-white dark:bg-[#1f2c3f] border border-green-200 dark:border-green-900 rounded px-3 py-2 text-xs font-normal text-slate-900 dark:text-white break-all">{newFullKey}</code>
-                  <button onClick={copyKey} className="inline-flex items-center gap-1 bg-[#276fbf] hover:bg-[#1e5a9e] text-white text-xs font-normal px-3 py-2 rounded shrink-0">{copied ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}</button>
-                </div>
-              </div>
-            )}
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden mb-4">
-              <div className="p-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2">
-                <Key className="w-4 h-4 text-[#276fbf]" />
-                <h2 className="text-xs font-normal tracking-wide text-slate-900 dark:text-white">CREATE API KEY</h2>
-              </div>
-              <div className="p-4">
-                {isOrgAdmin ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-normal mb-1.5 text-slate-900 dark:text-white">KEY NAME</label>
-                      <input value={keyName} onChange={(e) => setKeyName(e.target.value)} placeholder="e.g. CI Pipeline, Runs Only" className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white placeholder:text-slate-400 rounded px-3 py-2 text-xs font-normal" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-normal mb-1.5 text-slate-900 dark:text-white">SCOPES — what this key can do</label>
-                      <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mb-2">For TC-PROD-010, pick only <span className="text-slate-900 dark:text-white">Runs — Write</span> and leave Suites unchecked.</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {ALL_SCOPES.map((s) => (
-                          <label key={s.value} className="flex items-center gap-2 border border-[#e2e8f0] dark:border-[#28374d] rounded px-3 py-2 cursor-pointer">
-                            <input type="checkbox" checked={selectedScopes.includes(s.value)} onChange={() => toggleScope(s.value)} className="accent-[#276fbf]" />
-                            <span className="text-xs font-normal text-slate-900 dark:text-white">{s.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                      <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-2">Selected: {selectedScopes.length ? selectedScopes.join(', ') : 'None — pick at least one'}</p>
-                    </div>
-                    <button onClick={createKey} disabled={creating} className="bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-normal px-4 py-2 rounded whitespace-nowrap">{creating ? 'Creating...' : 'Create Key'}</button>
-                  </div>
-                ) : (
-                  <p className="text-xs font-normal text-slate-500 dark:text-slate-400">Only Org Admin can create API keys.{currentUserEmail ? ` You are viewing as ${labelFor(currentUserRole)}.` : ' Checking your role…'}</p>
-                )}
-              </div>
-            </div>
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2">
-                <Key className="w-4 h-4 text-green-600" />
-                <h2 className="text-xs font-normal tracking-wide text-slate-900 dark:text-white">ACTIVE API KEYS</h2>
-              </div>
-              <div className="p-4">
-                {keys.length === 0 ? (<p className="text-xs font-normal text-slate-500 dark:text-slate-400">No API keys yet.</p>) : (
-                  <div className="space-y-2">
-                    {keys.map((k) => {
-                      const busy = revokingId === k.id;
-                      return (
-                        <div key={k.id} className="flex items-center justify-between border border-[#e2e8f0] dark:border-[#28374d] rounded p-3">
-                          <div>
-                            <p className="text-xs font-normal text-slate-900 dark:text-white">{k.name}</p>
-                            <p className="text-xs font-normal text-slate-500 dark:text-slate-400">{k.key_prefix} • Scopes: {(k.scopes || []).join(', ') || '—'} • Created {new Date(k.created_at).toLocaleDateString()} {k.created_by_email ? `by ${k.created_by_email}` : ''}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className={k.is_active ? "px-3 py-1.5 rounded text-xs font-normal bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" : "px-3 py-1.5 rounded text-xs font-normal bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200"}>{k.is_active ? 'Active' : 'Revoked'}</span>
-                            {k.is_active && isOrgAdmin && (<button onClick={() => setPendingRevoke(k)} disabled={busy} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white font-normal text-xs px-3 py-1.5 rounded">{busy ? 'Revoking...' : 'Revoke'}</button>)}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-normal">API Keys</h1>
+        <p className="text-sm text-slate-400 mt-1">Manage API keys for this organization. Keys are stored hashed — full key is shown once on create.</p>
       </div>
-      {pendingRevoke && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setPendingRevoke(null)}>
-          <div className="w-full max-w-sm bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full font-normal bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-red-600" /></span>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Revoke API key?</h3>
-              </div>
-              <button onClick={() => setPendingRevoke(null)} className="text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-4 h-4" /></button>
-            </div>
-            <p className="text-xs font-normal text-slate-600 dark:text-slate-300 leading-relaxed">Revoke <span className="text-slate-900 dark:text-white">{pendingRevoke.name}</span> ({pendingRevoke.key_prefix})? It will stop working immediately.</p>
-            <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setPendingRevoke(null)} className="px-3 py-2 rounded border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-700 dark:text-slate-200 text-xs font-normal">Cancel</button>
-              <button onClick={confirmRevoke} className="px-3 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-normal">Revoke</button>
-            </div>
+
+      {newKey && (
+        <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4">
+          <p className="font-normal text-emerald-300">Key created — copy it now. It will not be shown again.</p>
+          <div className="mt-3 flex flex-col sm:flex-row gap-2">
+            <code className="flex-1 break-all rounded bg-slate-950 px-3 py-2 text-sm">{newKey.value}</code>
+            <button onClick={handleCopy} className="rounded bg-white px-4 py-2 text-sm font-normal text-slate-900">{copied ? "Copied" : "Copy"}</button>
           </div>
+          <p className="text-xs text-slate-400 mt-2">Saved for: {newKey.name} — refresh the page and this banner disappears.</p>
         </div>
       )}
+      {error && <p className="rounded bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-300">{error}</p>}
+
+      <div className="rounded-lg border border-slate-700/60 bg-slate-900/60">
+        <div className="border-b border-slate-700/60 px-4 py-3"><h2 className="font-normal">Create API Key</h2></div>
+        <div className="p-4 space-y-4">
+          <div>
+            <label className="block text-xs font-normal text-slate-400 mb-1">KEY NAME</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. CI Pipeline, Runs Only" className="w-full rounded bg-slate-950 border border-slate-700 px-3 py-2 text-sm font-normal outline-none focus:border-slate-500" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-normal text-slate-400 mb-1">SCOPES — what this key can do</label>
+            <p className="text-xs text-slate-500 mb-2">For TC-PROD-010, pick only Runs — Write and leave Suites unchecked.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {SCOPE_OPTIONS.map((o) => (
+                <label key={o.value} className="flex items-center gap-2 rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-normal cursor-pointer">
+                  <input type="checkbox" checked={selected.includes(o.value)} onChange={() => toggleScope(o.value)} className="accent-blue-500" />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-slate-500 mt-2">Selected: {selected.join(", ") || "none"}</p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-normal text-slate-400 mb-1">EXPIRY</label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <select value={expiry} onChange={(e) => setExpiry(e.target.value)} className="rounded bg-slate-950 border border-slate-700 px-3 py-2 text-sm font-normal outline-none">
+                <option value="never">Never expires</option>
+                <option value="7">7 days</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+                <option value="365">1 year</option>
+                <option value="custom">Custom date…</option>
+              </select>
+              {expiry === "custom" && (
+                <input type="date" value={customDate} onChange={(e) => setCustomDate(e.target.value)} className="rounded bg-slate-950 border border-slate-700 px-3 py-2 text-sm font-normal" />
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Expiry is shown in the list below. Never = no expiry date.</p>
+          </div>
+
+          <button onClick={handleCreate} disabled={loading} className="rounded bg-blue-600 px-4 py-2 text-sm font-normal text-white disabled:opacity-50">{loading ? "Creating…" : "Create Key"}</button>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-slate-700/60 bg-slate-900/60">
+        <div className="border-b border-slate-700/60 px-4 py-3"><h2 className="font-normal">Active API Keys</h2></div>
+        <div className="divide-y divide-slate-800">
+          {keys.length === 0 && <p className="px-4 py-4 text-sm text-slate-400">No API keys yet.</p>}
+          {keys.filter((k) => !k.revoked_at).map((k) => {
+            const sc = scopesToArray(k.scopes);
+            const last4 = k.key_last4 || k.last4 || "";
+            const expired = isExpired(k.expires_at);
+            return (
+              <div key={k.id} className="flex flex-col lg:flex-row lg:items-center gap-2 px-4 py-3">
+                <div className="flex-1 min-w-0">
+                  <p className="font-normal truncate">{k.name}</p>
+                  <p className="text-sm text-slate-400 truncate">
+                    {last4 ? <span>…{last4}</span> : <span>{k.key_prefix ?? "qa_…"}</span>}
+                    <span> • Scopes: {sc.join(", ") || "none"}</span>
+                    <span> • Created {fmtDate(k.created_at)}</span>
+                    <span> • Expires {fmtDate(k.expires_at)}</span>
+                    {k.created_by_email && <span> by {k.created_by_email}</span>}
+                  </p>
+                  {expired && <p className="text-xs text-red-300 mt-1">Expired</p>}
+                  {!last4 && <p className="text-xs text-slate-500">Old key — last 4 not stored. Revoke and create a new one to see last 4.</p>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-emerald-500/15 px-2 py-1 text-xs font-normal text-emerald-300">{expired ? "Expired" : "Active"}</span>
+                  <button onClick={() => handleRevoke(k.id)} className="rounded bg-red-600 px-3 py-1.5 text-sm font-normal text-white">Revoke</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
