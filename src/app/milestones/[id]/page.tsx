@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { Trash2 } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
@@ -103,8 +103,8 @@ export default function MilestoneDetailPage() {
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-2 text-xs mb-4">
               <Link href="/milestones" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Milestones</Link>
-              <span className="text-slate-500 dark:text-slate-400"></span>
-              <span className="text-slate-500 dark:text-slate-400">{rel?.version_name}</span>
+              <span className="mx-1 text-slate-500 dark:text-slate-400">/</span>
+              <span className="text-slate-800 dark:text-white font-normal">{rel?.version_name}</span>
             </div>
 
             {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
@@ -130,7 +130,7 @@ export default function MilestoneDetailPage() {
                     <div>
                       <span className={labelCls}>STATUS</span>
                       <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>
-                        {[{value:'planned',label:'Planned'},{value:'planning',label:'Planning'},{value:'in_progress',label:'In Progress'},{value:'completed',label:'Completed'},{value:'delayed',label:'Delayed'},{value:'cancelled',label:'Cancelled'},{value:'released',label:'Released'},{value:'archived',label:'Archived'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        {[{value:'planned',label:'Planned'},{value:'planning',label:'Planning'},{value:'in_progress',label:'In Progress'},{value:'completed',label:'Completed'},{value:'delayed',label:'Delayed'},{value:'cancelled',label:'Cancelled'},{value:'released',label:'Released'},{value:'archived',label:'Archived'}].map((o) => <option key={o.value} value={String(o.value)}>{o.label}</option>)}
                       </select>
                     </div>
                     <DateField label="START DATE" value={form.startDate} onChange={(v) => setForm({ ...form, startDate: v })} />

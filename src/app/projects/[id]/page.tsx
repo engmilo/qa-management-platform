@@ -118,19 +118,19 @@ export default function ProjectDetailsPage() {
           <div className="max-w-2xl mx-auto">
             {/* Breadcrumb row */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Link href="/projects" className="text-[#276fbf] hover:underline flex items-center gap-1">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <Link href="/projects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1">
                   <ArrowLeft className="w-3.5 h-3.5" /> Projects
                 </Link>
                 <span>/</span>
-                <span className="text-slate-800 font-normal">{project?.name || 'Project Details'}</span>
+                <span className="text-slate-800 dark:text-white font-normal">{project?.name || 'Project Details'}</span>
               </div>
             </div>
 
             {error ? (
-              <section role="alert" className="bg-white border border-red-200 rounded-md p-6 shadow-sm">
-                <p className="text-sm font-normal text-red-600">{error}</p>
-                <p className="mt-1 text-xs text-slate-500">The project may have been removed or may belong to an organization you cannot access.</p>
+              <section role="alert" className="bg-white dark:bg-[#182232] border border-red-200 dark:border-red-900 rounded-md p-6 shadow-sm dark:shadow-none">
+                <p className="text-sm font-normal text-red-600 dark:text-red-400">{error}</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">The project may have been removed or may belong to an organization you cannot access.</p>
               </section>
             ) : project ? (
               <div className="space-y-6">
