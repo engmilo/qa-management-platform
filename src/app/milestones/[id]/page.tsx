@@ -101,7 +101,7 @@ export default function MilestoneDetailPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 text-xs mb-4">
+            <div className="text-xs mb-4">
               <Link href="/milestones" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Milestones</Link>
               <span className="mx-1 text-slate-500 dark:text-slate-400">/</span>
               <span className="text-slate-800 dark:text-white font-normal">{rel?.version_name}</span>

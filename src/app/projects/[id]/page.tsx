@@ -115,14 +115,14 @@ export default function ProjectDetailsPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-3xl mx-auto">
             {/* Breadcrumb row */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-slate-500 dark:text-slate-400">
                 <Link href="/projects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1">
                   <ArrowLeft className="w-3.5 h-3.5" /> Projects
                 </Link>
-                <span>/</span>
+                <span className="mx-1 text-slate-500 dark:text-slate-400">/</span>
                 <span className="text-slate-800 dark:text-white font-normal">{project?.name || 'Project Details'}</span>
               </div>
             </div>
