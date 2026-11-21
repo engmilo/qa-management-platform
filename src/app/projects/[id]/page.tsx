@@ -118,8 +118,8 @@ export default function ProjectDetailsPage() {
           <div className="w-full max-w-3xl mx-auto">
             {/* Breadcrumb row */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
-              <div className="text-xs text-slate-500 dark:text-slate-400">
-                <Link href="/projects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1">
+              <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
+                <Link href="/projects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline inline-flex items-center gap-1">
                   <ArrowLeft className="w-3.5 h-3.5" /> Projects
                 </Link>
                 <span className="mx-1 text-slate-500 dark:text-slate-400">/</span>
