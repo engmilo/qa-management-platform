@@ -100,13 +100,14 @@ export default function MilestoneDetailPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-3xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="text-xs mb-4">
-              <Link href="/milestones" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Milestones</Link>
-              <span className="mx-1 text-slate-500 dark:text-slate-400">/</span>
-              <span className="text-slate-800 dark:text-white font-normal">{rel?.version_name}</span>
+              <Link href="/milestones" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Milestones</Link>
+              
+              
             </div>
 
+            <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{rel?.version_name || 'Milestone Details'}</h1>
             {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
             {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
 
@@ -114,7 +115,7 @@ export default function MilestoneDetailPage() {
               <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
                 <div className="px-6 py-4 dark:border-[#28374d] flex justify-between items-start">
                   <div>
-                    <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">{rel.version_name}</h1>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Milestone Details</h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Status: {rel.status?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</p>
                   </div>
                   <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
