@@ -109,9 +109,9 @@ export default function DefectDetailPage() {
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-              <Link href="/defects" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Defects</Link>
-              <span>/</span><span className="font-normal">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
+            <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <Link href="/defects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Defects</Link>
+              <span className="mx-1 text-slate-500 dark:text-slate-400">/</span><span className="font-normal text-slate-800 dark:text-white">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
             </div>
             {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
                         {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
