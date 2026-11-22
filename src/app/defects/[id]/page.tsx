@@ -108,11 +108,12 @@ export default function DefectDetailPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-4">
-              <Link href="/defects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Defects</Link>
-              <span className="mx-1 text-slate-500 dark:text-slate-400">/</span><span className="font-normal text-slate-800 dark:text-white">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
+          <div className="w-full max-w-none">
+            <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-5">
+              <Link href="/defects" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Defects</Link>
+              
             </div>
+            <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{form.summary || defect?.title || "Defect"}</h1>
             {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
                         {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
 
@@ -121,7 +122,7 @@ export default function DefectDetailPage() {
                 <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
                   <div>
                     <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
-                    <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">{form.summary || defect?.title || "Defect"}</h1>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">Defect Details</h2>
                     <p className="text-xs text-slate-500 mt-1 font-normal">Created {defect?.created_at ? new Date(defect.created_at).toLocaleString() : ""}</p>
                   </div>
                   <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
@@ -162,8 +163,8 @@ export default function DefectDetailPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-xs font-normal mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
                   </div>
                   <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? "Saving..." : "Save Changes"}</button>
                 </div>
