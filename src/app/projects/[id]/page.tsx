@@ -122,8 +122,6 @@ export default function ProjectDetailsPage() {
                 <Link href="/projects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline inline-flex items-center gap-1">
                   <ArrowLeft className="w-3.5 h-3.5" /> Projects
                 </Link>
-                <span className="mx-1 text-slate-500 dark:text-slate-400">/</span>
-                <span className="text-slate-800 dark:text-white font-normal">{project?.name || 'Project Details'}</span>
               </div>
             </div>
 
