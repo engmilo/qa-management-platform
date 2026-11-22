@@ -89,11 +89,12 @@ export default function RequirementDetailPage() {
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden"><Header />
-        <main className="flex-1 overflow-y-auto p-6"><div className="max-w-3xl mx-auto">
+        <main className="flex-1 overflow-y-auto p-6"><div className="w-full max-w-none">
           <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-4">
-            <Link href="/requirements" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Requirements</Link>
-            <span className="mx-1 text-slate-500 dark:text-slate-400">/</span><span className="font-normal text-slate-800 dark:text-white">{req?.req_key}</span>
+            <Link href="/requirements" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Requirements</Link>
+            
           </div>
+          <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{req?.title || req?.req_key || 'Requirement Details'}</h1>
           {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
           {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
           {req && (
