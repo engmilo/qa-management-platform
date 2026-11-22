@@ -171,6 +171,10 @@ export default function ReportsPage() {
               ))}
             </div>
 
+            <p className="text-xs font-normal text-slate-500 mb-1">
+              {!loading ? `${totalRequirements} requirements · ${completedRuns} of ${totalRuns} runs completed.` : ''}
+            </p>
+
             <div className="grid lg:grid-cols-2 gap-4">
               <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-4">
                 <h2 className="text-xs font-normal text-slate-900 dark:text-white mb-3">Defects by Status</h2>
@@ -187,9 +191,6 @@ export default function ReportsPage() {
                 ) : (
                   !loading && <p className="text-xs font-normal text-slate-500">No defects yet.</p>
                 )}
-                <p className="text-xs font-normal text-slate-500 mt-3">
-                  {!loading ? `${totalRequirements} requirements · ${completedRuns} of ${totalRuns} runs completed.` : ''}
-                </p>
               </div>
 
               <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-4">
