@@ -122,10 +122,9 @@ export default function ProjectDetailsPage() {
                 <Link href="/projects" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
                   <ArrowLeft className="w-3.5 h-3.5" /> Projects
                 </Link>
-                <span className="mx-1 text-xs font-normal text-slate-500 dark:text-slate-400">/</span>
-                <span className="text-xs font-normal text-slate-800 dark:text-white">{project?.name || 'Project Details'}</span>
               </div>
             </div>
+            <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{project?.name || 'Project Details'}</h1>
 
             {error ? (
               <section role="alert" className="bg-white dark:bg-[#182232] border border-red-200 dark:border-red-900 rounded-md p-6 shadow-sm dark:shadow-none">
