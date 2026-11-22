@@ -98,14 +98,15 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="w-full max-w-3xl mx-auto">
-            <Link href="/test-plans" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Plans</Link>
-            <span className="mx-1 text-xs font-normal text-slate-500 dark:text-slate-400">/</span>
-            <span className="text-xs font-normal text-slate-800 dark:text-white">{form.title}</span>
+          <div className="w-full max-w-none">
+            <div className="mb-5"><Link href="/test-plans" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Plans</Link></div>
+            <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{form.title}</h1>
+            
+            
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
               <div className="flex items-start justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700/50">
                 <div>
-                  <h1 className="text-base font-bold text-slate-900 dark:text-white">{form.title}</h1>
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white">Test Plan Details</h2>
                   <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{projectName(form.project_id)}{form.milestone_id ? ` · Milestone: ${releaseName(form.milestone_id)}` : ''}</p>
                 </div>
                 {/* FIX: Delete = solid red like Projects / Milestones / Requirements. Remove below stays plain red text. */}
