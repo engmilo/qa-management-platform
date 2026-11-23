@@ -28,7 +28,7 @@ export default function DefectDetailPage() {
     summary: "",
     severity: "major",
     priority: "medium",
-    status: "fixed",
+    status: "new",
     environment: "Test",
     description: "",
     expectedResult: "",
@@ -50,7 +50,7 @@ export default function DefectDetailPage() {
       summary: d.summary ?? d.title ?? "",
       severity: d.severity ?? "major",
       priority: d.priority ?? "medium",
-      status: d.status ?? "fixed",
+      status: d.status ?? "new",
       environment: d.environment ?? "Test",
       description: d.description ?? "",
       expectedResult: d.expectedResult ?? d.expected_result ?? "",
@@ -133,7 +133,7 @@ export default function DefectDetailPage() {
                   <div className="grid grid-cols-3 gap-4">
                     <div><label className="block text-xs font-normal mb-1.5">Severity</label><select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="critical">Critical</option><option value="major">Major</option><option value="minor">Minor</option><option value="trivial">Trivial</option><option value="blocker">Blocker</option></select></div>
                     <div><label className="block text-xs font-normal mb-1.5">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="open">Open</option><option value="in_progress">In Progress</option><option value="fixed">Fixed</option><option value="ready_for_retest">Ready For Retest</option><option value="closed">Closed</option></select></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="new">New</option><option value="open">Open</option><option value="in_progress">In Progress</option><option value="fixed">Fixed</option><option value="ready_for_retest">Ready For Retest</option><option value="closed">Closed</option><option value="rejected">Rejected</option></select></div>
                   </div>
                   <div><label className="block text-xs font-normal mb-1.5">Environment</label><input value={form.environment} onChange={(e) => setForm({ ...form, environment: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
                   <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
