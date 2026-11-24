@@ -68,10 +68,9 @@ export default function NewDefectPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4">
               <Link href="/defects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Back to Defects</Link>
-              <span>/</span><span className="font-normal text-slate-700 dark:text-slate-200">Add Defect</span>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
               <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex items-center gap-2.5">
