@@ -68,7 +68,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
         const sJ = await sRes.json().catch(() => ({}));
         const allSuites = sJ.testSuites ?? sJ.suites ?? sJ ?? [];
         // Suites linked to this plan: either via plan_id or via plan_suites join — show those that reference this plan, fallback to all if no link field
-        setSuites(Array.isArray(allSuites) ? allSuites.filter((s: any) => !s.test_plan_id || String(s.test_plan_id) === String(id)) : []);
+        setSuites(Array.isArray(allSuites) ? allSuites.filter((s: any) => String(s.test_plan_id ?? s.plan_id ?? '') === String(id)) : []);
       } catch {} finally { setLoading(false); }
     })();
   }, [id]);
@@ -127,7 +127,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                   <div><label className={labelCls}>End</label><input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className={inputCls + ' mt-1'} /></div>
                 </div>
                 <div><label className={labelCls}>Milestone (Release)</label><select value={form.milestone_id} onChange={(e) => setForm({ ...form, milestone_id: e.target.value })} className={inputCls + ' mt-1'}><option value="">—</option>{releases.map((r: any) => (<option key={r.id} value={String(r.id)}>{r.version_name ?? r.name} — {formatStatus(r.status)}</option>))}</select></div>
-                <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : 'Save Changes'}</button>
+                
               </div>
             </div>
 
@@ -160,11 +160,12 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                 {suites.length === 0 && <p className="text-xs font-normal text-slate-500">No suites linked to this plan.</p>}
               </div>
             </div>
+            <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5 mt-4">{saving ? 'Saving...' : 'Save Changes'}</button>
           </div>
         </main>
       </div>
       <ConfirmDialog open={showDelete} title="Delete this test plan?" message="This will permanently delete this test plan. This cannot be undone." confirmLabel="Delete" deleting={false} onConfirm={doDelete} onCancel={() => setShowDelete(false)} />
-      <ConfirmDialog open={showRemove && !!suiteToRemove} title="Remove suite from plan?" message={suiteToRemove ? `Remove ${suiteToRemove.name} from this plan? The suite itself will not be deleted.` : ''} confirmLabel="Remove" deleting={false} onConfirm={() => { setSuites(suites.filter((x: any) => x.id !== suiteToRemove.id)); setShowRemove(false); setSuiteToRemove(null); }} onCancel={() => { setShowRemove(false); setSuiteToRemove(null); }} />
+      <ConfirmDialog open={showRemove && !!suiteToRemove} title="Remove suite from plan?" message={suiteToRemove ? `Remove ${suiteToRemove.name} from this plan? The suite itself will not be deleted.` : ''} confirmLabel="Remove" deleting={false} onConfirm={async () => { const sid = suiteToRemove.id; setShowRemove(false); try { const res = await fetch(`/api/test-suites/${sid}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test_plan_id: null, plan_id: null }) }); if (!res.ok) throw new Error(); setSuites(suites.filter((x: any) => x.id !== sid)); setSaved(true); setTimeout(() => setSaved(false), 3000); } catch { setError('Remove failed'); } setSuiteToRemove(null); }} onCancel={() => { setShowRemove(false); setSuiteToRemove(null); }} />
     </div>
   );
 }
