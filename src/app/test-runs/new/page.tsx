@@ -182,7 +182,7 @@ export default function NewTestRunPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-none px-2">
             <div className="flex items-center gap-2 text-xs mb-4">
               <Link href="/test-runs" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Runs</Link>
               <span className="text-slate-400">/</span>
