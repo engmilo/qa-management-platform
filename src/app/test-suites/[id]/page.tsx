@@ -9,7 +9,7 @@ import { Header } from '@/components/dashboard/header';
 const WarningIcon = () => (
   <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
-            <button onClick={save} disabled={saving} className="mt-6 w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : 'Save Changes'}</button>
+            
           </div>
 );
 const TrashIcon = () => (
@@ -136,6 +136,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
                 {cases.length === 0 && <p className="text-xs font-normal text-slate-500">No test cases in this suite yet.</p>}
               </div>
             </div>
+            <button onClick={save} disabled={saving} className="mt-6 w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : 'Save Changes'}</button>
           </div>
         </main>
       </div>
