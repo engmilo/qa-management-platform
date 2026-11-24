@@ -52,3 +52,5 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ deleted: true });
 }
 
+
+export const PUT = PATCH;

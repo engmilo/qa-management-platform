@@ -78,10 +78,10 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
   const save = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/test-plans/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+      const res = await fetch(`/api/test-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error('Save failed');
       alert('Saved');
-    } catch { alert('Save failed'); } finally { setSaving(false); }
+    } catch { setError('Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
     try { const res = await fetch(`/api/test-plans/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-plans'; } catch { alert('Delete failed'); }
