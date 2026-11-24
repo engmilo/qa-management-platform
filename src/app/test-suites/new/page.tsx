@@ -122,8 +122,8 @@ export default function NewTestSuitePage() {
               </div>
 
               <div className="mt-6 flex gap-3">
-                <Link href="/test-suites" className="flex-1 text-center text-xs font-normal border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
                 <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Adding...' : 'Add Test Suite'}</button>
+                <Link href="/test-suites" className="flex-1 text-center text-xs font-normal border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
               </div>
             </form>
           </div>
