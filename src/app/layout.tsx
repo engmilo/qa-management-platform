@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import "./globals.css";
 
@@ -33,7 +34,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-background text-foreground transition-colors duration-150">
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <ErrorBoundary><AuthProvider>{children}</AuthProvider></ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>
