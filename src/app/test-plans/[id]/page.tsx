@@ -80,11 +80,11 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
     try {
       const res = await fetch(`/api/test-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error('Save failed');
-      alert('Saved');
+      (function(){const d=document.createElement('div');d.textContent=Saved;d.style.cssText='position:fixed;top:16px;right:16px;background:#16a34a;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),2500);})();
     } catch { setError('Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
-    try { const res = await fetch(`/api/test-plans/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-plans'; } catch { alert('Delete failed'); }
+    try { const res = await fetch(`/api/test-plans/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-plans'; } catch { (function(){const d=document.createElement('div');d.textContent='Delete failed';d.style.cssText='position:fixed;top:16px;right:16px;background:#dc2626;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),3000);})(); }
   };
 
   const inputCls = "text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2 w-full";
