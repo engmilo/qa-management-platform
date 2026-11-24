@@ -58,7 +58,7 @@ export default function NewOrganizationPage() {
           <div className="w-full max-w-none">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-xs text-[#6e7d8c] mb-1">
-              <Link href="/settings" className="hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Back to Administration</Link>
+              <Link href="/settings" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Back to Administration</Link>
             </div>
 
             <div className="mb-5 flex items-center justify-between">
