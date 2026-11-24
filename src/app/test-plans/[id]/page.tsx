@@ -80,11 +80,11 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
     try {
       const res = await fetch(`/api/test-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error('Save failed');
-      (function(){const d=document.createElement('div');d.textContent="Saved";d.style.cssText='position:fixed;top:16px;right:16px;background:#16a34a;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),2500);})();
+      setSaved(true);
     } catch { setError('Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
-    try { const res = await fetch(`/api/test-plans/${id}`, { method: 'DELETE' }); if (!res.ok) throw new Error(); window.location.href = '/test-plans'; } catch { (function(){const d=document.createElement('div');d.textContent='Delete failed';d.style.cssText='position:fixed;top:16px;right:16px;background:#dc2626;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),3000);})(); }
+      setSaved(true);
   };
 
   const inputCls = "text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-2 w-full";
@@ -101,6 +101,8 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
           <div className="w-full max-w-none">
             <div className="mb-5"><Link href="/test-plans" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Plans</Link></div>
             <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{form.title}</h1>
+            {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 rounded text-xs">Saved.</div>}
+            {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded text-xs">{error}</div>}
             
             
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
