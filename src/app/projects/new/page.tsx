@@ -1,10 +1,8 @@
 'use client';
-import { Trash2 } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
@@ -47,8 +45,6 @@ export default function NewProjectPage() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch('/api/organizations', { cache: 'no-store' })
@@ -96,27 +92,15 @@ export default function NewProjectPage() {
     }
   };
 
-  const remove = async () => {
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Could not delete.'); setShowDeleteConfirm(false); return; }
-      router.push('/projects');
-    } finally { setDeleting(false); }
-  };
-
   return (
     <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="flex items-center gap-2 text-xs mb-4">
               <Link href="/projects" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Projects</Link>
-              <span className="text-slate-400">/</span>
-              <span className="text-slate-500 dark:text-slate-400">Add Project</span>
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
@@ -154,8 +138,7 @@ export default function NewProjectPage() {
               </form>
             </div>
           </div>
-        
-        <ConfirmDialog open={showDeleteConfirm} title="Delete this project?" message="This will permanently delete this project and all its requirements, test cases, test plans, test runs and defects. This cannot be undone." confirmLabel="Delete project" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} /></main>
+        </main>
       </div>
     </div>
   );
