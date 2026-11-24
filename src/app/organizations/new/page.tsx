@@ -55,12 +55,10 @@ export default function NewOrganizationPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-none">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-xs text-[#6e7d8c] mb-1">
-              <Link href="/settings" className="hover:underline">Administration</Link>
-              <span>/</span>
-              <span className="text-[#1d2d3e] font-normal">New Organization</span>
+              <Link href="/settings" className="hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Back to Administration</Link>
             </div>
 
             <div className="mb-5 flex items-center justify-between">
