@@ -143,7 +143,7 @@ export default function ReportsPage() {
           <div className="w-full max-w-none">
             <div className="flex flex-wrap gap-2 items-start justify-between">
               <div>
-                <h1 className="text-xs font-normal text-slate-900 dark:text-white">Reports</h1>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Reports</h1>
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Summary of testing coverage and quality.</p>
               </div>
               <select
