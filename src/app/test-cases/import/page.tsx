@@ -154,10 +154,9 @@ export default function ImportTestCasesPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4">
-              <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Test Cases</Link>
-              <span>/</span><span className="text-slate-800 dark:text-slate-200 font-normal">Import CSV</span>
+              <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Back to Test Cases</Link>
             </div>
             <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Import Test Cases</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 font-normal">Same format as Export. Preview first — duplicates are skipped, nothing is overwritten or deleted.</p>
