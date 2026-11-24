@@ -17,6 +17,7 @@ export default function TestCaseDetailPage() {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [testCase, setTestCase] = useState<any>(null);
+  const [projects, setProjects] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -56,6 +57,7 @@ export default function TestCaseDetailPage() {
     el.style.height = el.scrollHeight + "px";
   };
   useEffect(() => { autoGrowComment(); }, [form.comment, loading]);
+  useEffect(() => { fetch('/api/projects', { cache: 'no-store' }).then(r => r.json()).then(j => setProjects(j.projects ?? j.data ?? j ?? [])).catch(() => {}); }, []);
   const load = async () => {
     const res = await fetch(`/api/test-cases/${id}`, { cache: "no-store" });
     const data = await res.json();
@@ -65,7 +67,7 @@ export default function TestCaseDetailPage() {
     setLinkedIds(((data as any).linkedRequirementIds ?? (data as any).requirements?.map((r: any) => String(r.id)) ?? []).map((x: any) => String(x)));
     setForm({
       title: d.title ?? "",
-      project: d.project?.name ?? d.project_name ?? d.project ?? "QA Studio",
+      project: d.project_id ?? d.project?.id ?? d.project ?? "",
       priority: d.priority ?? "medium",
       status: d.status ?? "approved",
       type: d.type ?? d.test_type ?? "functional",
@@ -103,7 +105,7 @@ export default function TestCaseDetailPage() {
       const res = await fetch(`/api/test-cases/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, steps, linkedRequirementIds: linkedIds, requirementIds: linkedIds }),
+        body: JSON.stringify({ ...form, project_id: form.project, steps, linkedRequirementIds: linkedIds, requirementIds: linkedIds }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not save.");
@@ -166,7 +168,7 @@ export default function TestCaseDetailPage() {
 
                 <div className="p-6 space-y-5">
                   <div><label className="block text-xs font-normal mb-1.5">Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                  <div><label className="block text-xs font-normal mb-1.5">Project</label><select value={form.project} onChange={(e) => setForm({ ...form, project: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="QA Studio">QA Studio</option></select></div>
+                  <div><label className="block text-xs font-normal mb-1.5">Project</label><select value={form.project} onChange={(e) => setForm({ ...form, project: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">{projects.map((p: any) => (<option key={String(p.id)} value={String(p.id)}>{p.key ? `${p.key} — ${p.name}` : p.name}</option>))}</select></div>
                   <div className="grid grid-cols-3 gap-4">
                     <div><label className="block text-xs font-normal mb-1.5">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
                     <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">
