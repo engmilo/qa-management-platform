@@ -30,7 +30,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.status === 'string') patch.status = body.status;
   if (typeof body.startDate === 'string') patch.start_date = body.startDate || null;
   if (typeof body.endDate === 'string') patch.end_date = body.endDate || null;
-  if (typeof body.releaseId === 'string') patch.release_id = body.releaseId || null;
+  const _rel = body.release_id ?? body.releaseId ?? body.milestone_id ?? body.milestoneId;
+  if (typeof _rel === 'string') patch.release_id = _rel || null;
   if (!Object.keys(patch).length) return NextResponse.json({ error: 'Nothing to update.' }, { status: 400 });
   if (patch.release_id) {
     const { data: rel } = await supabase.from('releases').select('id').eq('id', patch.release_id as string).eq('project_id', (plan as any).project_id).maybeSingle();
