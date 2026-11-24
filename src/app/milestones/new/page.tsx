@@ -51,15 +51,14 @@ export default function NewMilestonePage() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0"><Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="w-full max-w-3xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-              <Link href="/milestones" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Milestones</Link>
-              <span>/</span><span>New</span>
+              <Link href="/milestones" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Back to Milestones</Link>
             </div>
             <h1 className="text-base font-bold text-white tracking-tight text-left m-0 mb-1">New Milestone</h1>
             <p className="text-xs text-slate-500 mb-5 font-normal">Create a milestone for a project.</p>
             {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
-            <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6 space-y-5 max-w-3xl">
+            <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-6 space-y-5">
               <div>
                 <label className="block text-xs font-normal mb-1.5">Project *</label>
                 <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] rounded px-3 py-2 text-xs font-normal">
