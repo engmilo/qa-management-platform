@@ -81,7 +81,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
     try {
       const res = await fetch(`/api/test-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error('Save failed');
-      setSaved(true);
+      setSaved(true); setTimeout(() => setSaved(false), 3000);
     } catch { setError('Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
