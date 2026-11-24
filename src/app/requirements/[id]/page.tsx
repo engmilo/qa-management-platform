@@ -98,33 +98,36 @@ export default function RequirementDetailPage() {
           {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs">{error}</div>}
           {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
           {req && (
-            <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md shadow-sm dark:shadow-none overflow-hidden">
-              <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
-                <div>
-                  <span className="font-mono text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-1 rounded">{req.req_key}</span>
-                  
-                  <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">This page is already in edit mode — change any field and click Save Changes. There is no separate Edit button.</p>
+            <form onSubmit={save}>
+              <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] rounded-md shadow-sm dark:shadow-none overflow-hidden">
+                <div className="bg-[#f8fafc] dark:bg-[#141d28] px-6 py-4 border-b border-[#e2e8f0] dark:border-[#28374d] flex justify-between items-start">
+                  <div>
+                    <span className="font-mono text-xs font-normal text-[#276fbf] dark:text-[#4da3ff] bg-[#eef5fc] dark:bg-[#172739] border border-[#d2e3f5] dark:border-[#233f5d] px-2 py-1 rounded">{req.req_key}</span>
+                    
+                    <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1">This page is already in edit mode — change any field and click Save Changes. There is no separate Edit button.</p>
+                  </div>
+                  <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 </div>
-                <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                <div className="p-6 space-y-5">
+                  <div><label className={labelCls}>Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className={inputCls} /></div>
+                  <div>
+                    <label className={labelCls}>Project *</label>
+                    <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} required className={inputCls}>
+                      <option value="">Select project…</option>
+                      {projects.map((p: any) => (<option key={p.id} value={p.id}>{p.name}</option>))}
+                    </select>
+                    <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">Zamir Oy in the header is your organization. Project is the project below it — here it is “QA Management Platform”.</p>
+                  </div>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div><label className={labelCls}>Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className={inputCls}>{[{value:'low',label:'Low'},{value:'medium',label:'Medium'},{value:'high',label:'High'},{value:'critical',label:'Critical'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+                    <div><label className={labelCls}>Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>{[{value:'draft',label:'Draft'},{value:'under_review',label:'Under Review'},{value:'in_review',label:'In Review'},{value:'approved',label:'Approved'},{value:'implemented',label:'Implemented'},{value:'verified',label:'Verified'},{value:'rejected',label:'Rejected'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+                    <div><label className={labelCls}>Type</label><select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputCls}>{[{value:'functional',label:'Functional'},{value:'non_functional',label:'Non Functional'},{value:'business',label:'Business'},{value:'technical',label:'Technical'},{value:'user_story',label:'User Story'},{value:'performance',label:'Performance'},{value:'security',label:'Security'},{value:'automation',label:'Automation'},{value:'regression',label:'Regression'},{value:'e2e',label:'E2E'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+                  </div>
+                  <div><label className={labelCls}>Description</label><textarea ref={descRef} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); autoGrow(); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} /></div>
+                </div>
               </div>
-              <div className="p-6 space-y-5">
-                <div><label className={labelCls}>Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className={inputCls} /></div>
-                <div>
-                  <label className={labelCls}>Project *</label>
-                  <select value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })} required className={inputCls}>
-                    <option value="">Select project…</option>
-                    {projects.map((p: any) => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                  </select>
-                  <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">Zamir Oy in the header is your organization. Project is the project below it — here it is “QA Management Platform”.</p>
-                </div>
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <div><label className={labelCls}>Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className={inputCls}>{[{value:'low',label:'Low'},{value:'medium',label:'Medium'},{value:'high',label:'High'},{value:'critical',label:'Critical'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
-                  <div><label className={labelCls}>Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>{[{value:'draft',label:'Draft'},{value:'under_review',label:'Under Review'},{value:'in_review',label:'In Review'},{value:'approved',label:'Approved'},{value:'implemented',label:'Implemented'},{value:'verified',label:'Verified'},{value:'rejected',label:'Rejected'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
-                  <div><label className={labelCls}>Type</label><select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputCls}>{[{value:'functional',label:'Functional'},{value:'non_functional',label:'Non Functional'},{value:'business',label:'Business'},{value:'technical',label:'Technical'},{value:'user_story',label:'User Story'},{value:'performance',label:'Performance'},{value:'security',label:'Security'},{value:'automation',label:'Automation'},{value:'regression',label:'Regression'},{value:'e2e',label:'E2E'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
-                </div>
-                <div><label className={labelCls}>Description</label><textarea ref={descRef} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); autoGrow(); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} /></div>
-                <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
-              </div>
+
+              <button disabled={saving} className="mt-6 w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
             </form>
           )}
           <ConfirmDialog open={showDeleteConfirm} title="Delete this requirement?" message="This will permanently delete this requirement and unlink it from any test cases. This cannot be undone." confirmLabel="Delete requirement" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} />
