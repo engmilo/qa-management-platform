@@ -80,7 +80,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
     try {
       const res = await fetch(`/api/test-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error('Save failed');
-      (function(){const d=document.createElement('div');d.textContent=Saved;d.style.cssText='position:fixed;top:16px;right:16px;background:#16a34a;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),2500);})();
+      (function(){const d=document.createElement('div');d.textContent="Saved";d.style.cssText='position:fixed;top:16px;right:16px;background:#16a34a;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),2500);})();
     } catch { setError('Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
