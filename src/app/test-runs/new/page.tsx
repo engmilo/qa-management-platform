@@ -185,8 +185,8 @@ export default function NewTestRunPage() {
           <div className="w-full max-w-none px-2">
             <div className="flex items-center gap-2 text-xs mb-4">
               <Link href="/test-runs" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Runs</Link>
-              <span className="text-slate-400">/</span>
-              <span className="text-slate-500 dark:text-slate-400">Add Test Run</span>
+              
+              
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
