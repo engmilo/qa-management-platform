@@ -121,7 +121,7 @@ export default function TestCasesPage() {
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
               </div>
               <div className="flex gap-2">
-                <Link href="/api/test-cases/export" className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</Link>
+                <a href={`/api/test-cases/export?projectId=${projectFilter}&priority=${priorityFilter}&type=${typeFilter}&status=${statusFilter}&search=${encodeURIComponent(search)}`} download className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</a>
                 <Link href="/test-cases/import" className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Import</Link>
                 <Link href="/test-cases/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Test Case</Link>
               </div>
