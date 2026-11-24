@@ -111,11 +111,9 @@ export default function NewTestPlanPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-none">
             <div className="flex items-center gap-2 text-xs mb-4">
               <Link href="/test-plans" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Plans</Link>
-              <span className="text-slate-400">/</span>
-              <span className="text-slate-500 dark:text-slate-400">Add Test Plan</span>
             </div>
 
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
