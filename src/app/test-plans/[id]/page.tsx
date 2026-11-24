@@ -28,6 +28,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
   const [showDelete, setShowDelete] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [suiteToRemove, setSuiteToRemove] = useState<any>(null);
