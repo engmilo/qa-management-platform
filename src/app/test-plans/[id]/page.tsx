@@ -27,6 +27,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
   const [suites, setSuites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [suiteToRemove, setSuiteToRemove] = useState<any>(null);
@@ -80,7 +81,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
     try {
       const res = await fetch(`/api/test-plans/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error('Save failed');
-      (function(){const d=document.createElement('div');d.textContent="Saved";d.style.cssText='position:fixed;top:16px;right:16px;background:#16a34a;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999';document.body.appendChild(d);setTimeout(()=>d.remove(),2500);})();
+      setSaved(true);
     } catch { setError('Save failed'); } finally { setSaving(false); }
   };
   const doDelete = async () => {
@@ -101,6 +102,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
           <div className="w-full max-w-none">
             <div className="mb-5"><Link href="/test-plans" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Plans</Link></div>
             <h1 className="text-base font-bold text-slate-900 dark:text-white mb-5">{form.title}</h1>
+            {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 rounded text-xs">Saved.</div>}
             
             
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
