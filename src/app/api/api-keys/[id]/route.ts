@@ -9,7 +9,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   const role = String((membership as any).role || "").toLowerCase();
   if (role !== "org admin" && role !== "org_admin" && role !== "admin") return NextResponse.json({ error: "Forbidden: Org Admin only" }, { status: 403 });
   const organization_id = (membership as any).organization_id as string;
-  const { data, error } = await supabase.from("api_keys").update({ revoked_at: new Date().toISOString() }).eq("id", params.id).eq("organization_id", organization_id).is("revoked_at", null).select("id").maybeSingle();
+  const { data, error } = await supabase.from("api_keys").update({ revoked_at: new Date().toISOString(), is_active: false }).eq("id", params.id).eq("organization_id", organization_id).is("revoked_at", null).select("id").maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   if (!data) return NextResponse.json({ error: "Key not found or already revoked." }, { status: 404 });
   return NextResponse.json({ revoked: true });

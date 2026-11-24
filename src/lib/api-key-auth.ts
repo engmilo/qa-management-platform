@@ -17,7 +17,7 @@ export async function validateApiKey(req: Request) {
     return { valid: false, organization_id: null, apiKey: null, scopes: [] as string[], error: 'Server missing Supabase config' };
   }
   // Include scopes in select — needed for TC-PROD-010
-  const res = await fetch(`${url}/rest/v1/api_keys?key_hash=eq.${keyHash}&is_active=eq.true&select=id,organization_id,name,key_prefix,scopes,is_active,created_by_email`, {
+  const res = await fetch(`${url}/rest/v1/api_keys?key_hash=eq.${keyHash}&is_active=eq.true&revoked_at=is.null&revoked_at=is.null&select=id,organization_id,name,key_prefix,scopes,is_active,created_by_email`, {
     headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
     cache: 'no-store',
   });
