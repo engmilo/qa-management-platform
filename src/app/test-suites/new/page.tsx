@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { inputCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
+import { inputCls, FormField, FormSelect } from '@/components/ui/form-fields';
 
 type Project = { id: string; name: string };
 type Plan = { id: string; name: string };
@@ -83,44 +83,49 @@ export default function NewTestSuitePage() {
               <Link href="/test-suites" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Suites</Link>
             </div>
 
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
-              <div className="px-6 py-4 dark:border-[#28374d]">
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Suite</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Group test cases inside a test plan</p>
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+                <div className="px-6 py-4 dark:border-[#28374d]">
+                  <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Suite</h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Group test cases inside a test plan</p>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  {error && (
+                    <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
+                  )}
+
+                  <FormSelect
+                    label="PROJECT *"
+                    value={projectId}
+                    onChange={setProjectId}
+                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="Select a project"
+                  />
+
+                  <FormSelect
+                    label="TEST PLAN (OPTIONAL)"
+                    value={planId}
+                    onChange={setPlanId}
+                    options={plans.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="No test plan"
+                  />
+
+                  <FormField label="SUITE NAME *">
+                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Login & Authentication" className={inputCls} />
+                  </FormField>
+
+                  <FormField label="DESCRIPTION">
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What does this suite cover?" className={`${inputCls} resize-none overflow-hidden`} />
+                  </FormField>
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {error && (
-                  <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
-                )}
-
-                <FormSelect
-                  label="PROJECT *"
-                  value={projectId}
-                  onChange={setProjectId}
-                  options={projects.map((p) => ({ value: p.id, label: p.name }))}
-                  placeholder="Select a project"
-                />
-
-                <FormSelect
-                  label="TEST PLAN (OPTIONAL)"
-                  value={planId}
-                  onChange={setPlanId}
-                  options={plans.map((p) => ({ value: p.id, label: p.name }))}
-                  placeholder="No test plan"
-                />
-
-                <FormField label="SUITE NAME *">
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Login & Authentication" className={inputCls} />
-                </FormField>
-
-                <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What does this suite cover?" className={`${inputCls} resize-none overflow-hidden`} />
-                </FormField>
-
-                <FormActions submitLabel="Add Test Suite" saving={saving} savingLabel="Adding..." cancelHref="/test-suites" />
-              </form>
-            </div>
+              <div className="mt-6 flex gap-3">
+                <Link href="/test-suites" className="flex-1 text-center text-xs font-normal border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
+                <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Adding...' : 'Add Test Suite'}</button>
+              </div>
+            </form>
           </div>
         </main>
       </div>
