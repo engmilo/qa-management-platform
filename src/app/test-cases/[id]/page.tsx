@@ -156,66 +156,68 @@ export default function TestCaseDetailPage() {
             {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
 
             {testCase && (
-              <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
-                  <div>
-                    <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{caseId}</span>
-                    <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">Test Case Details</h2>
-                    <p className="text-xs text-slate-500 mt-1 font-normal">Change any field and click Save Changes. There is no separate Edit button.</p>
+              <form onSubmit={save}>
+                <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                  <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
+                    <div>
+                      <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{caseId}</span>
+                      <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">Test Case Details</h2>
+                      <p className="text-xs text-slate-500 mt-1 font-normal">Change any field and click Save Changes. There is no separate Edit button.</p>
+                    </div>
+                    <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                   </div>
-                  <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
-                </div>
 
-                <div className="p-6 space-y-5">
-                  <div><label className="block text-xs font-normal mb-1.5">Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                  <div><label className="block text-xs font-normal mb-1.5">Project</label><select value={form.project} onChange={(e) => setForm({ ...form, project: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">{projects.map((p: any) => (<option key={String(p.id)} value={String(p.id)}>{p.key ? `${p.key} — ${p.name}` : p.name}</option>))}</select></div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div><label className="block text-xs font-normal mb-1.5">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">
-<option value="draft">Draft</option>
-<option value="in_review">In Review</option>
-<option value="ready">Ready</option>
-<option value="approved">Approved</option>
-<option value="archived">Archived</option>
-</select></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Type</label><select value={form.type} onFocus={(e) => e.currentTarget.scrollIntoView({ block: 'center' })} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="usability">Usability</option><option value="security">Security</option><option value="performance">Performance</option><option value="integration">Integration</option><option value="ui">UI</option><option value="api">API</option><option value="automation">Automation</option><option value="e2e">E2E</option><option value="uat">UAT</option><option value="system">System</option><option value="exploratory">Exploratory</option></select></div>
-                  </div>
-                  <div><label className="block text-xs font-normal mb-1.5">Category</label><input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                  <div><label className="block text-xs font-normal mb-1.5">Preconditions</label><textarea value={form.preconditions} onChange={(e) => setForm({ ...form, preconditions: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} rows={2} placeholder="e.g. User account exists, app is on login page" className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
-                  <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                  <div className="p-6 space-y-5">
+                    <div><label className="block text-xs font-normal mb-1.5">Title *</label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Project</label><select value={form.project} onChange={(e) => setForm({ ...form, project: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">{projects.map((p: any) => (<option key={String(p.id)} value={String(p.id)}>{p.key ? `${p.key} — ${p.name}` : p.name}</option>))}</select></div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div><label className="block text-xs font-normal mb-1.5">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200">
+  <option value="draft">Draft</option>
+  <option value="in_review">In Review</option>
+  <option value="ready">Ready</option>
+  <option value="approved">Approved</option>
+  <option value="archived">Archived</option>
+  </select></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Type</label><select value={form.type} onFocus={(e) => e.currentTarget.scrollIntoView({ block: 'center' })} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="usability">Usability</option><option value="security">Security</option><option value="performance">Performance</option><option value="integration">Integration</option><option value="ui">UI</option><option value="api">API</option><option value="automation">Automation</option><option value="e2e">E2E</option><option value="uat">UAT</option><option value="system">System</option><option value="exploratory">Exploratory</option></select></div>
+                    </div>
+                    <div><label className="block text-xs font-normal mb-1.5">Category</label><input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Preconditions</label><textarea value={form.preconditions} onChange={(e) => setForm({ ...form, preconditions: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} rows={2} placeholder="e.g. User account exists, app is on login page" className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
 
-                  <div>
-                    <div className="flex items-start gap-2 mb-1"><span className="text-xs text-slate-500 pt-2 w-4 shrink-0"></span><label className="flex-1 block text-xs font-normal px-3">Steps</label><span className="flex-1 text-xs font-normal px-3 whitespace-nowrap">Expected result</span><button type="button" onClick={addStep} className="inline-flex items-center shrink-0 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button></div>
-                    <div className="space-y-2">
-                      {steps.map((step, index) => (
-                        <div key={index} className="flex items-start gap-2">
-                          <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
-                          <textarea value={step.action} onChange={(e) => updateStep(index, "action", e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} placeholder="Action" rows={1} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
-                          <textarea value={step.expected} onChange={(e) => updateStep(index, "expected", e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} placeholder="Expected result" rows={1} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
-                          <button type="button" onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
-                        </div>
-                      ))}
+                    <div>
+                      <div className="flex items-start gap-2 mb-1"><span className="text-xs text-slate-500 pt-2 w-4 shrink-0"></span><label className="flex-1 block text-xs font-normal px-3">Steps</label><span className="flex-1 text-xs font-normal px-3 whitespace-nowrap">Expected result</span><button type="button" onClick={addStep} className="inline-flex items-center shrink-0 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button></div>
+                      <div className="space-y-2">
+                        {steps.map((step, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
+                            <textarea value={step.action} onChange={(e) => updateStep(index, "action", e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} placeholder="Action" rows={1} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
+                            <textarea value={step.expected} onChange={(e) => updateStep(index, "expected", e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} placeholder="Expected result" rows={1} className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
+                            <button type="button" onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }} style={{ fontWeight: 400 }} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div><label className="block text-xs font-normal mb-1.5">Linked Requirements</label><div className="border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] space-y-1">{allRequirements.length === 0 ? (<p className="text-xs text-slate-500">No requirements in this project.</p>) : (allRequirements.map((req: any) => (<label key={String(req.id)} className="flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked={linkedIds.includes(String(req.id))} onChange={(e) => { const rid = String(req.id); setLinkedIds((prev) => e.target.checked ? [...prev, rid] : prev.filter((x) => x !== rid)); }} className="accent-[#276fbf]" /> {req.req_key} — {req.title}</label>)))}</div></div>
+
+                    <div>
+                      <label className="block text-xs font-normal mb-1.5">Comment</label>
+                      <textarea
+                        ref={commentRef}
+                        value={form.comment}
+                        onChange={(e) => { setForm({ ...form, comment: e.target.value }); autoGrowComment(); }}
+                        onFocus={() => autoGrowComment()}
+                        rows={2}
+                        placeholder="Add a comment..."
+                        style={{ overflow: "hidden", resize: "none" }}
+                        className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]"
+                      />
                     </div>
                   </div>
-
-                  <div><label className="block text-xs font-normal mb-1.5">Linked Requirements</label><div className="border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] space-y-1">{allRequirements.length === 0 ? (<p className="text-xs text-slate-500">No requirements in this project.</p>) : (allRequirements.map((req: any) => (<label key={String(req.id)} className="flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked={linkedIds.includes(String(req.id))} onChange={(e) => { const rid = String(req.id); setLinkedIds((prev) => e.target.checked ? [...prev, rid] : prev.filter((x) => x !== rid)); }} className="accent-[#276fbf]" /> {req.req_key} — {req.title}</label>)))}</div></div>
-
-                  <div>
-                    <label className="block text-xs font-normal mb-1.5">Comment</label>
-                    <textarea
-                      ref={commentRef}
-                      value={form.comment}
-                      onChange={(e) => { setForm({ ...form, comment: e.target.value }); autoGrowComment(); }}
-                      onFocus={() => autoGrowComment()}
-                      rows={2}
-                      placeholder="Add a comment..."
-                      style={{ overflow: "hidden", resize: "none" }}
-                      className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]"
-                    />
-                  </div>
-
-                  <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? "Saving..." : "Save Changes"}</button>
                 </div>
+
+                <button disabled={saving} className="mt-6 w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? "Saving..." : "Save Changes"}</button>
               </form>
             )}
           </div>
