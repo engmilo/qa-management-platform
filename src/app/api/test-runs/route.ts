@@ -74,9 +74,10 @@ export async function POST(request: NextRequest) {
         caseIds = (cRows ?? []).map((c: any) => c.id);
       }
     } else {
-      const cRes = await fetch(`${url}/rest/v1/test_cases?project_id=eq.${projectId}&select=id`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }, cache: 'no-store' });
-      const cRows = await cRes.json().catch(() => []);
-      caseIds = (cRows ?? []).map((c: any) => c.id);
+      // EMPTY = NONE — no cases selected means no executions, not ALL cases.
+      // Previously this fetched ALL cases in the project, which is why
+      // TC-P1-001 Run showed 29 cases when only 1 was meant.
+      caseIds = [];
     }
     if (!caseIds.length) return NextResponse.json({ testRun: run, testCaseCount: 0 }, { status: 201 });
     const execRes = await fetch(`${url}/rest/v1/test_executions`, { method: 'POST', headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(caseIds.map((id) => ({ test_run_id: run.id, test_case_id: id, organization_id: auth.organization_id, status: 'not_run' }))) });
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
   }).select().single();
   if (runError || !run) return NextResponse.json({ error: runError?.message || 'Could not create the test run.' }, { status: 400 });
 
-  // Resolve cases: explicit caseIds > suiteIds > all cases in project
+  // Resolve cases: explicit caseIds > suiteIds > none
   let caseIds: string[] = [];
   const rawCaseIds = Array.isArray(body.caseIds) ? body.caseIds.filter((x): x is string => typeof x === 'string') : [];
   const rawSuiteIds = Array.isArray(body.suiteIds) ? body.suiteIds.filter((x): x is string => typeof x === 'string') : [];
@@ -130,8 +131,8 @@ export async function POST(request: NextRequest) {
       caseIds = (cases ?? []).map((c: any) => c.id);
     }
   } else {
-    const { data: cases } = await supabase.from('test_cases').select('id').eq('project_id', project.id);
-    caseIds = (cases ?? []).map((c: any) => c.id);
+    // EMPTY = NONE — no cases selected means no executions, not ALL cases.
+    caseIds = [];
   }
   if (!caseIds.length) {
     // Keep the empty run — UI shows "No cases" and user can add cases later via re-create. Do not fail.
