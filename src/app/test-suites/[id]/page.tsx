@@ -5,7 +5,6 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
 // Copy-paste safe icons - no vector tags that get stripped
-// Bin = trash can emoji, Warning = warning emoji
 const WarningIcon = () => (
   <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
     <span className="text-lg leading-none">!</span>
@@ -14,8 +13,8 @@ const WarningIcon = () => (
 const BinIcon = () => (
   <span aria-hidden="true" className="text-sm leading-none">🗑</span>
 );
-// Remove as a tile - bordered tile button, not plain text
-const removeTileBtn = "inline-flex items-center gap-1 text-xs font-normal text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/15 border border-red-500/25 rounded px-2.5 py-1.5 cursor-pointer whitespace-nowrap shrink-0";
+// Remove EXACT like Test Cases detail: solid red, white text, just Remove, no x, no border, no translucent
+const removeSolidBtn = "shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3.5 py-2 rounded cursor-pointer whitespace-nowrap";
 
 export default function TestSuiteDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -85,7 +84,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
       setSavedFlash(true);
-      setTimeout(() => setSavedFlash(false), 2000);
+      setTimeout(() => setSavedFlash(false), 3000);
     } catch (e: any) {
       setInlineError(e?.message || 'Save failed');
     } finally { setSaving(false); }
@@ -149,6 +148,8 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full mx-auto">
+            {savedFlash && <div className="w-full bg-green-600 text-white text-xs font-normal rounded px-4 py-2.5 mb-3">Saved.</div>}
+            {inlineError && <div className="w-full bg-red-600 text-white text-xs font-normal rounded px-4 py-2.5 mb-3">{inlineError}</div>}
             <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">Back to Test Suites</Link>
             <span className="text-xs font-normal text-slate-500 dark:text-slate-400"> / {form.name}</span>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
@@ -174,14 +175,13 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
                 {cases.map((c: any) => (
                   <div key={c.id} className="flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
                     <Link href={`/test-cases/${c.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline flex-1 min-w-0 truncate">{c.case_key ?? c.code} - {c.title}</Link>
-                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={removeTileBtn}><span aria-hidden="true" className="text-sm leading-none">x</span><span>Remove</span></button>
+                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={removeSolidBtn}>Remove</button>
                   </div>
                 ))}
                 {cases.length === 0 && <p className="text-xs font-normal text-slate-500">No test cases in this suite yet.</p>}
               </div>
             </div>
-            <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5 mt-4">{saving ? 'Saving...' : savedFlash ? 'Saved' : 'Save Changes'}</button>
-            {inlineError && <p className="text-xs font-normal text-red-600 dark:text-red-400 mt-2">{inlineError}</p>}
+            <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5 mt-4">{saving ? 'Saving...' : 'Save Changes'}</button>
           </div>
         </main>
       </div>
