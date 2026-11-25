@@ -151,7 +151,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full mx-auto">
-            <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">Back to Test Suites</Link>
+            <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Suites</Link>
             <span className="text-xs font-normal text-slate-500 dark:text-slate-400"> / {form.name}</span>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
               <div className="flex items-start justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700/50">
