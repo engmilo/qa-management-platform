@@ -60,25 +60,25 @@ export async function POST(request: NextRequest) {
     let caseIds: string[] = [];
     const rawCaseIds = Array.isArray((body as any).caseIds) ? (body as any).caseIds : Array.isArray((body as any).case_ids) ? (body as any).case_ids : [];
     const rawSuiteIds = Array.isArray((body as any).suiteIds) ? (body as any).suiteIds : Array.isArray((body as any).suite_ids) ? (body as any).suite_ids : [];
+    // UNION — explicit cases + suite cases, deduplicated.
+    // Previously this was if / else, so suites were ignored when any case was selected.
+    // Now both are collected. EMPTY = NONE still holds: if neither is selected, caseIds stays [].
     if (rawCaseIds.length) {
       const cRes = await fetch(`${url}/rest/v1/test_cases?project_id=eq.${projectId}&id=in.(${rawCaseIds.join(',')})&select=id`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }, cache: 'no-store' });
       const cRows = await cRes.json().catch(() => []);
-      caseIds = (cRows ?? []).map((c: any) => c.id);
-    } else if (rawSuiteIds.length) {
+      caseIds.push(...(cRows ?? []).map((c: any) => c.id));
+    }
+    if (rawSuiteIds.length) {
       const lRes = await fetch(`${url}/rest/v1/test_suite_cases?test_suite_id=in.(${rawSuiteIds.join(',')})&select=test_case_id`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }, cache: 'no-store' });
       const lRows = await lRes.json().catch(() => []);
       const ids = [...new Set((lRows ?? []).map((l: any) => l.test_case_id))];
       if (ids.length) {
         const cRes = await fetch(`${url}/rest/v1/test_cases?project_id=eq.${projectId}&id=in.(${ids.join(',')})&select=id`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }, cache: 'no-store' });
         const cRows = await cRes.json().catch(() => []);
-        caseIds = (cRows ?? []).map((c: any) => c.id);
+        caseIds.push(...(cRows ?? []).map((c: any) => c.id));
       }
-    } else {
-      // EMPTY = NONE — no cases selected means no executions, not ALL cases.
-      // Previously this fetched ALL cases in the project, which is why
-      // TC-P1-001 Run showed 29 cases when only 1 was meant.
-      caseIds = [];
     }
+    caseIds = [...new Set(caseIds)];
     if (!caseIds.length) return NextResponse.json({ testRun: run, testCaseCount: 0 }, { status: 201 });
     const execRes = await fetch(`${url}/rest/v1/test_executions`, { method: 'POST', headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(caseIds.map((id) => ({ test_run_id: run.id, test_case_id: id, organization_id: auth.organization_id, status: 'not_run' }))) });
     if (!execRes.ok) { await fetch(`${url}/rest/v1/test_runs?id=eq.${run.id}`, { method: 'DELETE', headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }); return NextResponse.json({ error: 'Could not initialize test executions for this run.' }, { status: 500 }); }
@@ -116,24 +116,23 @@ export async function POST(request: NextRequest) {
   }).select().single();
   if (runError || !run) return NextResponse.json({ error: runError?.message || 'Could not create the test run.' }, { status: 400 });
 
-  // Resolve cases: explicit caseIds > suiteIds > none
+  // Resolve cases: UNION of explicit caseIds + suiteIds, deduplicated
   let caseIds: string[] = [];
   const rawCaseIds = Array.isArray(body.caseIds) ? body.caseIds.filter((x): x is string => typeof x === 'string') : [];
   const rawSuiteIds = Array.isArray(body.suiteIds) ? body.suiteIds.filter((x): x is string => typeof x === 'string') : [];
   if (rawCaseIds.length) {
     const { data: cases } = await supabase.from('test_cases').select('id').eq('project_id', project.id).in('id', rawCaseIds);
-    caseIds = (cases ?? []).map((c: any) => c.id);
-  } else if (rawSuiteIds.length) {
-    const { data: links } = await supabase.from('test_suite_cases').select('test_case_id').in('test_suite_id', rawSuiteIds);
-    caseIds = [...new Set((links ?? []).map((l: any) => l.test_case_id))];
-    if (caseIds.length) {
-      const { data: cases } = await supabase.from('test_cases').select('id').eq('project_id', project.id).in('id', caseIds);
-      caseIds = (cases ?? []).map((c: any) => c.id);
-    }
-  } else {
-    // EMPTY = NONE — no cases selected means no executions, not ALL cases.
-    caseIds = [];
+    caseIds.push(...(cases ?? []).map((c: any) => c.id));
   }
+  if (rawSuiteIds.length) {
+    const { data: links } = await supabase.from('test_suite_cases').select('test_case_id').in('test_suite_id', rawSuiteIds);
+    const suiteCaseIds = [...new Set((links ?? []).map((l: any) => l.test_case_id))];
+    if (suiteCaseIds.length) {
+      const { data: cases } = await supabase.from('test_cases').select('id').eq('project_id', project.id).in('id', suiteCaseIds);
+      caseIds.push(...(cases ?? []).map((c: any) => c.id));
+    }
+  }
+  caseIds = [...new Set(caseIds)];
   if (!caseIds.length) {
     // Keep the empty run — UI shows "No cases" and user can add cases later via re-create. Do not fail.
     return NextResponse.json({ testRun: run, testCaseCount: 0 }, { status: 201 });
