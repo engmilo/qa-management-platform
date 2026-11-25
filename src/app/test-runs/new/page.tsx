@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { inputCls, labelCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
+import { inputCls, labelCls, FormField, FormSelect } from '@/components/ui/form-fields';
 
 type Project = { id: string; name: string };
 type Plan = { id: string; name: string; project_id?: string };
@@ -189,87 +189,96 @@ export default function NewTestRunPage() {
               
             </div>
 
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
-              <div className="px-6 py-4 dark:border-[#28374d]">
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Run</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Execute a test plan — per-step results included</p>
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+                <div className="px-6 py-4 dark:border-[#28374d]">
+                  <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Run</h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Execute a test plan — per-step results included</p>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  {error && (
+                    <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
+                  )}
+
+                  <FormSelect
+                    label="PROJECT *"
+                    value={projectId}
+                    onChange={handleProjectChange}
+                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="Select a project"
+                  />
+
+                  <FormField label="TEST RUN NAME *">
+                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Smoke Test — Build 1.0.4 - Run 2" className={inputCls} />
+                  </FormField>
+
+                  <FormSelect
+                    label="TEST PLAN *"
+                    value={planId}
+                    onChange={handlePlanChange}
+                    options={plansForProject.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder={plansLoading ? 'Loading test plans...' : plansError ? 'No test plans found' : 'Select a test plan'}
+                  />
+                  {plansError && !plansLoading && (
+                    <p className="text- text-amber-600 dark:text-amber-400 -mt-2">{plansError}</p>
+                  )}
+                  {!plansLoading && plansForProject.length > 0 && (
+                    <p className="text- text-slate-500 dark:text-slate-400 -mt-2">{plansForProject.length} plan(s) loaded</p>
+                  )}
+
+                  <div>
+                    <span className={labelCls}>SUITES (OPTIONAL — EMPTY = ALL)</span>
+                    <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
+                      {suitesForPlan.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No suites for this plan.</p>}
+                      {suitesForPlan.map((s) => (
+                        <label key={s.id} className="flex items-start gap-2 px-1 py-1 rounded hover:bg-slate-50 dark:hover:bg-[#1e2a3a] cursor-pointer">
+                          <input type="checkbox" checked={selectedSuites.includes(s.id)} onChange={() => toggleSuite(s.id)} className="mt-0.5 accent-[#48a43f]" />
+                          <span className="text-xs text-slate-700 dark:text-slate-200 leading-4">{s.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {selectedSuites.length > 0 && <p className="text- text-slate-500 dark:text-slate-400 mt-1">{selectedSuites.length} suite(s) selected</p>}
+                  </div>
+
+                  <div>
+                    <span className={labelCls}>TEST CASES (OPTIONAL — EMPTY = ALL)</span>
+                    <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
+                      {casesForPlan.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No test cases for this plan.</p>}
+                      {casesForPlan.map((c) => (
+                        <label key={c.id} className="flex items-start gap-2 px-1 py-1 rounded hover:bg-slate-50 dark:hover:bg-[#1e2a3a] cursor-pointer">
+                          <input type="checkbox" checked={selectedCases.includes(c.id)} onChange={() => toggleCase(c.id)} className="mt-0.5 accent-[#48a43f]" />
+                          <span className="text-xs text-slate-700 dark:text-slate-200 leading-4">{c.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {selectedCases.length > 0 && <p className="text- text-slate-500 dark:text-slate-400 mt-1">{selectedCases.length} case(s) selected</p>}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField label="ASSIGNED TO">
+                      <input value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} placeholder="e.g. Milo Haireche" className={inputCls} />
+                    </FormField>
+                    <FormField label="CONFIGURATION">
+                      <input value={configuration} onChange={(e) => setConfiguration(e.target.value)} placeholder="e.g. Chrome, Windows, Build 1.0.4" className={inputCls} />
+                    </FormField>
+                  </div>
+
+                  <FormField label="DESCRIPTION">
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What is this run for?" className={`${inputCls} resize-none overflow-hidden`} />
+                  </FormField>
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {error && (
-                  <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
-                )}
-
-                <FormSelect
-                  label="PROJECT *"
-                  value={projectId}
-                  onChange={handleProjectChange}
-                  options={projects.map((p) => ({ value: p.id, label: p.name }))}
-                  placeholder="Select a project"
-                />
-
-                <FormField label="TEST RUN NAME *">
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Smoke Test — Build 1.0.4 - Run 2" className={inputCls} />
-                </FormField>
-
-                <FormSelect
-                  label="TEST PLAN *"
-                  value={planId}
-                  onChange={handlePlanChange}
-                  options={plansForProject.map((p) => ({ value: p.id, label: p.name }))}
-                  placeholder={plansLoading ? 'Loading test plans...' : plansError ? 'No test plans found' : 'Select a test plan'}
-                />
-                {plansError && !plansLoading && (
-                  <p className="text- text-amber-600 dark:text-amber-400 -mt-2">{plansError}</p>
-                )}
-                {!plansLoading && plansForProject.length > 0 && (
-                  <p className="text- text-slate-500 dark:text-slate-400 -mt-2">{plansForProject.length} plan(s) loaded</p>
-                )}
-
-                <div>
-                  <span className={labelCls}>SUITES (OPTIONAL — EMPTY = ALL)</span>
-                  <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
-                    {suitesForPlan.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No suites for this plan.</p>}
-                    {suitesForPlan.map((s) => (
-                      <label key={s.id} className="flex items-start gap-2 px-1 py-1 rounded hover:bg-slate-50 dark:hover:bg-[#1e2a3a] cursor-pointer">
-                        <input type="checkbox" checked={selectedSuites.includes(s.id)} onChange={() => toggleSuite(s.id)} className="mt-0.5 accent-[#48a43f]" />
-                        <span className="text-xs text-slate-700 dark:text-slate-200 leading-4">{s.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {selectedSuites.length > 0 && <p className="text- text-slate-500 dark:text-slate-400 mt-1">{selectedSuites.length} suite(s) selected</p>}
-                </div>
-
-                <div>
-                  <span className={labelCls}>TEST CASES (OPTIONAL — EMPTY = ALL)</span>
-                  <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
-                    {casesForPlan.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No test cases for this plan.</p>}
-                    {casesForPlan.map((c) => (
-                      <label key={c.id} className="flex items-start gap-2 px-1 py-1 rounded hover:bg-slate-50 dark:hover:bg-[#1e2a3a] cursor-pointer">
-                        <input type="checkbox" checked={selectedCases.includes(c.id)} onChange={() => toggleCase(c.id)} className="mt-0.5 accent-[#48a43f]" />
-                        <span className="text-xs text-slate-700 dark:text-slate-200 leading-4">{c.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {selectedCases.length > 0 && <p className="text- text-slate-500 dark:text-slate-400 mt-1">{selectedCases.length} case(s) selected</p>}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="ASSIGNED TO">
-                    <input value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} placeholder="e.g. Milo Haireche" className={inputCls} />
-                  </FormField>
-                  <FormField label="CONFIGURATION">
-                    <input value={configuration} onChange={(e) => setConfiguration(e.target.value)} placeholder="e.g. Chrome, Windows, Build 1.0.4" className={inputCls} />
-                  </FormField>
-                </div>
-
-                <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What is this run for?" className={`${inputCls} resize-none overflow-hidden`} />
-                </FormField>
-
-                <FormActions submitLabel="Create Test Run" saving={saving} savingLabel="Creating..." cancelHref="/test-runs" />
-              </form>
-            </div>
+              <div className="flex gap-3 mt-6">
+                <button type="submit" disabled={saving} className="flex-1 bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2.5 rounded">
+                  {saving ? 'Creating...' : 'Create Test Run'}
+                </button>
+                <Link href="/test-runs" className="flex-1 bg-[#1f2937] hover:bg-[#111827] text-white text-xs font-normal py-2.5 rounded text-center flex items-center justify-center">
+                  Cancel
+                </Link>
+              </div>
+            </form>
           </div>
         </main>
       </div>
