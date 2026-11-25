@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRouteSupabaseClient } from '@/lib/supabase/route-client';
 import { requireOrgPermission, permissionError, UUID_RE } from '@/lib/auth/require-org-permission';
 import { validateApiKey, hasScope } from '@/lib/api-key-auth';
+import { checkApiKeyRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   const supabase = createRouteSupabaseClient();
@@ -23,6 +24,16 @@ export async function POST(request: NextRequest) {
     const auth = await validateApiKey(request as unknown as Request);
     if (!auth.valid) return NextResponse.json({ error: auth.error || 'Invalid or revoked API key' }, { status: 401 });
     if (!hasScope(auth.scopes || [], 'runs:write')) return NextResponse.json({ error: `Forbidden: scope required: runs:write, key has only: ${(auth.scopes || []).join(', ') || 'none'}` }, { status: 403 });
+    // REQ-106 — Rate limiting per API key, after auth + scope, before any DB work.
+    // Bucket is per API key id + endpoint, so one key hammering test-runs
+    // doesn't block other keys, and other endpoints don't share this bucket.
+    const rateLimit = checkApiKeyRateLimit(auth.apiKey?.id, auth.organization_id, 'test-runs:POST');
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: `Rate limit exceeded. Try again in ${rateLimit.retryAfter} seconds.` },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } }
+      );
+    }
     let body: Record<string, unknown>;
     try { body = await request.json(); } catch { return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 }); }
     const projectId = typeof (body as any).projectId === 'string' ? (body as any).projectId : typeof (body as any).project_id === 'string' ? (body as any).project_id : '';
@@ -133,4 +144,3 @@ export async function POST(request: NextRequest) {
   }
   return NextResponse.json({ testRun: run, testCaseCount: caseIds.length }, { status: 201 });
 }
-
