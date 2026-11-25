@@ -228,7 +228,7 @@ export default function NewTestRunPage() {
                   )}
 
                   <div>
-                    <span className={labelCls}>SUITES (OPTIONAL — EMPTY = ALL)</span>
+                    <span className={labelCls}>SUITES (OPTIONAL — EMPTY = NONE)</span>
                     <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
                       {suitesForPlan.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No suites for this plan.</p>}
                       {suitesForPlan.map((s) => (
@@ -242,7 +242,7 @@ export default function NewTestRunPage() {
                   </div>
 
                   <div>
-                    <span className={labelCls}>TEST CASES (OPTIONAL — EMPTY = ALL)</span>
+                    <span className={labelCls}>TEST CASES (OPTIONAL — EMPTY = NONE)</span>
                     <div className="border border-[#d8dee4] dark:border-[#28374d] rounded bg-white dark:bg-[#101622] max-h-40 overflow-y-auto p-2 space-y-1">
                       {casesForPlan.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 px-1 py-1">No test cases for this plan.</p>}
                       {casesForPlan.map((c) => (
