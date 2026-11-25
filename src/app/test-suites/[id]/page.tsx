@@ -4,16 +4,16 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
-// Text icons only, same look as Test Plans confirmation. No vector icons - copy-paste safe.
+// Text icons only - copy-paste safe, no vector tags that get stripped
 const WarningIcon = () => (
   <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
-    <span className="text-lg leading-none">⚠</span>
+    <span className="text-lg leading-none">!</span>
   </div>
 );
 const TrashIcon = () => (
-  <span aria-hidden="true" className="text-sm leading-none">🗑</span>
+  <span aria-hidden="true" className="text-sm leading-none">x</span>
 );
-const plainRedBtn = "inline-flex items-center gap-1 text-xs font-normal text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer";
+const plainRedBtn = "inline-flex items-center gap-1 text-xs font-normal text-red-500 hover:text-red-400 bg-transparent border-0 px-2 py-1 cursor-pointer whitespace-nowrap shrink-0";
 
 export default function TestSuiteDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -23,13 +23,12 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
   const [selected, setSelected] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState('');
-  const [saveMsgIsError, setSaveMsgIsError] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [deleteMsg, setDeleteMsg] = useState('');
   const [showRemove, setShowRemove] = useState(false);
   const [caseToRemove, setCaseToRemove] = useState<any>(null);
   const [form, setForm] = useState({ name: '', description: '' });
+  const [inlineError, setInlineError] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -78,29 +77,25 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
 
   const save = async () => {
     setSaving(true);
-    setSaveMsg('');
-    setSaveMsgIsError(false);
+    setInlineError('');
     try {
       const res = await fetch(`/api/test-suites/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
-      setSaveMsg('Saved.');
-      setSaveMsgIsError(false);
-      setTimeout(() => setSaveMsg(''), 4000);
+      setSavedFlash(true);
+      setTimeout(() => setSavedFlash(false), 2000);
     } catch (e: any) {
-      setSaveMsg(e?.message || 'Save failed');
-      setSaveMsgIsError(true);
+      setInlineError(e?.message || 'Save failed');
     } finally { setSaving(false); }
   };
   const doDelete = async () => {
-    setDeleteMsg('');
     try {
       const res = await fetch(`/api/test-suites/${id}`, { method: 'DELETE' });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Delete failed');
       window.location.href = '/test-suites';
     } catch (e: any) {
-      setDeleteMsg(e?.message || 'Delete failed');
+      setInlineError(e?.message || 'Delete failed');
     }
   };
   const addCase = async () => {
@@ -108,8 +103,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
     const found = allCases.find((c: any) => String(c.id) === String(selected));
     if (!found) return;
     if (cases.find((c: any) => String(c.id) === String(found.id))) { setSelected(''); return; }
-    setSaveMsg('');
-    setSaveMsgIsError(false);
+    setInlineError('');
     try {
       const res = await fetch(`/api/test-suites/${id}/cases`, {
         method: 'POST',
@@ -121,8 +115,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
       setCases([...cases, found]);
       setSelected('');
     } catch (e: any) {
-      setSaveMsg(e?.message || 'Could not add case.');
-      setSaveMsgIsError(true);
+      setInlineError(e?.message || 'Could not add case.');
     }
   };
   const doRemove = async () => {
@@ -138,8 +131,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
       if (!res.ok) throw new Error(j.error || 'Could not remove case.');
     } catch (e: any) {
       setCases(keep);
-      setSaveMsg(e?.message || 'Could not remove case.');
-      setSaveMsgIsError(true);
+      setInlineError(e?.message || 'Could not remove case.');
     }
   };
 
@@ -154,8 +146,8 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="w-full max-w-3xl mx-auto">
-            <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Suites</Link>
+          <div className="w-full mx-auto">
+            <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">Back to Test Suites</Link>
             <span className="text-xs font-normal text-slate-500 dark:text-slate-400"> / {form.name}</span>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
               <div className="flex items-start justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700/50">
@@ -168,21 +160,21 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
               <div className="px-5 py-4 space-y-4">
                 <div><label className={labelCls}>Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls + ' mt-1'} /></div>
                 <div><label className={labelCls}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} /></div>
-                <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : 'Save Changes'}</button>
-                {saveMsg && <p className={`text-xs font-normal ${saveMsgIsError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>{saveMsg}</p>}
+                <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : savedFlash ? 'Saved' : 'Save Changes'}</button>
+                {inlineError && <p className="text-xs font-normal text-red-600 dark:text-red-400">{inlineError}</p>}
               </div>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-5 mt-4">
               <h2 className="text-xs font-normal text-slate-900 dark:text-white">Test Cases in this Suite</h2>
               <div className="flex gap-2 mt-3">
                 <select value={selected} onChange={(e) => setSelected(e.target.value)} className={inputCls + ' flex-1'}><option value="">Select a test case to add...</option>{allCases.map((c: any) => (<option key={c.id} value={String(c.id)}>{c.case_key ?? c.code} - {c.title}</option>))}</select>
-                <button onClick={addCase} className="text-xs font-normal bg-slate-600 hover:bg-slate-700 text-white rounded px-3 py-2 shrink-0">Add<br />Case</button>
+                <button onClick={addCase} className="text-xs font-normal bg-[#276fbf] hover:bg-[#1f5a9a] disabled:opacity-50 text-white rounded px-3.5 py-2 shrink-0">Add Case</button>
               </div>
               <div className="mt-3 space-y-2">
                 {cases.map((c: any) => (
                   <div key={c.id} className="flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
-                    <Link href={`/test-cases/${c.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline flex-1 min-w-0">{c.case_key ?? c.code} - {c.title}</Link>
-                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={plainRedBtn + " whitespace-nowrap shrink-0"}><span aria-hidden="true" className="text-sm leading-none">×</span><span>Remove</span></button>
+                    <Link href={`/test-cases/${c.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline flex-1 min-w-0 truncate">{c.case_key ?? c.code} - {c.title}</Link>
+                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={plainRedBtn}><span aria-hidden="true" className="text-sm leading-none">x</span><span>Remove</span></button>
                   </div>
                 ))}
                 {cases.length === 0 && <p className="text-xs font-normal text-slate-500">No test cases in this suite yet.</p>}
@@ -192,10 +184,10 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         </main>
       </div>
       {showDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Delete this test suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will permanently delete this suite and unlink its test cases. The test cases themselves are kept. This cannot be undone.</p>{deleteMsg && <p className="text-xs font-normal text-red-600 mt-2">{deleteMsg}</p>}</div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowDelete(false); setDeleteMsg(''); }} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doDelete} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Delete suite</button></div></div></div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Delete this test suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will permanently delete this suite and unlink its test cases. The test cases themselves are kept. This cannot be undone.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => setShowDelete(false)} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doDelete} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Delete suite</button></div></div></div>
       )}
       {showRemove && caseToRemove && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this test case from the suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will remove {caseToRemove.case_key ?? caseToRemove.code} - {caseToRemove.title} from this suite. The test case itself is kept, you can add it back later. This cannot be undone, but you can re-add it.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doRemove} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Remove case</button></div></div></div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white dark:bg-[#182232] rounded-lg p-5 w-full max-w-md shadow-xl"><div className="flex gap-3"><WarningIcon /><div className="flex-1 min-w-0"><h3 className="text-sm font-semibold text-slate-900 dark:text-white">Remove this test case from the suite?</h3><p className="text-xs font-normal text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">This will remove {caseToRemove.case_key ?? caseToRemove.code} - {caseToRemove.title} from this suite. The test case itself is kept, you can add it back later.</p></div></div><div className="flex gap-2 mt-5 justify-end"><button onClick={() => { setShowRemove(false); setCaseToRemove(null); }} className="text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-md px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button><button onClick={doRemove} className="text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-md px-3.5 py-2">Remove case</button></div></div></div>
       )}
     </div>
   );
