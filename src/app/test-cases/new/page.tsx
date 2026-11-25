@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { inputCls, labelCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
+import { inputCls, labelCls, FormField, FormSelect } from '@/components/ui/form-fields';
 import { AlertTriangle, X } from 'lucide-react';
 
 type Project = { id: string; name: string };
@@ -304,7 +304,10 @@ export default function NewTestCasePage() {
                   </div>
                 )}
 
-                <FormActions submitLabel="Add Test Case" saving={saving} savingLabel="Adding..." cancelHref="/test-cases" />
+                <div className="flex gap-2">
+                  <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-2.5 text-center">{saving ? 'Adding...' : 'Add Test Case'}</button>
+                  <Link href="/test-cases" className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 text-center hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
+                </div>
               </form>
             </div>
           </div>
