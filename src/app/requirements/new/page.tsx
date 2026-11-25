@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { inputCls, FormField, FormSelect, FormActions } from '@/components/ui/form-fields';
+import { inputCls, FormField, FormSelect } from '@/components/ui/form-fields';
 
 type Project = { id: string; name: string };
 
@@ -93,85 +93,90 @@ export default function NewRequirementPage() {
               <Link href="/requirements" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Requirements</Link>
             </div>
 
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-visible">
-              <div className="px-6 py-4 dark:border-[#28374d]">
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Requirement</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Define what the system must do</p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {error && (
-                  <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
-                )}
-
-                <FormSelect
-                  label="PROJECT *"
-                  value={projectId}
-                  onChange={setProjectId}
-                  options={projects.map((p) => ({ value: p.id, label: p.name }))}
-                  placeholder="Select a project"
-                />
-
-                <FormField label="REQUIREMENT KEY *">
-                  <input value={reqKey} onChange={(e) => setReqKey(e.target.value)} placeholder="e.g. REQ-101" className={inputCls} />
-                </FormField>
-
-                <FormField label="TITLE *">
-                  <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. User can log in with email and password" className={inputCls} />
-                </FormField>
-
-                <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} placeholder="Detailed description, acceptance criteria, edge cases..." className={`${inputCls} resize-none overflow-hidden`} />
-                </FormField>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <FormSelect
-                    label="TYPE"
-                    value={type}
-                    onChange={setType}
-                    options={[
-                      { value: 'functional', label: 'Functional' },
-                      { value: 'non_functional', label: 'Non Functional' },
-                      { value: 'business', label: 'Business' },
-                      { value: 'technical', label: 'Technical' },
-                      { value: 'user_story', label: 'User Story' },
-                      { value: 'performance', label: 'Performance' },
-                      { value: 'security', label: 'Security' },
-                      { value: 'automation', label: 'Automation' },
-                      { value: 'regression', label: 'Regression' },
-                      { value: 'e2e', label: 'E2E' },
-                    ]}
-                  />
-                  <FormSelect
-                    label="PRIORITY"
-                    value={priority}
-                    onChange={setPriority}
-                    options={[
-                      { value: 'low', label: 'Low' },
-                      { value: 'medium', label: 'Medium' },
-                      { value: 'high', label: 'High' },
-                      { value: 'critical', label: 'Critical' },
-                    ]}
-                  />
-                  <FormSelect
-                    label="STATUS"
-                    value={status}
-                    onChange={setStatus}
-                    options={[
-                      { value: 'draft', label: 'Draft' },
-                      { value: 'under_review', label: 'Under Review' },
-                      { value: 'in_review', label: 'In Review' },
-                      { value: 'approved', label: 'Approved' },
-                      { value: 'implemented', label: 'Implemented' },
-                      { value: 'verified', label: 'Verified' },
-                      { value: 'rejected', label: 'Rejected' },
-                    ]}
-                  />
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-visible">
+                <div className="px-6 py-4 dark:border-[#28374d]">
+                  <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Requirement</h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Define what the system must do</p>
                 </div>
 
-                <FormActions submitLabel="Add Requirement" saving={saving} savingLabel="Adding..." cancelHref="/requirements" />
-              </form>
-            </div>
+                <div className="p-6 space-y-4">
+                  {error && (
+                    <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
+                  )}
+
+                  <FormSelect
+                    label="PROJECT *"
+                    value={projectId}
+                    onChange={setProjectId}
+                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="Select a project"
+                  />
+
+                  <FormField label="REQUIREMENT KEY *">
+                    <input value={reqKey} onChange={(e) => setReqKey(e.target.value)} placeholder="e.g. REQ-101" className={inputCls} />
+                  </FormField>
+
+                  <FormField label="TITLE *">
+                    <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. User can log in with email and password" className={inputCls} />
+                  </FormField>
+
+                  <FormField label="DESCRIPTION">
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} placeholder="Detailed description, acceptance criteria, edge cases..." className={`${inputCls} resize-none overflow-hidden`} />
+                  </FormField>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <FormSelect
+                      label="TYPE"
+                      value={type}
+                      onChange={setType}
+                      options={[
+                        { value: 'functional', label: 'Functional' },
+                        { value: 'non_functional', label: 'Non Functional' },
+                        { value: 'business', label: 'Business' },
+                        { value: 'technical', label: 'Technical' },
+                        { value: 'user_story', label: 'User Story' },
+                        { value: 'performance', label: 'Performance' },
+                        { value: 'security', label: 'Security' },
+                        { value: 'automation', label: 'Automation' },
+                        { value: 'regression', label: 'Regression' },
+                        { value: 'e2e', label: 'E2E' },
+                      ]}
+                    />
+                    <FormSelect
+                      label="PRIORITY"
+                      value={priority}
+                      onChange={setPriority}
+                      options={[
+                        { value: 'low', label: 'Low' },
+                        { value: 'medium', label: 'Medium' },
+                        { value: 'high', label: 'High' },
+                        { value: 'critical', label: 'Critical' },
+                      ]}
+                    />
+                    <FormSelect
+                      label="STATUS"
+                      value={status}
+                      onChange={setStatus}
+                      options={[
+                        { value: 'draft', label: 'Draft' },
+                        { value: 'under_review', label: 'Under Review' },
+                        { value: 'in_review', label: 'In Review' },
+                        { value: 'approved', label: 'Approved' },
+                        { value: 'implemented', label: 'Implemented' },
+                        { value: 'verified', label: 'Verified' },
+                        { value: 'rejected', label: 'Rejected' },
+                      ]}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Adding...' : 'Add Requirement'}</button>
+                <Link href="/requirements" className="flex-1 text-center text-xs font-normal border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
+              </div>
+            </form>
           </div>
         </main>
       </div>
