@@ -4,15 +4,15 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
-// Unified confirmation — EXACT same as Step 1 Test Plans v2:
-// Title text-sm font-semibold, Body text-xs font-normal, Buttons text-xs font-medium
+// Text icons only, same look as Test Plans confirmation. No vector icons - copy-paste safe.
 const WarningIcon = () => (
-  <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true"[STRIPPED 17 bytes]"20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+  <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
+    <span className="text-lg leading-none">⚠</span>
   </div>
 );
-const[STRIPPED 34 bytes]"14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+const TrashIcon = () => (
+  <span aria-hidden="true" className="text-sm leading-none">🗑</span>
 );
-// Page Delete / Remove buttons: normal font-medium, NOT bold — matches Test Plans preference
 const plainRedBtn = "inline-flex items-center gap-1 text-xs font-normal text-red-500 hover:text-red-400 bg-transparent border-0 p-0 cursor-pointer";
 
 export default function TestSuiteDetailPage({ params }: { params: { id: string } }) {
