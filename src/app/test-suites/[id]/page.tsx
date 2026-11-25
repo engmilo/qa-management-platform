@@ -13,8 +13,11 @@ const WarningIcon = () => (
 const BinIcon = () => (
   <span aria-hidden="true" className="text-sm leading-none">🗑</span>
 );
-// Remove EXACT like Test Cases detail: solid red, white text, just Remove, no x, no border, no translucent
+// Remove EXACT like Test Cases detail: solid red, white text, just Remove, no x
 const removeSolidBtn = "shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3.5 py-2 rounded cursor-pointer whitespace-nowrap";
+// Saved banner EXACT like Project Details: subtle dark green tint, thin green border, green text, inside card
+const savedBannerCls = "w-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-normal rounded px-3 py-2.5";
+const errorBannerCls = "w-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-normal rounded px-3 py-2.5";
 
 export default function TestSuiteDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -148,8 +151,6 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full mx-auto">
-            {savedFlash && <div className="w-full bg-green-600 text-white text-xs font-normal rounded px-4 py-2.5 mb-3">Saved.</div>}
-            {inlineError && <div className="w-full bg-red-600 text-white text-xs font-normal rounded px-4 py-2.5 mb-3">{inlineError}</div>}
             <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">Back to Test Suites</Link>
             <span className="text-xs font-normal text-slate-500 dark:text-slate-400"> / {form.name}</span>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
@@ -161,6 +162,8 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
                 <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1.5 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><BinIcon /><span>Delete</span></button>
               </div>
               <div className="px-5 py-4 space-y-4">
+                {savedFlash && <div className={savedBannerCls}>Saved.</div>}
+                {inlineError && <div className={errorBannerCls}>{inlineError}</div>}
                 <div><label className={labelCls}>Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls + ' mt-1'} /></div>
                 <div><label className={labelCls}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} /></div>
               </div>
