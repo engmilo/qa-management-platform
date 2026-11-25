@@ -78,7 +78,7 @@ export default function TestRunDetailPage() {
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Save failed');
-      setStepMsg((p) => ({ ...p, [execId]: `Saved. Overall: ${String(j.overall ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}` }));
+      setStepMsg((p) => ({ ...p, [execId]: `Saved. Overall: ${String(j.overall ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}` }));
       setTimeout(() => { setStepMsg((p) => { const n = { ...p }; delete n[execId]; return n; }); }, 4000);
       await load();
     } catch (e: any) {
@@ -158,7 +158,7 @@ export default function TestRunDetailPage() {
                 <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{run?.project_name ? `${run.project_name} · ` : ''}{run?.created_at ? new Date(run.created_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2 items-center">{runMsg && <span className="text-xs font-normal text-red-600">{runMsg}</span>}
-                <span className={`inline-block px-3 py-1.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{(run?.status ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
+                <span className={`inline-block px-3 py-1.5 rounded text-xs font-normal ${isCompleted ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}`}>{(run?.status ?? '').replaceAll('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</span>
                 {isCompleted && <button onClick={() => setRunStatus('in_progress')} disabled={reopening} className="text-xs font-normal bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1.5 disabled:opacity-50">{reopening ? 'Reopening...' : 'Reopen Run'}</button>}
                 <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1 text-xs font-normal bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded px-3 py-1.5"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                 <Link href="/test-runs/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Run</Link>
@@ -190,7 +190,7 @@ export default function TestRunDetailPage() {
                       <React.Fragment key={ex.id}>
                         <tr className="border-t border-slate-200 dark:border-slate-700/50 align-top">
                           <td className="px-4 py-3 font-normal"><Link href={`/test-cases/${ex.test_case_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{code ? `${code} — ${title || 'Untitled'}` : title}</Link></td>
-                          <td className="px-4 py-3 font-normal"><span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${badge(ex.status)}`}>{ex.status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span></td>
+                          <td className="px-4 py-3 font-normal"><span className={`inline-block px-2 py-0.5 rounded text-xs font-normal ${badge(ex.status)}`}>{ex.status.replaceAll('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</span></td>
                           <td className="px-4 py-3 font-normal"><button onClick={() => toggleSteps(ex.id)} className="font-normal text-blue-600 dark:text-blue-400 hover:underline">{open ? 'Hide steps ▲' : 'View steps ▼'}</button></td>
                         </tr>
                         {open && (
@@ -210,12 +210,7 @@ export default function TestRunDetailPage() {
                                       <textarea disabled={isCompleted} value={s.actual_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], actual_result: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} placeholder="Actual result..." rows={1} style={{ overflow: 'hidden', resize: 'none' }} className="w-full mt-2 text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5" />
                                     </div>
                                   ))}
-                                  {isCompleted ? <p className="font-normal text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p> : (
-                                    <div className="flex gap-2 items-center">
-                                      <button onClick={() => saveSteps(ex.id)} disabled={!!savingSteps[ex.id]} className="text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-1.5">{savingSteps[ex.id] ? 'Saving...' : 'Save Steps'}</button>
-                                      {stepMsg[ex.id] && <span className={`inline-block p-2 border rounded text-xs font-normal ${stepMsg[ex.id].toLowerCase().includes('fail') || stepMsg[ex.id].toLowerCase().includes('error') ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900' : 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900'}`}>{stepMsg[ex.id]}</span>}
-                                    </div>
-                                  )}
+                                  {isCompleted && <p className="font-normal text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p>}
                                 </div>
                               )}
                             </td>
@@ -228,6 +223,19 @@ export default function TestRunDetailPage() {
                 </tbody>
               </table>
             </div>
+
+            {!isCompleted && sortedExecs.filter((ex) => expanded[ex.id] && (stepsByExec[ex.id]?.length ?? 0) > 0).map((ex) => {
+              const tc = caseById[String(ex.test_case_id)] ?? ex.test_case ?? {};
+              const code = tc.case_key ?? tc.code ?? '';
+              return (
+                <div key={ex.id}>
+                  <button onClick={() => saveSteps(ex.id)} disabled={!!savingSteps[ex.id]} className="mt-6 w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2.5 rounded">
+                    {savingSteps[ex.id] ? 'Saving...' : code ? `Save Steps — ${code}` : 'Save Steps'}
+                  </button>
+                  {stepMsg[ex.id] && <span className={`inline-block w-full mt-2 p-2 border rounded text-xs font-normal ${stepMsg[ex.id].toLowerCase().includes('fail') || stepMsg[ex.id].toLowerCase().includes('error') ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900' : 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900'}`}>{stepMsg[ex.id]}</span>}
+                </div>
+              );
+            })}
           </div>
         </main>
       </div>
