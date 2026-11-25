@@ -188,9 +188,7 @@ export default function SettingsPage() {
                 <div>
                   <label className="block text-xs font-normal mb-1.5 text-slate-900 dark:text-white">ORGANIZATION NAME *</label>
                   <input value={orgName} onChange={(e) => { setOrgName(e.target.value); setOrgSaved(false); }} disabled={!isOrgAdmin} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded px-3 py-2 text-xs font-normal disabled:opacity-60" />
-                  {isOrgAdmin ? (
-                    <button type="button" onClick={saveOrg} disabled={savingOrg} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded mt-2">{savingOrg ? 'Saving...' : 'Save Changes'}</button>
-                  ) : (
+                  {!isOrgAdmin && (
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-2">Only Org Admin can change the organization name.</p>
                   )}
                 </div>
@@ -297,6 +295,10 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+
+            {isOrgAdmin && (
+              <button type="button" onClick={saveOrg} disabled={savingOrg} className="mt-6 w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{savingOrg ? 'Saving...' : 'Save Changes'}</button>
+            )}
           </div>
         </main>
       </div>
