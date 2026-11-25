@@ -18,7 +18,6 @@ export default function ProfilePage() {
   // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
   useEffect(() => { if (!message) return; const t = setTimeout(() => setMessage(''), 4000); return () => clearTimeout(t); }, [message]);
 
-
   useEffect(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,36 +71,38 @@ export default function ProfilePage() {
             {loading ? (
               <p className="text-xs text-slate-500">Loading profile...</p>
             ) : (
-              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="w-12 h-12 rounded-full bg-[#276fbf] text-white text-sm font-normal flex items-center justify-center">{initials}</span>
-                  <div>
-                    <p className="text-sm font-normal text-slate-900 dark:text-white">{fullName || 'No name set'}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{email}</p>
-                    {createdAt && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Member since {createdAt}</p>}
+              <form onSubmit={handleSave}>
+                <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="w-12 h-12 rounded-full bg-[#276fbf] text-white text-sm font-normal flex items-center justify-center">{initials}</span>
+                    <div>
+                      <p className="text-sm font-normal text-slate-900 dark:text-white">{fullName || 'No name set'}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{email}</p>
+                      {createdAt && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Member since {createdAt}</p>}
+                    </div>
+                  </div>
+
+                  {message && <div className="mb-4 p-2.5 text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded">{message}</div>}
+                  {error && <div className="mb-4 p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>}
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">FULL NAME</label>
+                      <input value={fullName} onChange={(e) => setFullName(e.target.value)}
+                        className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-[#276fbf]" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">EMAIL ADDRESS</label>
+                      <input value={email} disabled
+                        className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-slate-50 dark:bg-slate-800/50 rounded font-normal px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed" />
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed here.</p>
+                    </div>
                   </div>
                 </div>
-
-                {message && <div className="mb-4 p-2.5 text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded">{message}</div>}
-                {error && <div className="mb-4 p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>}
-
-                <form onSubmit={handleSave} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">FULL NAME</label>
-                    <input value={fullName} onChange={(e) => setFullName(e.target.value)}
-                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-[#276fbf]" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-normal text-slate-700 dark:text-slate-300 mb-1.5">EMAIL ADDRESS</label>
-                    <input value={email} disabled
-                      className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-slate-50 dark:bg-slate-800/50 rounded font-normal px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed" />
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed here.</p>
-                  </div>
-                  <button type="submit" disabled={saving} className="bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-normal px-4 py-2 rounded disabled:opacity-50">
-                    {saving ? 'Saving...' : 'Save changes'}
-                  </button>
-                </form>
-              </div>
+                <button type="submit" disabled={saving} className="mt-6 w-full bg-[#48a43f] hover:bg-[#3c8b34] text-white text-xs font-normal px-3 py-2.5 rounded disabled:opacity-50">
+                  {saving ? 'Saving...' : 'Save changes'}
+                </button>
+              </form>
             )}
           </div>
         </main>
