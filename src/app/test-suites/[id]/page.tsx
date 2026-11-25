@@ -152,11 +152,11 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
         <main className="flex-1 overflow-y-auto p-6">
           <div className="w-full mx-auto">
             <Link href="/test-suites" className="text-xs font-normal text-blue-600 dark:text-blue-400 hover:underline">← Test Suites</Link>
-            <span className="text-xs font-normal text-slate-500 dark:text-slate-400"> / {form.name}</span>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white mt-2">{form.name}</h1>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-3">
               <div className="flex items-start justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700/50">
                 <div>
-                  <h1 className="text-base font-bold text-slate-900 dark:text-white">{form.name}</h1>
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white">Test Suite Details</h2>
                   <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{cases.length} test case(s)</p>
                 </div>
                 <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1.5 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><BinIcon /><span>Delete</span></button>
