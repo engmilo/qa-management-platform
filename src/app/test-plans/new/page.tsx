@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { inputCls, FormField, FormSelect, DateField, FormActions } from '@/components/ui/form-fields';
+import { inputCls, FormField, FormSelect, DateField } from '@/components/ui/form-fields';
 
 type Project = { id: string; name: string };
 type Milestone = { id: string; name: string };
@@ -116,62 +116,67 @@ export default function NewTestPlanPage() {
               <Link href="/test-plans" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Plans</Link>
             </div>
 
-            <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
-              <div className="px-6 py-4 dark:border-[#28374d]">
-                <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Plan</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Plan a set of test cases for a release</p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {error && (
-                  <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
-                )}
-
-                <FormSelect
-                  label="PROJECT *"
-                  value={projectId}
-                  onChange={setProjectId}
-                  options={projects.map((p) => ({ value: p.id, label: p.name }))}
-                  placeholder="Select a project"
-                />
-
-                <FormSelect
-                  label="MILESTONE (OPTIONAL)"
-                  value={milestoneId}
-                  onChange={setMilestoneId}
-                  options={milestones.map((m) => ({ value: m.id, label: m.name }))}
-                  placeholder="No milestone"
-                />
-
-                <FormField label="TEST PLAN NAME *">
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Smoke Test — Build 1.0.4" className={inputCls} />
-                </FormField>
-
-                <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What will this plan cover?" className={`${inputCls} resize-none overflow-hidden`} />
-                </FormField>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <FormSelect
-                    label="STATUS"
-                    value={status}
-                    onChange={setStatus}
-                    options={[
-                      { value: 'active', label: 'Active' },
-                      { value: 'draft', label: 'Draft' },
-                      { value: 'planning', label: 'Planning' },
-                      { value: 'in_progress', label: 'In Progress' },
-                      { value: 'completed', label: 'Completed' },
-                      { value: 'archived', label: 'Archived' },
-                    ]}
-                  />
-                  <DateField label="START DATE" value={startDate} onChange={setStartDate} />
-                  <DateField label="END DATE" value={endDate} onChange={setEndDate} />
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-hidden">
+                <div className="px-6 py-4 dark:border-[#28374d]">
+                  <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Plan</h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Plan a set of test cases for a release</p>
                 </div>
 
-                <FormActions submitLabel="Add Test Plan" saving={saving} savingLabel="Adding..." cancelHref="/test-plans" />
-              </form>
-            </div>
+                <div className="p-6 space-y-4">
+                  {error && (
+                    <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
+                  )}
+
+                  <FormSelect
+                    label="PROJECT *"
+                    value={projectId}
+                    onChange={setProjectId}
+                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="Select a project"
+                  />
+
+                  <FormSelect
+                    label="MILESTONE (OPTIONAL)"
+                    value={milestoneId}
+                    onChange={setMilestoneId}
+                    options={milestones.map((m) => ({ value: m.id, label: m.name }))}
+                    placeholder="No milestone"
+                  />
+
+                  <FormField label="TEST PLAN NAME *">
+                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Smoke Test — Build 1.0.4" className={inputCls} />
+                  </FormField>
+
+                  <FormField label="DESCRIPTION">
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What will this plan cover?" className={`${inputCls} resize-none overflow-hidden`} />
+                  </FormField>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <FormSelect
+                      label="STATUS"
+                      value={status}
+                      onChange={setStatus}
+                      options={[
+                        { value: 'active', label: 'Active' },
+                        { value: 'draft', label: 'Draft' },
+                        { value: 'planning', label: 'Planning' },
+                        { value: 'in_progress', label: 'In Progress' },
+                        { value: 'completed', label: 'Completed' },
+                        { value: 'archived', label: 'Archived' },
+                      ]}
+                    />
+                    <DateField label="START DATE" value={startDate} onChange={setStartDate} />
+                    <DateField label="END DATE" value={endDate} onChange={setEndDate} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Adding...' : 'Add Test Plan'}</button>
+                <Link href="/test-plans" className="flex-1 text-center text-xs font-normal border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
+              </div>
+            </form>
           </div>
         </main>
       </div>
