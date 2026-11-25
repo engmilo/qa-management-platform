@@ -39,7 +39,6 @@ export default function DefectDetailPage() {
   // AUTO_DISMISS_BANNERS - success banners disappear after 4s, no refresh needed
   useEffect(() => { if (!saved) return; const t = setTimeout(() => setSaved(false), 4000); return () => clearTimeout(t); }, [saved]);
 
-
   const load = async () => {
     const res = await fetch(`/api/defects/${id}`, { cache: "no-store" });
     const data = await res.json();
@@ -118,56 +117,58 @@ export default function DefectDetailPage() {
                         {saved && <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900 rounded text-xs">Saved.</div>}
 
             {defect && (
-              <form onSubmit={save} className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
-                <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
-                  <div>
-                    <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
-                    <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">Defect Details</h2>
-                    <p className="text-xs text-slate-500 mt-1 font-normal">Created {defect?.created_at ? new Date(defect.created_at).toLocaleString() : ""}</p>
-                  </div>
-                  <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
-                </div>
-
-                <div className="p-6 space-y-5">
-                  <div><label className="block text-xs font-normal mb-1.5">Summary *</label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div><label className="block text-xs font-normal mb-1.5">Severity</label><select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="critical">Critical</option><option value="major">Major</option><option value="minor">Minor</option><option value="trivial">Trivial</option><option value="blocker">Blocker</option></select></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="new">New</option><option value="open">Open</option><option value="in_progress">In Progress</option><option value="fixed">Fixed</option><option value="ready_for_retest">Ready For Retest</option><option value="closed">Closed</option><option value="rejected">Rejected</option></select></div>
-                  </div>
-                  <div><label className="block text-xs font-normal mb-1.5">Environment</label><input value={form.environment} onChange={(e) => setForm({ ...form, environment: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                  <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="block text-xs font-normal">STEPS TO REPRODUCE</label>
-                      <button type="button" onClick={addStep} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
+              <form onSubmit={save}>
+                <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm overflow-hidden">
+                  <div className="dark:bg-[#141d28] px-6 py-4 flex justify-between items-start">
+                    <div>
+                      <span className="inline-flex bg-[#1e2a3d] text-blue-300 text-xs px-2 py-0.5 rounded font-normal">{defect?.key ?? defect?.defect_key ?? "ZAM-1"}</span>
+                      <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0 mt-2">Defect Details</h2>
+                      <p className="text-xs text-slate-500 mt-1 font-normal">Created {defect?.created_at ? new Date(defect.created_at).toLocaleString() : ""}</p>
                     </div>
-                    <div className="space-y-2">
-                      {steps.length === 0 ? <p className="text-xs text-slate-500 dark:text-slate-400">No steps yet. Click + Add Step.</p> : steps.map((step, index) => (
-                        <div key={index} className="flex items-start gap-2">
-                          <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
-                          <textarea value={step} onChange={(e) => updateStep(index, e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} rows={1} placeholder="Step" className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
-                          {/* Remove - NO bin icon, text only, still red + confirmation */}
-                          <button
-                            type="button"
-                            onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }}
-                            style={{ fontWeight: 400 }}
-                            className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                    <button style={{ fontWeight: 400 }} type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-xs font-normal mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                  <div className="p-6 space-y-5">
+                    <div><label className="block text-xs font-normal mb-1.5">Summary *</label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} required className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div><label className="block text-xs font-normal mb-1.5">Severity</label><select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="critical">Critical</option><option value="major">Major</option><option value="minor">Minor</option><option value="trivial">Trivial</option><option value="blocker">Blocker</option></select></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="new">New</option><option value="open">Open</option><option value="in_progress">In Progress</option><option value="fixed">Fixed</option><option value="ready_for_retest">Ready For Retest</option><option value="closed">Closed</option><option value="rejected">Rejected</option></select></div>
+                    </div>
+                    <div><label className="block text-xs font-normal mb-1.5">Environment</label><input value={form.environment} onChange={(e) => setForm({ ...form, environment: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-xs font-normal">STEPS TO REPRODUCE</label>
+                        <button type="button" onClick={addStep} className="inline-flex items-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-normal text-xs px-2.5 py-1 rounded">+ Add Step</button>
+                      </div>
+                      <div className="space-y-2">
+                        {steps.length === 0 ? <p className="text-xs text-slate-500 dark:text-slate-400">No steps yet. Click + Add Step.</p> : steps.map((step, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
+                            <textarea value={step} onChange={(e) => updateStep(index, e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} rows={1} placeholder="Step" className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
+                            {/* Remove - NO bin icon, text only, still red + confirmation */}
+                            <button
+                              type="button"
+                              onClick={() => { setStepToRemove(index); setShowRemoveStepConfirm(true); }}
+                              style={{ fontWeight: 400 }}
+                              className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><label className="block text-xs font-normal mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                    </div>
                   </div>
-                  <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? "Saving..." : "Save Changes"}</button>
                 </div>
+                <button disabled={saving} className="mt-6 w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? "Saving..." : "Save Changes"}</button>
               </form>
             )}
           </div>
