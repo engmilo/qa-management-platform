@@ -9,8 +9,8 @@ import { inputCls, labelCls, FormField, FormSelect } from '@/components/ui/form-
 
 type Project = { id: string; name: string };
 type Plan = { id: string; name: string; project_id?: string };
-type Suite = { id: string; name: string; test_plan_id?: string };
-type TestCase = { id: string; name: string; test_plan_id?: string; suite_id?: string };
+type Suite = { id: string; name: string; test_plan_id?: string; project_id?: string };
+type TestCase = { id: string; name: string; test_plan_id?: string; suite_id?: string; project_id?: string };
 
 function extractList(data: any): any[] {
   if (!data) return [];
@@ -49,6 +49,7 @@ function normalizeSuites(data: any): Suite[] {
     id: String(r?.id ?? r?.suite_id ?? ''),
     name: String(r?.name ?? r?.title ?? r?.suite_name ?? ''),
     test_plan_id: r?.test_plan_id ?? r?.testPlanId ?? r?.plan_id,
+    project_id: r?.project_id ?? r?.projectId,
   })).filter((s) => s.id && s.name);
 }
 function normalizeCases(data: any): TestCase[] {
@@ -56,6 +57,7 @@ function normalizeCases(data: any): TestCase[] {
     id: String(r?.id ?? r?.case_id ?? r?.test_case_id ?? ''),
     name: String(r?.key ? `${r.key} — ${r.title || r.name || ''}` : (r?.title ?? r?.name ?? r?.case_name ?? '')),
     test_plan_id: r?.test_plan_id ?? r?.testPlanId,
+    project_id: r?.project_id ?? r?.projectId,
     suite_id: r?.suite_id ?? r?.suiteId,
   })).filter((c) => c.id && c.name);
 }
@@ -128,8 +130,8 @@ export default function NewTestRunPage() {
     setSelectedCases([]);
   };
 
-  const suitesForPlan = planId ? allSuites.filter((s) => !s.test_plan_id || s.test_plan_id === planId) : allSuites;
-  const casesForPlan = planId ? allCases.filter((c) => !c.test_plan_id || c.test_plan_id === planId) : allCases;
+  const suitesForPlan = allSuites.filter((s) => (!s.project_id || !projectId || s.project_id === projectId) && (!s.test_plan_id || !planId || s.test_plan_id === planId));
+  const casesForPlan = allCases.filter((c) => (!c.project_id || !projectId || c.project_id === projectId) && (!c.test_plan_id || !planId || c.test_plan_id === planId));
 
   const toggleSuite = (id: string) => setSelectedSuites((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   const toggleCase = (id: string) => setSelectedCases((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
