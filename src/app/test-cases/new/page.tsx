@@ -134,13 +134,14 @@ export default function NewTestCasePage() {
               <Link href="/test-cases" className="text-[#276fbf] dark:text-[#4da3ff] hover:underline">← Back to Test Cases</Link>
             </div>
 
+            <form onSubmit={handleSubmit}>
             <div className="bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md overflow-visible">
               <div className="px-6 py-4 dark:border-[#28374d]">
                 <h1 className="text-base font-bold text-white tracking-tight text-left m-0">Add Test Case</h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">Define steps to verify a requirement</p>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div className="p-6 space-y-6">
                 {error && (
                   <div className="p-2.5 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded">{error}</div>
                 )}
@@ -304,12 +305,13 @@ export default function NewTestCasePage() {
                   </div>
                 )}
 
-                <div className="flex gap-2">
-                  <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-2.5 text-center">{saving ? 'Adding...' : 'Add Test Case'}</button>
-                  <Link href="/test-cases" className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 text-center hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
-                </div>
-              </form>
+              </div>
             </div>
+            <div className="flex gap-2 mt-4">
+              <button type="submit" disabled={saving} className="flex-1 text-xs font-normal bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-2.5 text-center">{saving ? 'Adding...' : 'Add Test Case'}</button>
+              <Link href="/test-cases" className="flex-1 text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] bg-white dark:bg-[#182232] text-slate-700 dark:text-slate-200 rounded px-3 py-2.5 text-center hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</Link>
+            </div>
+            </form>
           </div>
         </main>
       </div>
