@@ -4,16 +4,18 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 
-// Text icons only - copy-paste safe, no vector tags that get stripped
+// Copy-paste safe icons - no vector tags that get stripped
+// Bin = trash can emoji, Warning = warning emoji
 const WarningIcon = () => (
   <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center" aria-hidden="true">
     <span className="text-lg leading-none">!</span>
   </div>
 );
-const TrashIcon = () => (
-  <span aria-hidden="true" className="text-sm leading-none">x</span>
+const BinIcon = () => (
+  <span aria-hidden="true" className="text-sm leading-none">🗑</span>
 );
-const plainRedBtn = "inline-flex items-center gap-1 text-xs font-normal text-red-500 hover:text-red-400 bg-transparent border-0 px-2 py-1 cursor-pointer whitespace-nowrap shrink-0";
+// Remove as a tile - bordered tile button, not plain text
+const removeTileBtn = "inline-flex items-center gap-1 text-xs font-normal text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/15 border border-red-500/25 rounded px-2.5 py-1.5 cursor-pointer whitespace-nowrap shrink-0";
 
 export default function TestSuiteDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -155,13 +157,11 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
                   <h1 className="text-base font-bold text-slate-900 dark:text-white">{form.name}</h1>
                   <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">{cases.length} test case(s)</p>
                 </div>
-                <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><TrashIcon /><span>Delete</span></button>
+                <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1.5 shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded"><BinIcon /><span>Delete</span></button>
               </div>
               <div className="px-5 py-4 space-y-4">
                 <div><label className={labelCls}>Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls + ' mt-1'} /></div>
                 <div><label className={labelCls}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} /></div>
-                <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5">{saving ? 'Saving...' : savedFlash ? 'Saved' : 'Save Changes'}</button>
-                {inlineError && <p className="text-xs font-normal text-red-600 dark:text-red-400">{inlineError}</p>}
               </div>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-5 mt-4">
@@ -174,12 +174,14 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
                 {cases.map((c: any) => (
                   <div key={c.id} className="flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700/50 rounded px-3 py-2">
                     <Link href={`/test-cases/${c.id}`} className="text-sm font-normal text-blue-600 dark:text-blue-400 hover:underline flex-1 min-w-0 truncate">{c.case_key ?? c.code} - {c.title}</Link>
-                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={plainRedBtn}><span aria-hidden="true" className="text-sm leading-none">x</span><span>Remove</span></button>
+                    <button onClick={() => { setCaseToRemove(c); setShowRemove(true); }} className={removeTileBtn}><span aria-hidden="true" className="text-sm leading-none">x</span><span>Remove</span></button>
                   </div>
                 ))}
                 {cases.length === 0 && <p className="text-xs font-normal text-slate-500">No test cases in this suite yet.</p>}
               </div>
             </div>
+            <button onClick={save} disabled={saving} className="w-full text-xs font-normal bg-green-600 hover:bg-green-700 text-white rounded px-3 py-2.5 mt-4">{saving ? 'Saving...' : savedFlash ? 'Saved' : 'Save Changes'}</button>
+            {inlineError && <p className="text-xs font-normal text-red-600 dark:text-red-400 mt-2">{inlineError}</p>}
           </div>
         </main>
       </div>
