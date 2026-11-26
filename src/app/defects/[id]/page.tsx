@@ -110,7 +110,7 @@ export default function DefectDetailPage() {
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
         {saved && <div className="mb-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded text-xs">Saved.</div>}
         {defect && (
-          <form onSubmit={save}>
+          <form id="defect-form" onSubmit={save}>
             <div className="bg-white border rounded-md shadow-sm overflow-hidden">
             <div className="bg-[#f8fafc] px-6 py-4 border-b flex justify-between items-start">
               <div>
@@ -148,7 +148,6 @@ export default function DefectDetailPage() {
               </div>
             </div>
             </div>
-            <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded mt-4">{saving ? 'Saving...' : 'Save Changes'}</button>
           </form>
         )}
         {defect && (
@@ -160,6 +159,7 @@ export default function DefectDetailPage() {
             {defect.test_execution_id && <p className="text-xs mt-2 text-slate-500">Execution: <span className="font-mono">{String(defect.test_execution_id).slice(0, 8)}</span> · Status: {defect.test_executions?.status ?? '—'}</p>}
             {!defect.test_execution_id && defect.test_cases && <p className="text-xs mt-2 text-slate-400">No execution linked.</p>}
           </section>
+            <button type="submit" form="defect-form" disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded mt-4">{saving ? 'Saving...' : 'Save Changes'}</button>
         )}
       </div>
         <ConfirmDialog open={showDeleteConfirm} title="Delete this defect?" message="This will permanently delete this defect. This cannot be undone." confirmLabel="Delete defect" deleting={deleting} onConfirm={remove} onCancel={() => setShowDeleteConfirm(false)} />
