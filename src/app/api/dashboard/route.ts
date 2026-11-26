@@ -21,11 +21,6 @@ export async function GET() {
   let manual = 0;
   let automated = 0;
   allCases.forEach((c: any) => {
-    // FIX: Count ONLY the Automation dropdown (automation_status).
-    // Do NOT use Type — Type = 'Automation' for TC-001..TC-004, and
-    // 'To Automate' contains 'auto', both wrongly counted before.
-    // Only exact 'automated' counts. 'to_automate', 'manual',
-    // 'not_automatable' all count as manual.
     const raw = c.automation_status ?? c.automationStatus ?? null;
     if (raw !== null && raw !== undefined && String(raw).trim() !== '') {
       const v = String(raw).toLowerCase().trim().replace(/-/g, '_');
@@ -74,7 +69,12 @@ export async function GET() {
   const passRate = passed + failed > 0 ? Math.round((passed / (passed + failed)) * 100) : null;
 
   const passedExecs = allExecs.filter((e: any) => String(e.status ?? '').toLowerCase() === 'passed');
-  const lastExec = passedExecs[passedExecs.length - 1];
+  const sortedPassed = [...passedExecs].sort(
+    (a: any, b: any) =>
+      new Date(b.executed_at || b.updated_at || b.created_at || 0).getTime() -
+      new Date(a.executed_at || a.updated_at || a.created_at || 0).getTime()
+  );
+  const lastExec = sortedPassed[0];
   const lastPassed = lastExec
     ? (() => {
         const runId = lastExec.test_run_id ?? lastExec.run_id ?? null;
@@ -90,23 +90,55 @@ export async function GET() {
       })()
     : null;
 
+  // FIX: Recent Activity — sort ALL items by latest activity first, then take top
+  // Run activity date = completed_at || updated_at || created_at, not just created_at,
+  // so executing / completing a run moves it to the top.
+  const runDate = (r: any) => r.completed_at || r.updated_at || r.created_at || r.started_at || r.date || '';
+  const defectDate = (d: any) => d.updated_at || d.created_at || '';
+  const execDate = (e: any) => e.executed_at || e.updated_at || e.created_at || '';
+
   const recent: any[] = [];
-  allRuns.slice(0, 2).forEach((r: any) =>
-    recent.push({
-      type: 'Test Run',
-      title: r.name ?? r.title ?? r.run_name ?? 'Test Run',
-      date: r.created_at ?? r.started_at ?? r.date ?? '',
-    })
-  );
-  allDefects.slice(0, 2).forEach((d: any) => {
-    const k = defectKey(d);
-    recent.push({
-      type: 'Defect',
-      title: k ? `${k} — ${defectSummary(d)}` : defectSummary(d),
-      date: d.created_at ?? '',
+
+  [...allRuns]
+    .sort((a: any, b: any) => new Date(runDate(b)).getTime() - new Date(runDate(a)).getTime())
+    .slice(0, 3)
+    .forEach((r: any) =>
+      recent.push({
+        type: 'Test Run',
+        title: r.name ?? r.title ?? r.run_name ?? 'Test Run',
+        date: runDate(r),
+      })
+    );
+
+  [...allDefects]
+    .sort((a: any, b: any) => new Date(defectDate(b)).getTime() - new Date(defectDate(a)).getTime())
+    .slice(0, 2)
+    .forEach((d: any) => {
+      const k = defectKey(d);
+      recent.push({
+        type: 'Defect',
+        title: k ? `${k} — ${defectSummary(d)}` : defectSummary(d),
+        date: defectDate(d),
+      });
     });
-  });
+
+  // Executions are activity too, so a Passed test case shows up even if the run was created earlier
+  [...allExecs]
+    .filter((e: any) => String(e.status ?? '').toLowerCase() !== 'not_run' && String(e.status ?? '').toLowerCase() !== '')
+    .sort((a: any, b: any) => new Date(execDate(b)).getTime() - new Date(execDate(a)).getTime())
+    .slice(0, 3)
+    .forEach((e: any) => {
+      const tc = allCases.find((c: any) => c.id === (e.test_case_id ?? e.case_id));
+      const title = tc ? `${tc.title ?? tc.name ?? 'Test Case'}` : 'Test Case';
+      recent.push({
+        type: 'Test Execution',
+        title: `${String(e.status ?? '').toUpperCase()}: ${title}`,
+        date: execDate(e),
+      });
+    });
+
   recent.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+  const recentTop = recent.slice(0, 5);
 
   return NextResponse.json(
     {
@@ -128,7 +160,7 @@ export async function GET() {
       notRun,
       passRate,
       lastPassed,
-      recent,
+      recent: recentTop,
     },
     { headers: { 'Cache-Control': 'no-store' } }
   );
