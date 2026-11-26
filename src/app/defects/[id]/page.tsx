@@ -110,7 +110,8 @@ export default function DefectDetailPage() {
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-xs">{error}</div>}
         {saved && <div className="mb-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded text-xs">Saved.</div>}
         {defect && (
-          <form onSubmit={save} className="bg-white border rounded-md shadow-sm overflow-hidden">
+          <form onSubmit={save}>
+            <div className="bg-white border rounded-md shadow-sm overflow-hidden">
             <div className="bg-[#f8fafc] px-6 py-4 border-b flex justify-between items-start">
               <div>
                 <span className="font-mono text-xs font-bold text-[#276fbf] bg-[#eef5fc] border px-2 py-1 rounded">{defect.defect_key}</span>
@@ -145,8 +146,9 @@ export default function DefectDetailPage() {
                 <div><label className={labelCls}>Expected Result</label><AutoGrowTextarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} rows={1} className={`${inputCls} resize-none overflow-hidden`} /></div>
                 <div><label className={labelCls}>Actual Result</label><AutoGrowTextarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} rows={1} className={`${inputCls} resize-none overflow-hidden`} /></div>
               </div>
-              <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-semibold py-2 rounded">{saving ? 'Saving...' : 'Save Changes'}</button>
             </div>
+            </div>
+            <button disabled={saving} className="w-full bg-[#48a43f] hover:bg-[#3c8b34] disabled:opacity-50 text-white text-xs font-normal py-2 rounded mt-4">{saving ? 'Saving...' : 'Save Changes'}</button>
           </form>
         )}
         {defect && (
