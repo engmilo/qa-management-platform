@@ -117,7 +117,7 @@ export default function DefectDetailPage() {
                 <h1 className="text-lg font-bold mt-2">{defect.summary}</h1>
                 <p className="text-xs text-slate-500 mt-1">Created {defect.created_at ? new Date(defect.created_at).toLocaleString() : ''}</p>
               </div>
-              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1.5 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-semibold px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1.5 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-normal px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
             </div>
             <div className="p-6 space-y-5">
               <div><label className={labelCls}>Summary *</label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} required className={inputCls} /></div>
