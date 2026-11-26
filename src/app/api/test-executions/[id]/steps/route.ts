@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRouteSupabaseClient } from '@/lib/supabase/route-client';
 
 // P1.3 Per-step execution — API only
-// GET  /api/test-executions/[id]/steps  — returns steps for one execution (merged with test_case_steps)
+// GET  /api/test-executions/[id]/steps  — returns steps for one execution
 // PATCH /api/test-executions/[id]/steps — saves per-step results + updates overall execution status
+// AUTO-COMPLETE: if every execution in the run is decided (not not_run),
+// the run is marked completed automatically.
 
 function overallFromSteps(steps: { status: string }[]) {
   if (steps.length === 0) return 'not_run';
@@ -12,7 +14,6 @@ function overallFromSteps(steps: { status: string }[]) {
   if (steps.every((s) => s.status === 'passed')) return 'passed';
   if (steps.some((s) => s.status === 'retest')) return 'retest';
   if (steps.every((s) => s.status === 'not_run')) return 'not_run';
-  // Some passed, rest not run yet — keep as not_run until all are decided
   return 'not_run';
 }
 
@@ -34,7 +35,6 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   ]);
 
   const savedByNumber = new Map((execSteps ?? []).map((s: any) => [s.step_number, s]));
-  // If no per-step rows saved yet, show the definition steps as not_run
   const base = (caseSteps ?? []).length > 0 ? caseSteps : (execSteps ?? []);
   const steps = base.map((s: any) => {
     const saved = savedByNumber.get(s.step_number);
@@ -63,7 +63,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const { data: exec, error: execErr } = await supabase
     .from('test_executions')
-    .select('id, test_case_id')
+    .select('id, test_case_id, test_run_id')
     .eq('id', params.id)
     .maybeSingle();
   if (execErr || !exec) return NextResponse.json({ error: 'Execution not found.' }, { status: 404 });
@@ -79,7 +79,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     comments: s.comments ?? '',
   }));
 
-  // Upsert on unique (test_execution_id, step_number)
   const { error: upErr } = await supabase
     .from('test_execution_steps')
     .upsert(rows, { onConflict: 'test_execution_id,step_number' });
@@ -92,5 +91,37 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .eq('id', params.id);
   if (updErr) return NextResponse.json({ error: updErr.message }, { status: 400 });
 
-  return NextResponse.json({ ok: true, overall });
+  // AUTO-COMPLETE RUN
+  // If this execution is still not_run, run is not done yet, skip.
+  // If every execution in this run is decided (passed / failed / blocked / retest / not_applicable),
+  // mark the run completed automatically.
+  let autoCompleted = false;
+  if (overall !== 'not_run' && (exec as any).test_run_id) {
+    const { data: allExecs } = await supabase
+      .from('test_executions')
+      .select('status')
+      .eq('test_run_id', (exec as any).test_run_id);
+
+    const allDecided =
+      (allExecs ?? []).length > 0 &&
+      (allExecs ?? []).every((e: any) => e.status !== 'not_run');
+
+    if (allDecided) {
+      const { data: run } = await supabase
+        .from('test_runs')
+        .select('id, status')
+        .eq('id', (exec as any).test_run_id)
+        .maybeSingle();
+
+      if (run && (run as any).status !== 'completed') {
+        const { error: runErr } = await supabase
+          .from('test_runs')
+          .update({ status: 'completed', completed_at: new Date().toISOString() })
+          .eq('id', (exec as any).test_run_id);
+        if (!runErr) autoCompleted = true;
+      }
+    }
+  }
+
+  return NextResponse.json({ ok: true, overall, autoCompleted });
 }
