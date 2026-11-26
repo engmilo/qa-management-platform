@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls, FormField, FormSelect } from '@/components/ui/form-fields';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Org = { id: string; name: string };
 
@@ -132,7 +133,7 @@ export default function NewProjectPage() {
                   </FormField>
 
                   <FormField label="ANNOUNCEMENT / DESCRIPTION">
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} placeholder="Brief overview of project scope, test environment, and goals" className={`${inputCls} resize-none overflow-hidden`} />
+                    <AutoGrowTextarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} placeholder="Brief overview of project scope, test environment, and goals" className={`${inputCls} resize-none overflow-hidden`} />
                   </FormField>
                 </div>
               </div>

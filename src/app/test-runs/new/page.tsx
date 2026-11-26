@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls, FormField, FormSelect } from '@/components/ui/form-fields';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Project = { id: string; name: string };
 type Plan = { id: string; name: string; project_id?: string };
@@ -267,7 +268,7 @@ export default function NewTestRunPage() {
                   </div>
 
                   <FormField label="DESCRIPTION">
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What is this run for?" className={`${inputCls} resize-none overflow-hidden`} />
+                    <AutoGrowTextarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="What is this run for?" className={`${inputCls} resize-none overflow-hidden`} />
                   </FormField>
                 </div>
               </div>

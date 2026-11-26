@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Trash2 } from 'lucide-react';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 export default function RequirementDetailPage() {
   const params = useParams<{ id: string }>();
@@ -123,7 +124,7 @@ export default function RequirementDetailPage() {
                     <div><label className={labelCls}>Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls}>{[{value:'draft',label:'Draft'},{value:'under_review',label:'Under Review'},{value:'in_review',label:'In Review'},{value:'approved',label:'Approved'},{value:'implemented',label:'Implemented'},{value:'verified',label:'Verified'},{value:'rejected',label:'Rejected'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
                     <div><label className={labelCls}>Type</label><select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputCls}>{[{value:'functional',label:'Functional'},{value:'non_functional',label:'Non Functional'},{value:'business',label:'Business'},{value:'technical',label:'Technical'},{value:'user_story',label:'User Story'},{value:'performance',label:'Performance'},{value:'security',label:'Security'},{value:'automation',label:'Automation'},{value:'regression',label:'Regression'},{value:'e2e',label:'E2E'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
                   </div>
-                  <div><label className={labelCls}>Description</label><textarea ref={descRef} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); autoGrow(); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} /></div>
+                  <div><label className={labelCls}>Description</label><AutoGrowTextarea ref={descRef} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); autoGrow(); }} rows={1} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' leading-relaxed'} /></div>
                 </div>
               </div>
 

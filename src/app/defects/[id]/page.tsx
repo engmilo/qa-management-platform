@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ArrowLeft, Trash2 } from "lucide-react";
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 export default function DefectDetailPage() {
   const params = useParams<{ id: string }>();
@@ -136,7 +137,7 @@ export default function DefectDetailPage() {
                       <div><label className="block text-xs font-normal mb-1.5">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200"><option value="new">New</option><option value="open">Open</option><option value="in_progress">In Progress</option><option value="fixed">Fixed</option><option value="ready_for_retest">Ready For Retest</option><option value="closed">Closed</option><option value="rejected">Rejected</option></select></div>
                     </div>
                     <div><label className="block text-xs font-normal mb-1.5">Environment</label><input value={form.environment} onChange={(e) => setForm({ ...form, environment: e.target.value })} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf]" /></div>
-                    <div><label className="block text-xs font-normal mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                    <div><label className="block text-xs font-normal mb-1.5">Description</label><AutoGrowTextarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
 
                     <div>
                       <div className="flex justify-between items-center mb-2">
@@ -147,7 +148,7 @@ export default function DefectDetailPage() {
                         {steps.length === 0 ? <p className="text-xs text-slate-500 dark:text-slate-400">No steps yet. Click + Add Step.</p> : steps.map((step, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
-                            <textarea value={step} onChange={(e) => updateStep(index, e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} rows={1} placeholder="Step" className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
+                            <AutoGrowTextarea value={step} onChange={(e) => updateStep(index, e.target.value)} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }} rows={1} placeholder="Step" className="flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" />
                             {/* Remove - NO bin icon, text only, still red + confirmation */}
                             <button
                               type="button"
@@ -163,8 +164,8 @@ export default function DefectDetailPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="block text-xs font-normal mb-1.5">Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
-                      <div><label className="block text-xs font-normal mb-1.5">Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Expected Result</label><AutoGrowTextarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
+                      <div><label className="block text-xs font-normal mb-1.5">Actual Result</label><AutoGrowTextarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={1} className="w-full border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden" /></div>
                     </div>
                   </div>
                 </div>

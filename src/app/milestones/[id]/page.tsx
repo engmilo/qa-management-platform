@@ -8,6 +8,7 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { inputCls, labelCls, FormField, DateField } from '@/components/ui/form-fields';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 export default function MilestoneDetailPage() {
   const params = useParams<{ id: string }>();
@@ -125,7 +126,7 @@ export default function MilestoneDetailPage() {
                       <input value={form.versionName} onChange={(e) => setForm({ ...form, versionName: e.target.value })} required className={inputCls} />
                     </FormField>
                     <FormField label="DESCRIPTION">
-                      <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className={`${inputCls} resize-none overflow-hidden`} />
+                      <AutoGrowTextarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} className={`${inputCls} resize-none overflow-hidden`} />
                     </FormField>
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div>

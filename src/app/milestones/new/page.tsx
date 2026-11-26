@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ArrowLeft, Calendar } from 'lucide-react';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Project = { id: string; name: string; key: string };
 
@@ -110,7 +111,7 @@ export default function NewMilestonePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-normal mb-1.5">Description</label>
-                  <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded font-normal px-3 py-2 text-sm resize-none overflow-hidden" />
+                  <AutoGrowTextarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={4} className="w-full border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#1f2c3f] text-slate-900 dark:text-white rounded font-normal px-3 py-2 text-sm resize-none overflow-hidden" />
                 </div>
               </div>
               <button disabled={saving} className="mt-6 w-full bg-[#276fbf] hover:bg-[#1e5a9e] disabled:opacity-50 text-white text-xs font-normal py-2 rounded">{saving ? 'Creating...' : 'Create Milestone'}</button>

@@ -7,6 +7,7 @@ import { Header } from '@/components/dashboard/header';
 import { ProjectSelector, type ProjectOption } from '@/components/forms/project-selector';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Bug } from 'lucide-react';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 export default function NewDefectPage() {
   const router = useRouter();
@@ -86,7 +87,7 @@ export default function NewDefectPage() {
                       <div><label className={labelCls}>Defect Key</label><input value={form.defectKey} onChange={(e) => setForm({ ...form, defectKey: e.target.value })} placeholder="e.g. BUG-101 (leave empty to auto-generate)" className={inputCls} /></div>
                       <div><label className={labelCls}>Summary <span className="text-red-500">*</span></label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} placeholder="e.g. Session expires immediately when switching tabs" required className={inputCls} /></div>
                     </div>
-                    <div><label className={labelCls}>Description / Overview</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="High level overview of what broke and under what circumstances" className={`${inputCls} resize-none overflow-hidden`} /></div>
+                    <div><label className={labelCls}>Description / Overview</label><AutoGrowTextarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={3} placeholder="High level overview of what broke and under what circumstances" className={`${inputCls} resize-none overflow-hidden`} /></div>
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div><label className={labelCls}>Severity</label><select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className={selectCls}>{[{value:'trivial',label:'Trivial'},{value:'minor',label:'Minor'},{value:'major',label:'Major'},{value:'critical',label:'Critical'},{value:'blocker',label:'Blocker'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
                       <div><label className={labelCls}>Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className={selectCls}>{[{value:'low',label:'Low'},{value:'medium',label:'Medium'},{value:'high',label:'High'},{value:'critical',label:'Critical'}].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
@@ -101,15 +102,15 @@ export default function NewDefectPage() {
                       {reproSteps.map((step, i) => (
                         <div key={i} className="grid sm:grid-cols-[2rem_1fr_auto] gap-2 mb-2 items-start">
                           <span className="text-xs font-normal pt-2">{i + 1}.</span>
-                          <textarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white resize-none overflow-hidden" />
+                          <AutoGrowTextarea value={step} onChange={(e) => setReproSteps(reproSteps.map((x, j) => j === i ? e.target.value : x))} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="Describe this step..." className="border border-[#d8dee4] dark:border-[#28374d] bg-white dark:bg-[#101622] rounded font-normal px-2 py-1.5 text-xs text-slate-900 dark:text-white resize-none overflow-hidden" />
                           <button type="button" onClick={() => { setStepToRemove(i); setShowStepConfirm(true); }} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                         </div>
                       ))}
                     </div>
 
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <div><label className={labelCls}>Expected Result</label><textarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="What should have happened" className={`${inputCls} resize-none overflow-hidden`} /></div>
-                      <div><label className={labelCls}>Actual Result</label><textarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="What actually occurred" className={`${inputCls} resize-none overflow-hidden`} /></div>
+                      <div><label className={labelCls}>Expected Result</label><AutoGrowTextarea value={form.expectedResult} onChange={(e) => setForm({ ...form, expectedResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="What should have happened" className={`${inputCls} resize-none overflow-hidden`} /></div>
+                      <div><label className={labelCls}>Actual Result</label><AutoGrowTextarea value={form.actualResult} onChange={(e) => setForm({ ...form, actualResult: e.target.value })} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} rows={2} placeholder="What actually occurred" className={`${inputCls} resize-none overflow-hidden`} /></div>
                     </div>
                   </div>
                 </div>

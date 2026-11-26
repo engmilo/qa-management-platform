@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls, FormField, FormSelect } from '@/components/ui/form-fields';
 import { AlertTriangle, X } from 'lucide-react';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Project = { id: string; name: string };
 type Plan = { id: string; name: string };
@@ -172,11 +173,11 @@ export default function NewTestCasePage() {
                 </FormField>
 
                 <FormField label="DESCRIPTION">
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={autoGrow} rows={3} placeholder="What does this test verify?" className={`${inputCls} resize-none overflow-hidden min-h- block`} />
+                  <AutoGrowTextarea value={description} onChange={(e) => setDescription(e.target.value)} onInput={autoGrow} rows={3} placeholder="What does this test verify?" className={`${inputCls} resize-none overflow-hidden min-h- block`} />
                 </FormField>
 
                 <FormField label="PRECONDITIONS">
-                  <textarea value={preconditions} onChange={(e) => setPreconditions(e.target.value)} onInput={autoGrow} rows={2} placeholder="e.g. User account exists, app is on login page" className={`${inputCls} resize-none overflow-hidden min-h- block`} />
+                  <AutoGrowTextarea value={preconditions} onChange={(e) => setPreconditions(e.target.value)} onInput={autoGrow} rows={2} placeholder="e.g. User account exists, app is on login page" className={`${inputCls} resize-none overflow-hidden min-h- block`} />
                 </FormField>
 
                 <div>
@@ -191,8 +192,8 @@ export default function NewTestCasePage() {
                     {steps.map((s, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <span className="text-xs font-normal text-slate-500 dark:text-slate-400 pt-2.5 w-5 shrink-0">{idx + 1}.</span>
-                        <textarea value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} onInput={autoGrow} rows={1} placeholder="Step - e.g. Navigate to login page" className={`${inputCls} resize-none overflow-hidden`} />
-                        <textarea value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} onInput={autoGrow} rows={1} placeholder="e.g. Login page is shown" className={`${inputCls} resize-none overflow-hidden`} />
+                        <AutoGrowTextarea value={s.action} onChange={(e) => updateStep(idx, 'action', e.target.value)} onInput={autoGrow} rows={1} placeholder="Step - e.g. Navigate to login page" className={`${inputCls} resize-none overflow-hidden`} />
+                        <AutoGrowTextarea value={s.expected_result} onChange={(e) => updateStep(idx, 'expected_result', e.target.value)} onInput={autoGrow} rows={1} placeholder="e.g. Login page is shown" className={`${inputCls} resize-none overflow-hidden`} />
                         <button type="button" onClick={() => setConfirmRemoveIdx(idx)} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                       </div>
                     ))}

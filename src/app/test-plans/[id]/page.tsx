@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 // FIX 3: format DB status values: in_progress -> In Progress, under_review -> Under Review, etc.
 const formatStatus = (s: any) => {
@@ -120,7 +121,7 @@ export default function TestPlanDetailPage({ params }: { params: { id: string } 
                 <div>
                   <label className={labelCls}>Scope</label>
                   {/* FIX 1: Textarea auto-grow, overflow hidden, resize none — no scrollbar */}
-                  <textarea ref={scopeRef} value={form.scope} onChange={(e) => { setForm({ ...form, scope: e.target.value }); autoGrow(e.target); }} onFocus={(e) => autoGrow(e.target)} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} placeholder="Scope: ..." />
+                  <AutoGrowTextarea ref={scopeRef} value={form.scope} onChange={(e) => { setForm({ ...form, scope: e.target.value }); autoGrow(e.target); }} onFocus={(e) => autoGrow(e.target)} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} placeholder="Scope: ..." />
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div><label className={labelCls}>Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputCls + ' mt-1'}><option value="planning">Planning</option><option value="active">Active</option><option value="completed">Completed</option><option value="archived">Archived</option></select></div>

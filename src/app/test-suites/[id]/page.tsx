@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 // Copy-paste safe icons - no vector tags that get stripped
 const WarningIcon = () => (
@@ -165,7 +166,7 @@ export default function TestSuiteDetailPage({ params }: { params: { id: string }
                 {savedFlash && <div className={savedBannerCls}>Saved.</div>}
                 {inlineError && <div className={errorBannerCls}>{inlineError}</div>}
                 <div><label className={labelCls}>Suite Name *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls + ' mt-1'} /></div>
-                <div><label className={labelCls}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} /></div>
+                <div><label className={labelCls}>Description</label><AutoGrowTextarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ overflow: 'hidden', resize: 'none' }} className={inputCls + ' mt-1 leading-relaxed'} /></div>
               </div>
             </div>
             <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-5 mt-4">

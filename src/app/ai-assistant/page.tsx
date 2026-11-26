@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { Send, Sparkles, Trash2 } from 'lucide-react';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Msg = { role: 'user' | 'assistant'; text: string };
 type Project = { id: string; name: string };
@@ -218,7 +219,7 @@ export default function AIAssistantPage() {
             </div>
 
             <form onSubmit={send} className="mt-4 bg-white dark:bg-[#182232] border border-[#d8dee4] dark:border-[#28374d] rounded-md shadow-sm p-3 flex items-end gap-2">
-              <textarea
+              <AutoGrowTextarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => { setInput(e.target.value); autoGrow(); }}

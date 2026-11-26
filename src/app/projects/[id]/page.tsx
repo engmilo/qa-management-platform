@@ -8,6 +8,7 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { inputCls, labelCls } from '@/components/ui/form-fields';
 import { FolderKanban, ArrowLeft, CheckSquare, PlayCircle, Plus, Trash2} from 'lucide-react';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Project = {
   id: string;
@@ -156,7 +157,7 @@ export default function ProjectDetailsPage() {
                       </div>
                       <div>
                         <label className={labelCls}>ANNOUNCEMENT / DESCRIPTION</label>
-                        <textarea ref={descRef} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief overview of project scope, test environment, and goals" rows={4} style={{ overflow: 'hidden' }} className={`${inputCls} resize-none overflow-hidden`} />
+                        <AutoGrowTextarea ref={descRef} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief overview of project scope, test environment, and goals" rows={4} style={{ overflow: 'hidden' }} className={`${inputCls} resize-none overflow-hidden`} />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                           <span>Created on {project ? new Date(project.created_at).toLocaleDateString() : ''}</span>

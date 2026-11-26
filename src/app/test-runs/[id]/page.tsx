@@ -6,6 +6,7 @@ import { Trash2 } from 'lucide-react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 type Exec = { id: string; test_case_id: string; test_run_id: string; status: string; test_case?: any };
 type StepRow = { step_number: number; action: string; expected_result: string; status: string; actual_result: string; comments: string; test_case_step_id: string | null };
@@ -207,7 +208,7 @@ export default function TestRunDetailPage() {
                                         </select>
                                       </div>
                                       <p className="font-normal text-slate-500 mt-1">Expected: {s.expected_result}</p>
-                                      <textarea disabled={isCompleted} value={s.actual_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], actual_result: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} placeholder="Actual result..." rows={1} style={{ overflow: 'hidden', resize: 'none' }} className="w-full mt-2 text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5" />
+                                      <AutoGrowTextarea disabled={isCompleted} value={s.actual_result} onChange={(e) => { const n = [...steps]; n[i] = { ...n[i], actual_result: e.target.value }; setStepsByExec((p) => ({ ...p, [ex.id]: n })); }} onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }} placeholder="Actual result..." rows={1} style={{ overflow: 'hidden', resize: 'none' }} className="w-full mt-2 text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5" />
                                     </div>
                                   ))}
                                   {isCompleted && <p className="font-normal text-amber-600 dark:text-amber-400">Run is Completed — dropdowns are locked. Click Reopen Run (top right) first, then the dropdowns will open.</p>}
