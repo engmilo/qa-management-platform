@@ -10,6 +10,17 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { AutoGrowTextarea } from '@/components/ui/auto-grow-textarea';
 
 export default function DefectDetailPage() {
+  // Steps can be stored as steps[] array OR as steps_to_reproduce string - support both
+  const parseDefectSteps = (d: any): string[] => {
+    const raw = d?.steps ?? d?.steps_to_reproduce ?? '';
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    if (typeof raw === 'string' && raw.trim()) {
+      return raw.split(/
+/).map((s: string) => s.trim()).filter(Boolean).map((s: string) => s.replace(/^\d+[.)]\s*/, ''));
+    }
+    return [];
+  };
+
   const params = useParams<{ id: string }>();
   const id = params.id;
   const router = useRouter();
