@@ -102,7 +102,7 @@ export default function DefectDetailPage() {
 
   return (
     <div className="flex h-screen bg-[#f5f7f9]"><Sidebar /><div className="flex-1 flex flex-col overflow-hidden"><Header />
-      <main className="flex-1 overflow-y-auto p-6"><div className="max-w-3xl mx-auto">
+      <main className="flex-1 overflow-y-auto p-6"><div className="w-full max-w-none">
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
           <Link href="/defects" className="text-[#276fbf] hover:underline flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Defects</Link>
           <span>/</span><span className="font-medium">{defect?.defect_key}</span>
@@ -117,7 +117,7 @@ export default function DefectDetailPage() {
                 <h1 className="text-lg font-bold mt-2">{defect.summary}</h1>
                 <p className="text-xs text-slate-500 mt-1">Created {defect.created_at ? new Date(defect.created_at).toLocaleString() : ''}</p>
               </div>
-              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-xs text-red-600 font-semibold inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="inline-flex items-center gap-1.5 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-semibold px-3 py-1.5 rounded"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
             </div>
             <div className="p-6 space-y-5">
               <div><label className={labelCls}>Summary *</label><input value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} required className={inputCls} /></div>
@@ -137,7 +137,7 @@ export default function DefectDetailPage() {
                   <div key={index} className="flex items-start gap-2 mb-2">
                     <span className="text-xs text-slate-500 pt-2 w-4 shrink-0">{index + 1}.</span>
                     <AutoGrowTextarea value={step} onChange={(e) => updateStep(index, e.target.value)} rows={1} placeholder="Step" className={`flex-1 border border-[#d8dee4] dark:border-[#28374d] rounded px-3 py-2 text-sm bg-white dark:bg-[#101622] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#276fbf] resize-none overflow-hidden`} />
-                    <button type="button" onClick={() => { setStepToRemove(index); setShowStepConfirm(true); }} className="text-xs text-red-600 font-semibold pt-2">Remove</button>
+                    <button type="button" onClick={() => { setStepToRemove(index); setShowStepConfirm(true); }} className="inline-flex items-center justify-center shrink-0 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-normal text-xs px-3 py-1.5 rounded mt-0.5">Remove</button>
                   </div>
                 ))}
               </div>
