@@ -22,12 +22,7 @@ const groups = [
     { name: 'Test Suites', href: '/test-suites', icon: Layers },
     { name: 'Test Cases', href: '/test-cases', icon: CheckSquare },
   ]},
-  { label: 'Automation & Tools', items: [
-    { name: 'Functional Testing', href: '/functional-testing', icon: Zap },
-    { name: 'Performance Testing', href: '/performance-testing', icon: Gauge },
-    { name: 'API Testing', href: '/api-testing', icon: Webhook },
-    { name: 'Visual Testing', href: '/visual-testing', icon: Eye },
-  ]},
+  // AUTOMATION & TOOLS hidden - removed from sidebar, pages still exist by URL
   { label: 'Execution', items: [
     { name: 'Test Runs & Results', href: '/test-runs', icon: PlayCircle },
     { name: 'Defects', href: '/defects', icon: Bug },
