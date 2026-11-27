@@ -7,6 +7,7 @@ import {
   Calendar, Layers, CheckSquare,
   PlayCircle, Bug, GitFork,
   BarChart3, Sparkles, Settings, ShieldCheck,
+  Zap, Gauge, Webhook, Eye
 } from 'lucide-react';
 
 const groups = [
@@ -20,6 +21,12 @@ const groups = [
     { name: 'Test Plans', href: '/test-plans', icon: Calendar },
     { name: 'Test Suites', href: '/test-suites', icon: Layers },
     { name: 'Test Cases', href: '/test-cases', icon: CheckSquare },
+  ]},
+  { label: 'Automation & Tools', items: [
+    { name: 'Functional Testing', href: '/functional-testing', icon: Zap },
+    { name: 'Performance Testing', href: '/performance-testing', icon: Gauge },
+    { name: 'API Testing', href: '/api-testing', icon: Webhook },
+    { name: 'Visual Testing', href: '/visual-testing', icon: Eye },
   ]},
   { label: 'Execution', items: [
     { name: 'Test Runs & Results', href: '/test-runs', icon: PlayCircle },
