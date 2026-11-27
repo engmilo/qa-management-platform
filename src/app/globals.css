@@ -2,11 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Native controls follow the app theme - fixes invisible dropdowns / date pickers in dark mode */
 :root {
   color-scheme: light;
 }
-
 .dark {
+  color-scheme: dark;
+}
+.dark option {
+  background-color: #182232;
+  color: #e2e8f0;
+}
+.dark input[type="date"] {
+  color-scheme: dark;
+}
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+}
+.dark select {
   color-scheme: dark;
 }
 
@@ -16,336 +31,37 @@ body {
   line-height: 1.42857143;
 }
 
-.dark select,
-.dark input,
-.dark textarea {
-  color-scheme: dark;
-  color: #f1f5f9;
-  background-color: #101622;
-  border-color: #28374d;
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: #94a3b8;
-  opacity: 1;
+/* --- Dashboard + Reports cards animations - .claude copy only --- */
+@keyframes card-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-.dark option {
-  background-color: #ffffff;
-  color: #111827;
+.dashboard-card,
+.report-card {
+  animation: card-fade-in 0.35s ease-out both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  will-change: transform;
 }
-
-/* --- CALENDAR FIX: hide browser's invisible icon, we draw our own in the page --- */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  cursor: pointer;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 40px;
-  height: 100%;
+.dashboard-card:hover,
+.report-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
-
-.dark input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-}
-
-.dark input[type="date"]::-webkit-datetime-edit,
-.dark input[type="date"]::-webkit-datetime-edit-fields-wrapper,
-.dark input[type="date"]::-webkit-datetime-edit-text,
-.dark input[type="date"]::-webkit-datetime-edit-month-field,
-.dark input[type="date"]::-webkit-datetime-edit-day-field,
-.dark input[type="date"]::-webkit-datetime-edit-year-field {
-  color: #f1f5f9;
-}
-/* LIGHT-MODE BORDER VISIBILITY FIX — light mode only, dark mode untouched */
-html:not(.dark) {
-  --border-light: #cbd5e1;
-  --border-strong: #b6c2cf;
-}
-
-html:not(.dark) .bg-white {
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.05);
-}
-
-html:not(.dark) .border-slate-100,
-html:not(.dark) .border-slate-200,
-html:not(.dark) .border-gray-100,
-html:not(.dark) .border-gray-200,
-html:not(.dark) .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-html:not(.dark) .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #cbd5e1 !important;
-}
-
-html:not(.dark) table,
-html:not(.dark) thead,
-html:not(.dark) tbody,
-html:not(.dark) tr,
-html:not(.dark) th,
-html:not(.dark) td {
-  border-color: #cbd5e1 !important;
-}
-
-html:not(.dark) tbody tr {
-  border-bottom: 1px solid #e2e8f0;
-}
-
-html:not(.dark) input,
-html:not(.dark) select,
-html:not(.dark) textarea {
-  border-color: #b6c2cf !important;
-}
-
-html:not(.dark) input:focus,
-html:not(.dark) select:focus,
-html:not(.dark) textarea:focus {
-  border-color: #276fbf !important;
-  box-shadow: 0 0 0 2px rgba(39, 111, 191, 0.15);
-}
-
-html:not(.dark) aside,
-html:not(.dark) header {
-  border-color: #cbd5e1 !important;
-}
-
-html:not(.dark) .bg-slate-100 {
-  background-color: #e2e8f0 !important;
-}
-/* GLOBAL DARK-MODE LOADING FIX — paste at END of globals.css */
-/* Fixes white flash on Projects, Milestones, Requirements, Test Plans, */
-/* Test Suites, Test Cases, Defects, Reports. Dashboard / Test Runs / */
-/* Traceability / AI Assistant / Settings already had dark: variants. */
-html.dark .bg-white {
-  background-color: #182232 !important;
-  border-color: #28374d !important;
-  color: #e2e8f0 !important;
-}
-html.dark .bg-\[\#f5f7f9\] {
-  background-color: #101622 !important;
-}
-html.dark .bg-\[\#f8fafc\] {
-  background-color: #141d28 !important;
-  border-color: #28374d !important;
-}
-html.dark .bg-slate-50 {
-  background-color: #1a2639 !important;
-}
-html.dark .bg-slate-100 {
-  background-color: #1e293b !important;
-  color: #e2e8f0 !important;
-}
-/* Loading text that was slate-500 on white — keep readable on dark card */
-html.dark .text-slate-500 {
-  color: #94a3b8 !important;
-}
-html.dark .text-slate-900 {
-  color: #ffffff !important;
-}
-/* QA Management Platform - Subtle animations (CSS-only, no logic change) */
-/* Add this to src/app/globals.css, or import it in src/app/layout.tsx */
-
-/* Respect users who prefer no motion */
+/* Stagger - cards appear one after another */
+.dashboard-card:nth-child(1), .report-card:nth-child(1) { animation-delay: 0.02s; }
+.dashboard-card:nth-child(2), .report-card:nth-child(2) { animation-delay: 0.06s; }
+.dashboard-card:nth-child(3), .report-card:nth-child(3) { animation-delay: 0.10s; }
+.dashboard-card:nth-child(4), .report-card:nth-child(4) { animation-delay: 0.14s; }
+.dashboard-card:nth-child(5), .report-card:nth-child(5) { animation-delay: 0.18s; }
+.dashboard-card:nth-child(6), .report-card:nth-child(6) { animation-delay: 0.22s; }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes savedPulse {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.01); }
-  100% { transform: scale(1); }
-}
-
-/* 1. Page load - main content fades + slides up slightly */
-main {
-  animation: fadeIn 0.25s ease-out, slideUp 0.25s ease-out;
-}
-
-/* 2. Cards - fade in, lift a little on hover */
-form > div, section {
-  animation: slideUp 0.3s ease-out;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-form > div:hover, section:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-}
-
-/* 3. Buttons - smooth hover + press, no jump */
-button {
-  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-}
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-button:active {
-  transform: translateY(0) scale(0.98);
-}
-button:disabled {
-  transform: none;
-  box-shadow: none;
-}
-
-/* 4. Inputs / selects / textareas - smooth focus, smooth auto-grow */
-input, select, textarea {
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
-input:focus, select:focus, textarea:focus {
-  box-shadow: 0 0 0 2px rgba(39, 111, 191, 0.15);
-}
-textarea {
-  transition: height 0.18s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* 5. Saved banner - slides down, subtle pulse once */
-div:has(> div) + div, /* fallback, no-op if not matched */
-.bg-green-50 {
-  animation: slideDown 0.25s ease-out, savedPulse 0.4s ease-out 0.25s;
-}
-
-/* 6. Dialogs / Confirm modals - pop in */
-[role="dialog"], [role="alertdialog"] {
-  animation: popIn 0.18s ease-out;
-}
-
-/* 7. Table rows / list rows - smooth hover */
-tr, li {
-  transition: background-color 0.15s ease;
-}
-
-/* 8. Sidebar links - slide a little on hover */
-aside a, nav a {
-  transition: background-color 0.15s ease, padding-left 0.15s ease, color 0.15s ease;
-}
-aside a:hover, nav a:hover {
-  padding-left: 2px;
-}
-
-/* 9. Dropdowns - fade in */
-select option {
-  animation: fadeIn 0.15s ease-out;
-}
-/* QA Management Platform - Subtle animations (CSS-only, no logic change) */
-/* Add this to src/app/globals.css, or import it in src/app/layout.tsx */
-
-/* Respect users who prefer no motion */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes savedPulse {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.01); }
-  100% { transform: scale(1); }
-}
-
-/* 1. Page load - main content fades + slides up slightly */
-main {
-  animation: fadeIn 0.25s ease-out, slideUp 0.25s ease-out;
-}
-
-/* 2. Cards - fade in, lift a little on hover */
-form > div, section {
-  animation: slideUp 0.3s ease-out;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-form > div:hover, section:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-}
-
-/* 3. Buttons - smooth hover + press, no jump */
-button {
-  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-}
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-button:active {
-  transform: translateY(0) scale(0.98);
-}
-button:disabled {
-  transform: none;
-  box-shadow: none;
-}
-
-/* 4. Inputs / selects / textareas - smooth focus, smooth auto-grow */
-input, select, textarea {
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
-input:focus, select:focus, textarea:focus {
-  box-shadow: 0 0 0 2px rgba(39, 111, 191, 0.15);
-}
-textarea {
-  transition: height 0.18s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* 5. Saved banner - slides down, subtle pulse once */
-div:has(> div) + div, /* fallback, no-op if not matched */
-.bg-green-50 {
-  animation: slideDown 0.25s ease-out, savedPulse 0.4s ease-out 0.25s;
-}
-
-/* 6. Dialogs / Confirm modals - pop in */
-[role="dialog"], [role="alertdialog"] {
-  animation: popIn 0.18s ease-out;
-}
-
-/* 7. Table rows / list rows - smooth hover */
-tr, li {
-  transition: background-color 0.15s ease;
-}
-
-/* 8. Sidebar links - slide a little on hover */
-aside a, nav a {
-  transition: background-color 0.15s ease, padding-left 0.15s ease, color 0.15s ease;
-}
-aside a:hover, nav a:hover {
-  padding-left: 2px;
-}
-
-/* 9. Dropdowns - fade in */
-select option {
-  animation: fadeIn 0.15s ease-out;
+  .dashboard-card, .report-card { animation: none; transition: none; }
+  .dashboard-card:hover, .report-card:hover { transform: none; box-shadow: none; }
 }
