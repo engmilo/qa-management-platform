@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
   const protectedRoutes = [
     '/dashboard', '/projects', '/organizations', '/profile', '/settings',
     '/requirements', '/test-cases', '/test-plans', '/test-runs', '/defects', '/reports',
+    '/performance-testing', '/functional-testing', '/api-testing', '/visual-testing',
   ];
   const authRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password'];
 
