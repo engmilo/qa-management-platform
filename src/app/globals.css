@@ -143,3 +143,209 @@ html.dark .text-slate-500 {
 html.dark .text-slate-900 {
   color: #ffffff !important;
 }
+/* QA Management Platform - Subtle animations (CSS-only, no logic change) */
+/* Add this to src/app/globals.css, or import it in src/app/layout.tsx */
+
+/* Respect users who prefer no motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes savedPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+/* 1. Page load - main content fades + slides up slightly */
+main {
+  animation: fadeIn 0.25s ease-out, slideUp 0.25s ease-out;
+}
+
+/* 2. Cards - fade in, lift a little on hover */
+form > div, section {
+  animation: slideUp 0.3s ease-out;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+form > div:hover, section:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* 3. Buttons - smooth hover + press, no jump */
+button {
+  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+button:active {
+  transform: translateY(0) scale(0.98);
+}
+button:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* 4. Inputs / selects / textareas - smooth focus, smooth auto-grow */
+input, select, textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 2px rgba(39, 111, 191, 0.15);
+}
+textarea {
+  transition: height 0.18s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* 5. Saved banner - slides down, subtle pulse once */
+div:has(> div) + div, /* fallback, no-op if not matched */
+.bg-green-50 {
+  animation: slideDown 0.25s ease-out, savedPulse 0.4s ease-out 0.25s;
+}
+
+/* 6. Dialogs / Confirm modals - pop in */
+[role="dialog"], [role="alertdialog"] {
+  animation: popIn 0.18s ease-out;
+}
+
+/* 7. Table rows / list rows - smooth hover */
+tr, li {
+  transition: background-color 0.15s ease;
+}
+
+/* 8. Sidebar links - slide a little on hover */
+aside a, nav a {
+  transition: background-color 0.15s ease, padding-left 0.15s ease, color 0.15s ease;
+}
+aside a:hover, nav a:hover {
+  padding-left: 2px;
+}
+
+/* 9. Dropdowns - fade in */
+select option {
+  animation: fadeIn 0.15s ease-out;
+}
+/* QA Management Platform - Subtle animations (CSS-only, no logic change) */
+/* Add this to src/app/globals.css, or import it in src/app/layout.tsx */
+
+/* Respect users who prefer no motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes savedPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+/* 1. Page load - main content fades + slides up slightly */
+main {
+  animation: fadeIn 0.25s ease-out, slideUp 0.25s ease-out;
+}
+
+/* 2. Cards - fade in, lift a little on hover */
+form > div, section {
+  animation: slideUp 0.3s ease-out;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+form > div:hover, section:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* 3. Buttons - smooth hover + press, no jump */
+button {
+  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+button:active {
+  transform: translateY(0) scale(0.98);
+}
+button:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* 4. Inputs / selects / textareas - smooth focus, smooth auto-grow */
+input, select, textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 2px rgba(39, 111, 191, 0.15);
+}
+textarea {
+  transition: height 0.18s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* 5. Saved banner - slides down, subtle pulse once */
+div:has(> div) + div, /* fallback, no-op if not matched */
+.bg-green-50 {
+  animation: slideDown 0.25s ease-out, savedPulse 0.4s ease-out 0.25s;
+}
+
+/* 6. Dialogs / Confirm modals - pop in */
+[role="dialog"], [role="alertdialog"] {
+  animation: popIn 0.18s ease-out;
+}
+
+/* 7. Table rows / list rows - smooth hover */
+tr, li {
+  transition: background-color 0.15s ease;
+}
+
+/* 8. Sidebar links - slide a little on hover */
+aside a, nav a {
+  transition: background-color 0.15s ease, padding-left 0.15s ease, color 0.15s ease;
+}
+aside a:hover, nav a:hover {
+  padding-left: 2px;
+}
+
+/* 9. Dropdowns - fade in */
+select option {
+  animation: fadeIn 0.15s ease-out;
+}

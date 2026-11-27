@@ -1,0 +1,209 @@
+"use client";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { Header } from '@/components/dashboard/header';
+const formatTestCaseStatus = (s?: string | null) => { const m: Record<string, string> = { draft: 'Draft', in_review: 'In Review', ready: 'Ready', approved: 'Approved', archived: 'Archived' }; return m[s ?? ''] ?? (s ?? ''); };
+const formatAutomation = (s?: string | null) => { const m: Record<string, string> = { manual: 'Manual', automated: 'Automated', to_automate: 'To Automate', not_automatable: 'Not Automatable' }; return m[s ?? ''] ?? (s ?? ''); };
+
+type TC = { id: string; case_key?: string; code?: string; title: string; priority: string; test_type?: string; type?: string; category: string; status?: string; automation_status?: string; automationStatus?: string; project_id?: string };
+
+export default function TestCasesPage() {
+  const [cases, setCases] = useState<TC[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [projectFilter, setProjectFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [cRes, pRes] = await Promise.all([
+          fetch('/api/test-cases', { cache: 'no-store' }),
+          fetch('/api/projects', { cache: 'no-store' }),
+        ]);
+        const cJ = await cRes.json().catch(() => ({}));
+        const pJ = await pRes.json().catch(() => ({}));
+        setCases(cJ.testCases ?? cJ.test_cases ?? cJ ?? []);
+        setProjects(pJ.projects ?? pJ ?? []);
+      } catch { setCases([]); } finally { setLoading(false); }
+    })();
+  }, []);
+
+  const statusBadge = (s?: string) => {
+    const v = (s ?? '').toLowerCase();
+    if (v === 'approved') return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+    if (v === 'ready') return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+    if (v === 'in_review' || v === 'review') return 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300';
+    if (v === 'archived' || v === 'deprecated') return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+    if (v === 'draft') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+    return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+  };
+
+  const automationBadge = (s?: string) => {
+    const v = (s ?? 'manual').toLowerCase();
+    if (v === 'automated') return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+    if (v === 'to_automate') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+    if (v === 'not_automatable') return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+    return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+  };
+
+  // Change status straight from the list - no need to open the case
+  const updateStatus = async (id: string, newStatus: string) => {
+    const old = cases.find((c) => c.id === id)?.status;
+    if (old === newStatus) return;
+    setSaveError('');
+    setSavingId(id);
+    setCases((prev) => prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c)));
+    try {
+      const res = await fetch(`/api/test-cases/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || 'Save failed');
+    } catch (e: any) {
+      setCases((prev) => prev.map((c) => (c.id === id ? { ...c, status: old } : c)));
+      setSaveError(e.message || 'Could not save status');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  // Change automation straight from the list - this is what the Dashboard counts
+  const updateAutomation = async (id: string, newAutomation: string) => {
+    const old = cases.find((c) => c.id === id)?.automation_status ?? cases.find((c) => c.id === id)?.automationStatus;
+    if (old === newAutomation) return;
+    setSaveError('');
+    setSavingId(id);
+    setCases((prev) => prev.map((c) => (c.id === id ? { ...c, automation_status: newAutomation, automationStatus: newAutomation } : c)));
+    try {
+      const res = await fetch(`/api/test-cases/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ automation_status: newAutomation, automationStatus: newAutomation }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || 'Save failed');
+    } catch (e: any) {
+      setCases((prev) => prev.map((c) => (c.id === id ? { ...c, automation_status: old, automationStatus: old } : c)));
+      setSaveError(e.message || 'Could not save automation');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const filtered = cases.filter((c) => {
+    if (search && !`${c.case_key ?? c.code ?? ''} ${c.title}`.toLowerCase().includes(search.toLowerCase())) return false;
+    if (projectFilter && String(c.project_id) !== projectFilter) return false;
+    if (priorityFilter && c.priority !== priorityFilter) return false;
+    if (typeFilter && (c.test_type ?? c.type) !== typeFilter) return false;
+    if (statusFilter && (c.status ?? '') !== statusFilter) return false;
+    return true;
+  });
+
+  return (
+    <div className="flex h-screen bg-[#f5f7f9] dark:bg-[#101622] text-slate-800 dark:text-slate-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="w-full max-w-none">
+            <div className="flex flex-wrap gap-2 items-start justify-between">
+              <div>
+                <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight text-left m-0">Test Cases</h1>
+                <p className="text-xs font-normal text-slate-500 dark:text-slate-400 mt-0.5">Design and manage test cases.</p>
+              </div>
+              <div className="flex gap-2">
+                <a href={`/api/test-cases/export?projectId=${projectFilter}&priority=${priorityFilter}&type=${typeFilter}&status=${statusFilter}&search=${encodeURIComponent(search)}`} download className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Export CSV</a>
+                <Link href="/test-cases/import" className="text-xs font-normal border border-[#b6c2cf] dark:border-[#28374d] rounded px-3 py-1.5">Import</Link>
+                <Link href="/test-cases/new" className="text-xs font-normal bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1.5">+ New Test Case</Link>
+              </div>
+            </div>
+
+            {saveError && <div className="mt-3 p-2 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded text-xs font-normal">{saveError}</div>}
+
+            <div className="flex flex-wrap gap-2 items-center bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md p-3 mt-4">
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search case key or title..." className="text-xs font-normal bg-white dark:bg-[#101622] text-slate-900 dark:text-white border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5 w-56" />
+              <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Projects</option>
+                {projects.map((p: any) => (<option key={p.id} value={String(p.id)}>{p.name}</option>))}
+              </select>
+              <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option>
+              </select>
+              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Types</option><option value="functional">Functional</option><option value="regression">Regression</option><option value="smoke">Smoke</option><option value="security">Security</option><option value="performance">Performance</option><option value="integration">Integration</option><option value="ui">UI</option><option value="api">API</option><option value="automation">Automation</option><option value="e2e">E2E</option><option value="uat">UAT</option>
+              </select>
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="text-xs font-normal bg-white dark:bg-[#101622] border border-[#b6c2cf] dark:border-[#28374d] rounded px-2 py-1.5">
+                <option value="">All Status</option><option value="draft">Draft</option><option value="in_review">In Review</option><option value="ready">Ready</option><option value="approved">Approved</option><option value="archived">Archived</option>
+              </select>
+              <span className="text-xs font-normal text-slate-500">{filtered.length} of {cases.length}</span>
+            </div>
+
+            <div className="bg-white dark:bg-[#182232] border border-[#cbd5e1] dark:border-[#28374d] shadow-sm dark:shadow-none rounded-md overflow-hidden mt-4">
+              <table className="w-full text-xs font-normal">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-[#1a2639] text-left text-slate-500 dark:text-slate-400">
+                    <th className="px-4 py-2.5">Key</th><th className="px-4 py-2.5">Title</th><th className="px-4 py-2.5">Priority</th><th className="px-4 py-2.5">Type</th><th className="px-4 py-2.5">Category</th><th className="px-4 py-2.5">Status</th><th className="px-4 py-2.5">Automation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => {
+                    const autoVal = c.automation_status ?? c.automationStatus ?? 'manual';
+                    return (
+                    <tr key={c.id} className="border-t border-slate-200 dark:border-slate-700/50">
+                      <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="text-blue-600 dark:text-blue-400 hover:underline">{c.case_key ?? c.code ?? ''}</Link></td>
+                      <td className="px-4 py-3"><Link href={`/test-cases/${c.id}`} className="hover:underline">{c.title}</Link></td>
+                      <td className="px-4 py-3"><span className={String(c.priority ?? '').toLowerCase()==='critical' ? 'inline-block px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 capitalize font-normal' : String(c.priority ?? '').toLowerCase()==='high' ? 'inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 capitalize font-normal' : String(c.priority ?? '').toLowerCase()==='medium' ? 'inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize font-normal' : String(c.priority ?? '').toLowerCase()==='low' ? 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal' : 'inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 capitalize font-normal'}>{c.priority}</span></td>
+                      <td className="px-4 py-3"><span className={(c.test_type ?? c.type ?? '')==='functional' ? 'inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='regression' ? 'inline-block px-2 py-0.5 rounded bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='smoke' ? 'inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='usability' ? 'inline-block px-2 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='security' ? 'inline-block px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='performance' ? 'inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='integration' ? 'inline-block px-2 py-0.5 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='system' ? 'inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='exploratory' ? 'inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='ui' ? 'inline-block px-2 py-0.5 rounded bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='api' ? 'inline-block px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='automation' ? 'inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='e2e' ? 'inline-block px-2 py-0.5 rounded bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 capitalize font-normal' : (c.test_type ?? c.type ?? '')==='uat' ? 'inline-block px-2 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 capitalize font-normal' : ''}>{(c.test_type ?? c.type ?? '')==='e2e' ? 'E2E' : (c.test_type ?? c.type ?? '')==='uat' ? 'UAT' : (c.test_type ?? c.type ?? '')==='api' ? 'API' : (c.test_type ?? c.type ?? '')==='ui' ? 'UI' : (c.test_type ?? c.type ?? '')}</span></td>
+                      <td className="px-4 py-3"><span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200 capitalize font-normal">{c.category}</span></td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={c.status ?? 'draft'}
+                          disabled={savingId === c.id}
+                          onChange={(e) => updateStatus(c.id, e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`text-xs font-normal rounded px-2 py-1 border border-transparent cursor-pointer ${statusBadge(c.status)} disabled:opacity-50`}
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="in_review">In Review</option>
+                          <option value="ready">Ready</option>
+                          <option value="approved">Approved</option>
+                          <option value="archived">Archived</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={autoVal}
+                          disabled={savingId === c.id}
+                          onChange={(e) => updateAutomation(c.id, e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`text-xs font-normal rounded px-2 py-1 border border-transparent cursor-pointer ${automationBadge(autoVal)} disabled:opacity-50`}
+                        >
+                          <option value="manual">Manual</option>
+                          <option value="automated">Automated</option>
+                          <option value="to_automate">To Automate</option>
+                          <option value="not_automatable">Not Automatable</option>
+                        </select>
+                      </td>
+                    </tr>
+                    );
+                  })}
+                  {filtered.length === 0 && !loading && <tr><td colSpan={7} className="px-4 py-6 text-center text-slate-500">No test cases found.</td></tr>}
+                  {loading && <tr><td colSpan={7} className="px-4 py-6 text-center text-slate-500">Loading test cases...</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
